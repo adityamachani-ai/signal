@@ -19,7 +19,7 @@ Rules:
 - jobTitles: free text array, max 5 variations of the most likely exact job titles.
 - departments: MUST be from the valid list only.
 - seniorities: MUST be from the valid list only.
-- locations: array of { country?, city? }. Country must be from valid list.
+- locations: array of { country?, city? }. Country must be from valid list. For cities, always use the official/canonical name (e.g. Bengaluru not Bangalore, Mumbai not Bombay, Chennai not Madras, Kolkata not Calcutta).
 - companyNames: extract any company mentioned. If user says "major/top/leading [industry]", list 5-8 well-known companies. Leave empty only when no companies are mentioned or implied.
 - companySizes: array of { min, max } employee count. "startup"→{1,50}, "small"→{51,200}, "mid-size"→{201,1000}, "large/enterprise"→{1001,999999}.
 - relatedRoles: 5-8 alternative job titles the user might also want. Real titles that appear on LinkedIn.

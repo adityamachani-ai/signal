@@ -72,9 +72,10 @@ The **Research module** is fully functional end-to-end with real data:
 - Database persistence — 5 tables with RLS policies, auto-provisioning triggers for new users
 - Lusha API integration — single lead lookup (LinkedIn/email/name), ICP prospecting search, CSV bulk enrichment
 - ICP Discovery — natural language query → structured filters → Lusha search results (with LLM + keyword fallback parser)
+- City name normalisation — 3-layer resolver (static alias map → in-memory cache → OpenStreetMap Nominatim geocoding) so "Bangalore" resolves to "Bengaluru" for Lusha
 - Signal score computation — automated lead scoring based on contact data quality and seniority
 - Deduplication — across all enrichment paths (lookup, bulk, save-leads)
-- 119 passing tests across 7 test files (vitest)
+- 199 passing tests across 8 test files (vitest), all running in mock mode (0 Lusha credits consumed)
 
 **Still mocked (needs to be built):**
 - Brief generation — AI synthesis engine (streaming output via Vercel AI SDK)
@@ -146,9 +147,11 @@ TEST_BASE_URL=http://localhost:3000
 ### Running Tests
 
 ```bash
-# Run full test suite (requires dev server running)
+# Run full test suite (starts mock server automatically — 0 Lusha credits)
 pnpm test
 
-# Run a specific test file
+# Run a specific test file (requires mock server or dev server running)
 pnpm exec vitest run tests/setup.test.ts --reporter=verbose
 ```
+
+> **Note:** `pnpm test` automatically starts a dev server in mock mode (no Lusha API key), runs all tests, then restarts your normal dev server with real keys. Tests never consume Lusha credits.

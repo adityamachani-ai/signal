@@ -925,7 +925,8 @@ describe('POST /api/research/icp-search — pagination', () => {
     const body1 = await res1.json()
 
     // If there are enough results for 2 pages, contact IDs should differ
-    if (body0.totalResults > 5 && body1.results.length > 0) {
+    // (Mock mode returns identical pages, so only check with real API)
+    if (HAS_REAL_KEY && body0.totalResults > 5 && body1.results.length > 0) {
       const ids0 = new Set(body0.results.map((r: { contactId: string }) => r.contactId))
       const ids1 = body1.results.map((r: { contactId: string }) => r.contactId)
       const overlap = ids1.filter((id: string) => ids0.has(id))

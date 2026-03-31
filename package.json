@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "vitest run --reporter=verbose"
+    "test": "bash test.sh",
+    "test:quick": "npx vitest run --reporter=verbose"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
