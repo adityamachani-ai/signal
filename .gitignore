@@ -14,3 +14,11 @@ next.user-config.*
 node_modules
 .next/
 .DS_Store
+tsconfig.tsbuildinfo
+*.tgz
+
+# Backup files
+*.bak
+*.old
+package/dist/
+tests/smoke-icp.cjs

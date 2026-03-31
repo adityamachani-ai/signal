@@ -1,103 +1,318 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Upload, File, Check, ArrowRight, ArrowLeft } from "lucide-react"
+import { useState, useRef, useCallback } from "react"
+import { Upload, File, Check, ArrowRight, ArrowLeft, AlertTriangle, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ResultsTable, TableLead } from "./results-table"
+import type { BulkRow, BulkRowResult } from "@/app/api/research/bulk-enrich/route"
 
-type UploadState = "upload" | "mapping" | "preview" | "enriching" | "complete"
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type UploadState = "upload" | "mapping" | "enriching" | "preview"
+
+type FieldTarget =
+  | "First name" | "Last name" | "Full name" | "Company"
+  | "LinkedIn URL" | "Email" | "Job title" | "Skip this column"
 
 interface ColumnMapping {
-  detected: string
-  mappedTo: string
+  detected: string   // original CSV header
+  mappedTo: FieldTarget
 }
 
-const columnOptions = [
-  "First name",
-  "Last name",
-  "Company",
-  "LinkedIn URL",
-  "Email",
-  "Job title",
-  "Skip this column",
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const COLUMN_OPTIONS: FieldTarget[] = [
+  "First name", "Last name", "Full name", "Company",
+  "LinkedIn URL", "Email", "Job title", "Skip this column",
 ]
 
-const initialMappings: ColumnMapping[] = [
-  { detected: "first_name", mappedTo: "First name" },
-  { detected: "company", mappedTo: "Company" },
-  { detected: "linkedin", mappedTo: "LinkedIn URL" },
-  { detected: "email_addr", mappedTo: "Email" },
+// Heuristic auto-mapper: lowercase header → FieldTarget
+const HEADER_MAP: Record<string, FieldTarget> = {
+  // LinkedIn
+  linkedin: "LinkedIn URL", linkedin_url: "LinkedIn URL", linkedinurl: "LinkedIn URL",
+  "linkedin url": "LinkedIn URL", profile_url: "LinkedIn URL", profile: "LinkedIn URL",
+  li: "LinkedIn URL",
+  // Email
+  email: "Email", email_address: "Email", emailaddress: "Email",
+  work_email: "Email", "work email": "Email", mail: "Email",
+  // First name
+  first: "First name", first_name: "First name", firstname: "First name",
+  fname: "First name", "first name": "First name", given_name: "First name",
+  // Last name
+  last: "Last name", last_name: "Last name", lastname: "Last name",
+  lname: "Last name", "last name": "Last name", surname: "Last name",
+  // Full name
+  name: "Full name", full_name: "Full name", fullname: "Full name",
+  "full name": "Full name", contact: "Full name", contact_name: "Full name",
+  // Company
+  company: "Company", company_name: "Company", companyname: "Company",
+  organization: "Company", org: "Company", account: "Company",
+  employer: "Company", "company name": "Company",
+  // Job title
+  title: "Job title", job_title: "Job title", jobtitle: "Job title",
+  role: "Job title", position: "Job title", "job title": "Job title",
+}
+
+const AVATAR_COLORS = [
+  "bg-pink-500", "bg-blue-500", "bg-green-500", "bg-purple-500",
+  "bg-orange-500", "bg-teal-500", "bg-red-500", "bg-indigo-500",
 ]
 
-const initialLeads: TableLead[] = [
-  { id: "1", initials: "JH", initialsColor: "bg-blue-500", name: "Jordan Hassan", title: "VP of Sales", company: "Meridian", location: "San Francisco CA", signalStrength: "queued", status: "ready", signals: [] },
-  { id: "2", initials: "SC", initialsColor: "bg-pink-500", name: "Sarah Chen", title: "Head of Revenue", company: "Stripe", location: "New York NY", signalStrength: "queued", status: "ready", signals: [] },
-  { id: "3", initials: "MW", initialsColor: "bg-green-500", name: "Marcus Webb", title: "Sales Director", company: "Lattice", location: "Austin TX", signalStrength: "queued", status: "missing", signals: [] },
-  { id: "4", initials: "PN", initialsColor: "bg-purple-500", name: "Priya Nair", title: "VP of Sales", company: "Rippling", location: "Remote", signalStrength: "queued", status: "ready", signals: [] },
-  { id: "5", initials: "TL", initialsColor: "bg-orange-500", name: "Tom Liu", title: "CRO", company: "Notion", location: "San Francisco CA", signalStrength: "queued", status: "duplicate", signals: [] },
-  { id: "6", initials: "AK", initialsColor: "bg-teal-500", name: "Amanda Kim", title: "Sales Manager", company: "Figma", location: "Seattle WA", signalStrength: "queued", status: "ready", signals: [] },
-]
+function getInitials(name: string) {
+  return name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) || "?"
+}
+
+function getColor(name: string) {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length]
+}
+
+function autoMap(header: string): FieldTarget {
+  return HEADER_MAP[header.toLowerCase().trim()] ?? "Skip this column"
+}
+
+// ─── CSV Parser ───────────────────────────────────────────────────────────────
+
+function parseCSV(text: string): { headers: string[]; rows: string[][] } {
+  const lines = text.split(/\r?\n/).filter(l => l.trim())
+  if (lines.length === 0) return { headers: [], rows: [] }
+
+  function splitLine(line: string): string[] {
+    const result: string[] = []
+    let current = ""
+    let inQuotes = false
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i]
+      if (ch === '"') {
+        if (inQuotes && line[i + 1] === '"') { current += '"'; i++ }
+        else inQuotes = !inQuotes
+      } else if (ch === ',' && !inQuotes) {
+        result.push(current.trim())
+        current = ""
+      } else {
+        current += ch
+      }
+    }
+    result.push(current.trim())
+    return result
+  }
+
+  const headers = splitLine(lines[0])
+  const rows = lines.slice(1).map(splitLine)
+  return { headers, rows }
+}
+
+// ─── Sample CSV download ──────────────────────────────────────────────────────
+
+function downloadSampleCSV() {
+  const content = [
+    "first_name,last_name,company,linkedin_url,email,job_title",
+    "Rahul,Sharma,HDFC Bank,https://linkedin.com/in/rahulsharma,rahul@hdfcbank.com,Head of Collections",
+    "Priya,Nair,,https://linkedin.com/in/priyanair,,VP Sales",
+    ",,Stripe,,,",
+  ].join("\n")
+  const blob = new Blob([content], { type: "text/csv" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = "signal_sample.csv"
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+// ─── Status helpers ───────────────────────────────────────────────────────────
+
+function resultToTableLead(r: BulkRowResult): TableLead {
+  const tableStatus =
+    r.status === "enriched" ? "ready" :
+    r.status === "duplicate" ? "duplicate" :
+    r.status === "already_saved" ? "ready" :
+    "missing"
+
+  return {
+    id: r.leadId || `row_${r.rowIndex}`,
+    initials: getInitials(r.name),
+    initialsColor: getColor(r.name),
+    name: r.name,
+    title: r.jobTitle,
+    company: r.company,
+    location: r.location ?? "",
+    signalStrength: "queued",
+    status: tableStatus,
+    signals: [],
+    email: r.email || undefined,
+    phone: r.phone || undefined,
+    hasEmail: !!r.email,
+    hasPhone: !!r.phone,
+    logoUrl: undefined,
+    companyDomain: r.companyDomain || undefined,
+  }
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export function BulkUpload() {
   const [uploadState, setUploadState] = useState<UploadState>("upload")
   const [isDragging, setIsDragging] = useState(false)
-  const [mappings, setMappings] = useState<ColumnMapping[]>(initialMappings)
-  const [outreachContext, setOutreachContext] = useState("")
+  const [fileName, setFileName] = useState("")
+  const [rowCount, setRowCount] = useState(0)
+  const [mappings, setMappings] = useState<ColumnMapping[]>([])
+  const [csvRows, setCsvRows] = useState<string[][]>([])
   const [leads, setLeads] = useState<TableLead[]>([])
-  const [showStatusColumn, setShowStatusColumn] = useState(true)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [generatingProgress, setGeneratingProgress] = useState(0)
-  const [generatingSteps, setGeneratingSteps] = useState<{ label: string; status: "pending" | "loading" | "complete" }[]>([])
-  const [showConfirmationBanner, setShowConfirmationBanner] = useState(false)
-  const [queuedCount, setQueuedCount] = useState(0)
+  const [enrichResults, setEnrichResults] = useState<BulkRowResult[]>([])
+  const [enrichError, setEnrichError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }
+  const [showToast, setShowToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState("")
 
-  const handleDragLeave = () => {
-    setIsDragging(false)
-  }
+  // ── File handling ───────────────────────────────────────────────────────────
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
+  const MAX_API_ROWS = 1000
+
+  const [fileError, setFileError] = useState<string | null>(null)
+
+  const processFile = useCallback((file: File) => {
+    setFileError(null)
+    if (!file.name.endsWith(".csv")) {
+      setFileError("Only .csv files are supported")
+      return
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      setFileError(`File too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum is 10 MB.`)
+      return
+    }
+    setFileName(file.name)
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const text = e.target?.result as string
+      const { headers, rows } = parseCSV(text)
+      const validRows = rows.filter(r => r.some(cell => cell.trim()))
+      setRowCount(validRows.length)
+      setCsvRows(validRows)
+      setMappings(headers.map(h => ({ detected: h, mappedTo: autoMap(h) })))
+      setUploadState("mapping")
+    }
+    reader.readAsText(file)
+  }, [])
+
+  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true) }
+  const handleDragLeave = () => setIsDragging(false)
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setIsDragging(false)
-    setUploadState("mapping")
+    const file = e.dataTransfer.files[0]
+    if (file) processFile(file)
+  }
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) processFile(file)
   }
 
-  const handleUploadClick = () => {
-    setUploadState("mapping")
+  // ── Check if mapping has at least one usable signal ────────────────────────
+  const hasUsableMapping = mappings.some(m =>
+    m.mappedTo === "LinkedIn URL" || m.mappedTo === "Email" ||
+    ((mappings.some(x => x.mappedTo === "First name") || mappings.some(x => x.mappedTo === "Full name")) &&
+      mappings.some(x => x.mappedTo === "Company"))
+  )
+
+  // ── Build rows from CSV + mappings ─────────────────────────────────────────
+  const buildBulkRows = (): BulkRow[] => {
+    const headerIndexMap: Record<FieldTarget, number> = {} as Record<FieldTarget, number>
+    mappings.forEach((m, i) => {
+      if (m.mappedTo !== "Skip this column") headerIndexMap[m.mappedTo] = i
+    })
+
+    return csvRows.map((row, idx): BulkRow => ({
+      rowIndex: idx,
+      linkedinUrl: row[headerIndexMap["LinkedIn URL"]]?.trim() || undefined,
+      email: row[headerIndexMap["Email"]]?.trim() || undefined,
+      firstName: row[headerIndexMap["First name"]]?.trim() || undefined,
+      lastName: row[headerIndexMap["Last name"]]?.trim() || undefined,
+      fullName: row[headerIndexMap["Full name"]]?.trim() || undefined,
+      company: row[headerIndexMap["Company"]]?.trim() || undefined,
+      jobTitle: row[headerIndexMap["Job title"]]?.trim() || undefined,
+    }))
   }
 
-  const handlePreviewClick = () => {
-    setLeads(initialLeads)
-    setShowStatusColumn(true)
-    setUploadState("preview")
+  // ── Enrich ─────────────────────────────────────────────────────────────────
+  const handleEnrich = async () => {
+    setEnrichError(null)
+    setUploadState("enriching")
+
+    const rows = buildBulkRows()
+
+    try {
+      const res = await fetch("/api/research/bulk-enrich", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rows }),
+      })
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error || `Enrichment failed (${res.status})`)
+      }
+
+      const data = await res.json()
+      const results: BulkRowResult[] = data.results
+      setEnrichResults(results)
+      setLeads(results.map(resultToTableLead))
+      setUploadState("preview")
+    } catch (err) {
+      setEnrichError(err instanceof Error ? err.message : "Enrichment failed")
+      setUploadState("mapping")
+    }
   }
 
-  const [showToast, setShowToast] = useState(false)
-  const [toastCount, setToastCount] = useState(0)
+  // ── Add to list ────────────────────────────────────────────────────────────
+  const handleQueueClick = async (selectedLeadIds: string[]) => {
+    // Map selected table IDs back to real DB lead IDs from enrichResults
+    const validLeadIds = selectedLeadIds.filter(id => !id.startsWith("row_"))
 
-  const handleQueueClick = (selectedIds: string[]) => {
-    // Show toast
-    setToastCount(selectedIds.length)
+    if (validLeadIds.length === 0) {
+      showToastMessage("No enriched leads to add (missing/skipped rows can't be added)")
+      return
+    }
+
+    try {
+      const res = await fetch("/api/research/add-to-list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadIds: validLeadIds }),
+      })
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error || "Failed to add to list")
+      }
+
+      const count = validLeadIds.length
+      showToastMessage(`${count} lead${count !== 1 ? "s" : ""} added to My List`)
+      // Mark rows as added instead of wiping the table
+      setLeads(prev => prev.map(l =>
+        validLeadIds.includes(l.id) ? { ...l, isAddedToList: true } : l
+      ))
+    } catch (err) {
+      showToastMessage(err instanceof Error ? err.message : "Failed to add to list")
+    }
+  }
+
+  function showToastMessage(msg: string) {
+    setToastMessage(msg)
     setShowToast(true)
-    
-    // Reset and go back to upload
-    setTimeout(() => {
-      setShowToast(false)
-    }, 3000)
-    
-    // Clear leads and go back to initial state
-    setLeads([])
-    setUploadState("upload")
-    setShowStatusColumn(true)
+    setTimeout(() => setShowToast(false), 3500)
   }
 
   const handleBackToUpload = () => {
     setUploadState("upload")
-    setMappings(initialMappings)
+    setMappings([])
+    setFileName("")
+    setCsvRows([])
+    setEnrichResults([])
     setLeads([])
   }
 
@@ -106,33 +321,43 @@ export function BulkUpload() {
     setLeads([])
   }
 
-  const updateMapping = (index: number, value: string) => {
-    setMappings((prev) =>
-      prev.map((m, i) => (i === index ? { ...m, mappedTo: value } : m))
-    )
+  const updateMapping = (index: number, value: FieldTarget) => {
+    setMappings(prev => prev.map((m, i) => (i === index ? { ...m, mappedTo: value } : m)))
   }
 
+  const enrichedCount = enrichResults.filter(r => r.status === "enriched").length
+  const alreadySavedCount = enrichResults.filter(r => r.status === "already_saved").length
+  const missingCount = enrichResults.filter(r => r.status === "missing").length
+  const duplicateCount = enrichResults.filter(r => r.status === "duplicate").length
+  const skippedCount = enrichResults.filter(r => r.status === "skipped" || r.status === "rate_limited" || r.status === "error").length
   const readyCount = leads.filter(l => l.status === "ready").length
-  const missingCount = leads.filter(l => l.status === "missing").length
-  const duplicateCount = leads.filter(l => l.status === "duplicate").length
 
-  // Toast component to share across all states
-  const ToastNotification = () => (
-    showToast ? (
-      <div className="fixed top-6 right-6 z-50 bg-[#065F46] text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-top-2 duration-200">
-        <Check className="w-4 h-4" />
-        <span className="text-[13px] font-medium">{toastCount} lead{toastCount !== 1 ? "s" : ""} added to My List</span>
-      </div>
-    ) : null
-  )
+  // ─── Render ─────────────────────────────────────────────────────────────────
 
-  if (uploadState === "complete" || uploadState === "enriching" || uploadState === "preview") {
-    return (
-      <>
-      <ToastNotification />
-      <div className="space-y-6">
-        {/* Compact header for preview/enriching state */}
-        {uploadState === "preview" && (
+  return (
+    <>
+      {/* Toast */}
+      {showToast && (
+        <div className="fixed top-6 right-6 z-50 bg-[#065F46] text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-top-2 duration-200">
+          <Check className="w-4 h-4" />
+          <span className="text-[13px] font-medium">{toastMessage}</span>
+        </div>
+      )}
+
+      {/* ── ENRICHING: loading state ────────────────────────────────────────── */}
+      {uploadState === "enriching" && (
+        <div className="bg-white border border-[#E5E4E0] rounded-xl p-10 text-center">
+          <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mx-auto mb-4" />
+          <p className="text-[15px] font-medium text-[#374151] mb-1">Enriching your leads…</p>
+          <p className="text-[13px] text-[#6B7280]">Looking up {rowCount} contacts via Lusha. This may take a moment.</p>
+
+        </div>
+      )}
+
+      {/* ── PREVIEW: results after enrichment ────────────────────────────────── */}
+      {uploadState === "preview" && (
+        <div className="space-y-4">
+          {/* Header bar */}
           <div className="bg-white border border-[#E5E4E0] rounded-xl p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -143,198 +368,186 @@ export function BulkUpload() {
                   <ArrowLeft className="w-4 h-4" />
                   Back
                 </button>
-                <div className="flex items-center gap-3">
-                  <File className="w-5 h-5 text-[#6B7280]" />
-                  <span className="font-medium text-[14px] text-[#374151]">q4_leads.csv</span>
-                  <span className="text-[13px] text-[#6B7280]">248 rows</span>
-                </div>
+                <File className="w-5 h-5 text-[#6B7280]" />
+                <span className="font-medium text-[14px] text-[#374151]">{fileName}</span>
+                <span className="text-[13px] text-[#6B7280]">{rowCount} rows</span>
               </div>
-              <div className="flex items-center gap-3">
-                {/* Outreach context (inline) */}
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-[#F0F4FF] border border-[#E0E7FF] rounded-lg">
-                  <span className="text-[11px] font-semibold text-[#4338CA] uppercase">Context:</span>
-                  <input
-                    type="text"
-                    value={outreachContext}
-                    onChange={(e) => setOutreachContext(e.target.value)}
-                    placeholder="e.g. Re-engaging cold leads"
-                    className="w-[200px] text-[13px] text-[#374151] bg-transparent border-none outline-none placeholder:text-[#9CA3AF]"
-                  />
-                </div>
+              <div className="flex items-center gap-2 text-[12px] text-[#6B7280]">
+                <span className="text-green-600 font-medium">{enrichedCount} enriched</span>
+                {alreadySavedCount > 0 && <span>· {alreadySavedCount} already saved</span>}
+                {duplicateCount > 0 && <span>· {duplicateCount} duplicates</span>}
+                {missingCount > 0 && <span>· {missingCount} not found</span>}
+                {skippedCount > 0 && <span>· {skippedCount} skipped</span>}
               </div>
             </div>
           </div>
-        )}
 
-        {/* Results table */}
-        <ResultsTable
-          leads={leads}
-          emptyStateMessage="Upload a CSV to see leads here"
-          showStatusColumn={showStatusColumn}
-          statusSummary={showStatusColumn ? `${readyCount} leads ready · ${missingCount} missing data · ${duplicateCount} duplicates` : undefined}
-          actionButtonLabel={showStatusColumn ? "Add to My List" : ""}
-          onActionClick={showStatusColumn ? handleQueueClick : undefined}
-          isGenerating={isGenerating}
-          generatingProgress={generatingProgress}
-          generatingSteps={generatingSteps}
-          autoSelectReady={showStatusColumn}
-          showConfirmationBanner={showConfirmationBanner}
-          confirmationMessage={`${queuedCount} leads queued for enrichment. We'll notify you when briefs are ready. Uses ~${(queuedCount * 0.1).toFixed(1)} credits for Tier 1 scan.`}
-          onDismissBanner={() => setShowConfirmationBanner(false)}
-        />
-
-        {/* Upload another button after completion */}
-        {uploadState === "complete" && (
-          <div className="text-center">
-            <button
-              onClick={handleBackToUpload}
-              className="text-[13px] text-indigo-600 hover:text-indigo-700 font-medium"
-            >
-              Upload another file
-            </button>
-          </div>
-        )}
-      </div>
-      </>
-    )
-  }
-
-  if (uploadState === "mapping") {
-    return (
-      <div className="space-y-6">
-        <div className="bg-white border border-[#E5E4E0] rounded-xl p-6">
-          {/* File preview */}
-          <div className="flex items-center justify-between p-3 bg-[#F9FAFB] border border-[#E5E4E0] rounded-lg mb-6">
-            <div className="flex items-center gap-3">
-              <File className="w-5 h-5 text-[#6B7280]" />
-              <span className="font-medium text-[14px] text-[#374151]">q4_leads.csv</span>
-              <span className="text-[13px] text-[#6B7280]">248 rows detected</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#D1FAE5] text-[#065F46] text-[11px] font-medium rounded-full">
-                <Check className="w-3 h-3" />
-                Valid
+          {/* Name-lookup warning */}
+          {enrichResults.some(r => r.nameLookupWarning) && (
+            <div className="flex items-start gap-2 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-[13px] text-amber-800">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+              <span>
+                Some leads were matched by name + company. These may be less accurate — verify before reaching out.
               </span>
+            </div>
+          )}
+
+          {/* Results table */}
+          <ResultsTable
+            leads={leads}
+            variant="bulk"
+            emptyStateMessage="No leads found"
+            showStatusColumn={true}
+            statusSummary={`${readyCount} lead${readyCount !== 1 ? 's' : ''} ready to add`}
+            actionButtonLabel="Add to My List"
+            onActionClick={handleQueueClick}
+            autoSelectReady={true}
+          />
+
+          {/* Upload another file CTA — shown after some leads added */}
+          {leads.some(l => l.isAddedToList) && (
+            <div className="mt-4 flex justify-center">
               <button
                 onClick={handleBackToUpload}
-                className="text-[12px] text-[#6B7280] hover:text-[#374151] transition-colors"
+                className="h-9 px-5 bg-white border border-[#E5E4E0] rounded-lg text-[13px] text-[#374151] hover:bg-[#F9FAFB] transition-colors"
               >
-                Remove
+                Upload another file
               </button>
             </div>
-          </div>
-
-          {/* Column mapping */}
-          <h3 className="text-[14px] font-medium text-[#374151] mb-4">Map your columns</h3>
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            {mappings.map((mapping, index) => (
-              <div key={mapping.detected} className="flex items-center gap-3">
-                <span className="px-2.5 py-1 bg-[#F3F4F6] text-[12px] text-[#6B7280] rounded-md font-mono">
-                  {mapping.detected}
-                </span>
-                <ArrowRight className="w-4 h-4 text-[#9CA3AF]" />
-                <select
-                  value={mapping.mappedTo}
-                  onChange={(e) => updateMapping(index, e.target.value)}
-                  className="flex-1 h-9 px-3 border border-[#E5E4E0] rounded-lg text-[13px] text-[#374151] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white"
-                >
-                  {columnOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ))}
-          </div>
-
-          {/* Outreach context */}
-          <div className="bg-[#F0F4FF] border border-[#E0E7FF] rounded-lg p-3 mb-6">
-            <span className="text-[11px] font-semibold text-[#4338CA] uppercase tracking-wide">
-              Outreach context
-            </span>
-            <p className="text-[11px] text-[#6366F1] mt-0.5 mb-2">
-              Shapes how every brief is generated from this batch
-            </p>
-            <input
-              type="text"
-              value={outreachContext}
-              onChange={(e) => setOutreachContext(e.target.value)}
-              placeholder="e.g. Re-engaging cold leads from Q4 with a new product update"
-              className="w-full text-[13px] text-[#374151] bg-transparent border-none outline-none placeholder:text-[#9CA3AF]"
-            />
-          </div>
-
-          {/* Preview button */}
-          <button
-            onClick={handlePreviewClick}
-            className="w-full h-10 bg-[#18181B] text-white text-[13px] font-medium rounded-lg hover:bg-[#27272A] transition-colors"
-          >
-            Preview leads
-          </button>
-        </div>
-
-        {/* Empty results table */}
-        <ResultsTable
-          leads={[]}
-          emptyStateMessage="Your uploaded leads will appear here after preview"
-        />
-      </div>
-    )
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="bg-white border border-[#E5E4E0] rounded-xl p-6">
-        {/* Upload zone */}
-        <div
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={handleUploadClick}
-          className={cn(
-            "border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors",
-            isDragging
-              ? "border-indigo-500 bg-[#FAFAFE]"
-              : "border-[#E5E4E0] hover:border-indigo-500 hover:bg-[#FAFAFE]"
           )}
-        >
-          <Upload className="w-8 h-8 text-[#9CA3AF] mx-auto mb-3" />
-          <p className="text-[14px] font-medium text-[#374151] mb-1">
-            Drop your CSV here
-          </p>
-          <p className="text-[13px] text-[#9CA3AF]">
-            or{" "}
-            <span className="text-indigo-600 hover:text-indigo-700 cursor-pointer">
-              browse files
-            </span>
-            {" — up to 1,000 leads per upload"}
-          </p>
         </div>
+      )}
 
-        {/* Outreach context */}
-        <div className="mt-4 bg-[#F0F4FF] border border-[#E0E7FF] rounded-lg p-3">
-          <span className="text-[11px] font-semibold text-[#4338CA] uppercase tracking-wide">
-            Outreach context
-          </span>
-          <p className="text-[11px] text-[#6366F1] mt-0.5 mb-2">
-            Shapes how every brief is generated from this batch
-          </p>
-          <input
-            type="text"
-            value={outreachContext}
-            onChange={(e) => setOutreachContext(e.target.value)}
-            placeholder="e.g. Re-engaging cold leads from Q4 with a new product update"
-            className="w-full text-[13px] text-[#374151] bg-transparent border-none outline-none placeholder:text-[#9CA3AF]"
-          />
+      {/* ── MAPPING: column mapper ────────────────────────────────────────────── */}
+      {uploadState === "mapping" && (
+        <div className="space-y-6">
+          <div className="bg-white border border-[#E5E4E0] rounded-xl p-6">
+            {/* File pill */}
+            <div className="flex items-center justify-between p-3 bg-[#F9FAFB] border border-[#E5E4E0] rounded-lg mb-6">
+              <div className="flex items-center gap-3">
+                <File className="w-5 h-5 text-[#6B7280]" />
+                <span className="font-medium text-[14px] text-[#374151]">{fileName}</span>
+                <span className="text-[13px] text-[#6B7280]">{rowCount} rows detected</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#D1FAE5] text-[#065F46] text-[11px] font-medium rounded-full">
+                  <Check className="w-3 h-3" />
+                  Valid CSV
+                </span>
+                <button onClick={handleBackToUpload} className="text-[12px] text-[#6B7280] hover:text-[#374151] transition-colors">
+                  Remove
+                </button>
+              </div>
+            </div>
+
+            {/* Column mappings */}
+            <h3 className="text-[14px] font-medium text-[#374151] mb-1">Map your columns</h3>
+            <p className="text-[12px] text-[#9CA3AF] mb-4">
+              Each row needs at least one of: <span className="font-medium text-[#6B7280]">LinkedIn URL</span> · <span className="font-medium text-[#6B7280]">Email</span> · <span className="font-medium text-[#6B7280]">First name + Last name + Company</span>
+            </p>
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {mappings.map((mapping, index) => (
+                <div key={`${mapping.detected}-${index}`} className="flex items-center gap-3">
+                  <span className="px-2.5 py-1 bg-[#F3F4F6] text-[12px] text-[#6B7280] rounded-md font-mono min-w-0 truncate max-w-[120px]">
+                    {mapping.detected}
+                  </span>
+                  <ArrowRight className="w-4 h-4 text-[#9CA3AF] shrink-0" />
+                  <select
+                    value={mapping.mappedTo}
+                    onChange={(e) => updateMapping(index, e.target.value as FieldTarget)}
+                    className="flex-1 h-9 px-3 border border-[#E5E4E0] rounded-lg text-[13px] text-[#374151] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white"
+                  >
+                    {COLUMN_OPTIONS.map(opt => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+            </div>
+
+            {/* Error from previous attempt */}
+            {enrichError && (
+              <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-[13px] text-red-700">
+                {enrichError}
+              </div>
+            )}
+
+            {/* Row count warning */}
+            {rowCount > MAX_API_ROWS && (
+              <div className="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg text-[13px] text-amber-800 flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+                <span>
+                  Your file has {rowCount.toLocaleString()} rows but the maximum is {MAX_API_ROWS.toLocaleString()}.
+                  Only the first {MAX_API_ROWS.toLocaleString()} rows will be enriched.
+                </span>
+              </div>
+            )}
+
+            {/* Enrich button */}
+            <button
+              onClick={handleEnrich}
+              disabled={!hasUsableMapping}
+              title={!hasUsableMapping ? "Map at least LinkedIn URL, Email, or Full name + Company" : undefined}
+              className="w-full h-10 bg-[#18181B] text-white text-[13px] font-medium rounded-lg hover:bg-[#27272A] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Enrich &amp; preview {rowCount > MAX_API_ROWS ? `first ${MAX_API_ROWS.toLocaleString()}` : `${rowCount}`} leads
+            </button>
+            {!hasUsableMapping && (
+              <p className="text-[12px] text-amber-600 text-center mt-2">
+                Map at least one of: LinkedIn URL · Email · Full name + Company
+              </p>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Empty results table */}
-      <ResultsTable
-        leads={[]}
-        emptyStateMessage="Upload a CSV to see leads here"
-      />
-    </div>
+      {/* ── UPLOAD: drop zone ─────────────────────────────────────────────────── */}
+      {uploadState === "upload" && (
+        <div className="space-y-6">
+          <div className="bg-white border border-[#E5E4E0] rounded-xl p-6">
+            {/* Drop zone */}
+            <label
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={cn(
+                "flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors",
+                isDragging ? "border-indigo-500 bg-[#FAFAFE]" : "border-[#E5E4E0] hover:border-indigo-500 hover:bg-[#FAFAFE]"
+              )}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                onChange={handleFileInput}
+                className="hidden"
+              />
+              <Upload className="w-8 h-8 text-[#9CA3AF] mx-auto mb-3" />
+              <p className="text-[14px] font-medium text-[#374151] mb-1">Drop your CSV here</p>
+              <p className="text-[13px] text-[#9CA3AF]">
+                or <span className="text-indigo-600">browse files</span> — up to 1,000 leads per upload
+              </p>
+              <p className="text-[12px] text-[#6B7280] mt-3">
+                Needs at least one of: <span className="font-medium">LinkedIn URL</span> · <span className="font-medium">work email</span> · <span className="font-medium">first name + last name + company</span>
+              </p>
+            </label>
+
+            <div className="mt-2 text-center">
+              <button onClick={downloadSampleCSV} className="text-[12px] text-indigo-600 hover:underline">
+                Download sample CSV template
+              </button>
+            </div>
+
+            {/* File error (size, type) */}
+            {fileError && (
+              <div className="mt-3 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-[13px] text-red-700">
+                {fileError}
+              </div>
+            )}
+
+          </div>
+        </div>
+      )}
+    </>
   )
 }

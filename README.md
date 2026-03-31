@@ -1,35 +1,154 @@
-# v0-signal-lead-input-module
+# Signal
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
+**Signal is a research and intelligence platform for B2B sales reps.** You tell it who you want to reach out to. It does the research. It tells you what's happening in that person's world right now, why today is a good or bad time to reach out, how that person communicates, what angle will resonate, and what to actually say.
 
-## Built with v0
+The output is not a contact record or a data export — it's a **brief**: a structured intelligence document a rep reads in 2 minutes and acts on immediately, followed by a draft outreach message genuinely grounded in that specific person's situation.
 
-This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
+---
 
-[Continue working on v0 →](https://v0.app/chat/projects/prj_xfPOu2qdKdz5yaewvS6J0GC5wLwJ)
+## The Problem
+
+Every B2B sales rep faces the same painful reality before reaching out to a prospect. They open LinkedIn, read the profile, Google the company, check for recent news, look for mutual connections — and 45 minutes later they have a mediocre email that still feels generic.
+
+The tools that exist don't solve this. Apollo gives you a database. ZoomInfo gives you data. Clay gives technical teams a way to build enrichment workflows. None of them do the thinking. They hand the rep a pile of information and leave them to figure out what to do with it.
+
+**That's the gap Signal fills.**
+
+---
+
+## The Core Insight
+
+The best salespeople don't research harder — they research smarter. Timing is everything. The same message sent on the day a company raises a round lands 10x better than the same message sent three months later.
+
+Signal operationalises this instinct at scale. It watches for the moments that matter — the funding announcement, the frustrated LinkedIn post, the surge in hiring, the leadership change — and tells the rep: **this is your window, this is why, this is what to say.**
+
+---
+
+## Who It's For
+
+Sales reps and sales leaders at B2B SaaS companies, Series A through C. Teams of 3–25 reps. Companies scaling their outbound motion and feeling the quality problem — adding AEs, reply rates dropping, reps spending too much time on research or skipping it entirely.
+
+---
+
+## How It Works
+
+1. **Find** — Paste a LinkedIn URL or email, describe who you're looking for (ICP discovery), or upload a CSV list.
+2. **Add to list** — Select leads and add them to your active pipeline.
+3. **Generate a brief** — Signal pulls data from multiple sources in parallel (contact DB, LinkedIn, Google News, job boards) and synthesises everything into a structured intelligence document with streaming output so the rep sees progress immediately.
+4. **Read and understand** — The brief covers: who this person is, what their world looks like right now, why now is a good or bad time to reach out, how they communicate, what angle will resonate, what to avoid.
+5. **Write and send** — Signal generates a draft outreach message grounded in the brief. Rep edits it, picks channel (LinkedIn, email, phone), sends.
+6. **Keep watching** — Signal monitors every lead for new trigger events (funding, job change, competitor outage, etc.) and alerts the rep.
+
+---
+
+## What Makes It Different
+
+- **Synthesises, not just aggregates.** Every other tool gives you data. Signal gives you understanding.
+- **Built for reps, not RevOps.** Clay requires a GTM engineer. Signal opens every morning and tells you what to do.
+- **Timing is the product.** The "Why Now" section of every brief is the most important thing on the page.
+- **Gets smarter about your business.** The Playbook is where teams configure their ICP, value props, competitors, and communication style — shaping every output Signal produces.
+
+---
+
+## Product Modules
+
+| Module | Route | Description |
+|---|---|---|
+| Research | `/` | Lead input — 3 modes: specific lead, ICP discovery, bulk CSV upload |
+| Lists | `/lists` | Active lead pipeline with contact data and signal scores |
+| Brief + Outreach | `/brief/[slug]` | Split-screen: full intelligence brief (left) + outreach composer (right) |
+| Signals | `/signals` | Monitoring inbox — trigger events across all leads, organised by strength and recency |
+| Playbook | `/playbook` | Team brain — ICP config, value props, competitors, signal weights, communication style |
+| Settings | `/settings` | Integrations (HubSpot, Salesforce, Gmail, Slack), account, billing, API |
+
+---
+
+## Current State
+
+The **Research module** is fully functional end-to-end with real data:
+
+**Built and working:**
+- Supabase auth (email/password signup + login, session management, middleware-protected routes)
+- Database persistence — 5 tables with RLS policies, auto-provisioning triggers for new users
+- Lusha API integration — single lead lookup (LinkedIn/email/name), ICP prospecting search, CSV bulk enrichment
+- ICP Discovery — natural language query → structured filters → Lusha search results (with LLM + keyword fallback parser)
+- Signal score computation — automated lead scoring based on contact data quality and seniority
+- Deduplication — across all enrichment paths (lookup, bulk, save-leads)
+- 119 passing tests across 7 test files (vitest)
+
+**Still mocked (needs to be built):**
+- Brief generation — AI synthesis engine (streaming output via Vercel AI SDK)
+- Signal monitoring — real-time trigger event detection across leads
+- CRM integrations (HubSpot, Salesforce, Gmail)
+- Multi-source data enrichment (LinkedIn scraping, Google News, job boards)
+
+> See [ARCHITECTURE.md](ARCHITECTURE.md) for full technical details.
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 16.2.0 (App Router, Turbopack)
+- **Runtime:** React 19.2.4
+- **Language:** TypeScript 5.7.3
+- **Styling:** Tailwind CSS 4.2.0
+- **UI Components:** shadcn/ui
+- **Database & Auth:** Supabase (supabase-js 2.99.3)
+- **Enrichment:** Lusha API
+- **LLM:** Azure OpenAI via LiteLLM proxy (with keyword fallback)
+- **Testing:** Vitest 4.1.0
+- **Package manager:** pnpm
+
+---
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Install dependencies
+pnpm install
+
+# Run the development server
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> **Note:** If `pnpm` is not found, Node.js is installed via nvm. Run:
+> ```bash
+> export PATH="$HOME/.nvm/versions/node/v24.14.0/bin:$PATH"
+> npm install -g pnpm
+> pnpm install && pnpm dev
+> ```
 
-## Learn More
+### Environment Variables
 
-To learn more, take a look at the following resources:
+Create a `.env.local` file in the project root:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=<your-supabase-project-url>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-anon-key>
+SUPABASE_SERVICE_ROLE_KEY=<your-supabase-service-role-key>
 
-<a href="https://v0.app/chat/api/kiro/clone/aditya-1-ai/v0-signal-lead-input-module" alt="Open in Kiro"><img src="https://pdgvvgmkdvyeydso.public.blob.vercel-storage.com/open%20in%20kiro.svg?sanitize=true" /></a>
+# Lusha (optional — uses mock data if not set)
+LUSHA_API_KEY=<your-lusha-api-key>
+
+# Azure OpenAI / LiteLLM (optional — keyword fallback if unavailable)
+AZURE_OPENAI_API_KEY=<your-llm-api-key>
+AZURE_OPENAI_ENDPOINT=<your-llm-endpoint>
+AZURE_OPENAI_MODEL_NAME=azure/gpt-4.1-nano
+AZURE_OPENAI_REGION=southindia
+
+# Tests
+TEST_BASE_URL=http://localhost:3000
+```
+
+### Running Tests
+
+```bash
+# Run full test suite (requires dev server running)
+pnpm test
+
+# Run a specific test file
+pnpm exec vitest run tests/setup.test.ts --reporter=verbose
+```
