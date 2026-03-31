@@ -42,6 +42,8 @@ signal/
 │   └── ui/                     # shadcn/ui components
 ├── lib/
 │   ├── auth.ts                 # JWT/cookie auth helper
+│   ├── geocode.ts              # City name resolver (alias map → cache → Nominatim)
+│   ├── icp-filters.ts          # ParsedFilters interface, validation, enums
 │   ├── lusha.ts                # Lusha API wrapper
 │   ├── llm.ts                  # Azure OpenAI / LiteLLM client
 │   ├── signal-score.ts         # Lead scoring engine
@@ -51,6 +53,7 @@ signal/
 │       ├── server.ts           # Server Supabase client (per-request)
 │       └── service.ts          # Service role client (bypasses RLS)
 ├── middleware.ts               # Auth guard for page routes
+├── test.sh                     # Test runner (mock mode, 0 Lusha credits)
 ├── supabase/schema.sql         # Full database schema
 └── tests/                      # Vitest integration + unit tests
 ```
@@ -297,7 +300,8 @@ Parses a natural language ICP query into structured Lusha API filters.
 **Behavior:**
 - Attempts LLM parsing first (Azure OpenAI via LiteLLM) with 5-second timeout
 - On LLM failure/timeout, falls back to keyword-based parser using dictionaries for titles, seniorities, departments, locations, company names, and industries
-- Validates and filters department/seniority values against Lusha's taxonomy
+- LLM prompt instructs canonical city names (Bengaluru not Bangalore, Mumbai not Bombay)
+- Validates and filters department/seniority values against Lusha's taxonomy (see `lib/icp-filters.ts`)
 - Maps seniority names to Lusha seniority IDs
 - Never returns an error — always produces usable filters
 
@@ -343,6 +347,9 @@ Searches Lusha Prospecting API with structured filters.
 ```
 
 **Behavior:**
+- City names are resolved to canonical form via `lib/geocode.ts` (e.g. "Bangalore" → "Bengaluru")
+- Lusha requires locations as separate objects: `[{city: "Bengaluru"}, {country: "India"}]` — NOT combined
+- When seniority already covers the intent (e.g. "Founder"), the same word is excluded from jobTitles to avoid overly restrictive AND filtering
 - Deduplicates results by company (respects maxPerCompany)
 - Falls back to mock data if no Lusha API key configured
 
@@ -364,6 +371,24 @@ Returns `{ user, error }` where error is a 401 NextResponse if auth fails.
 - Returns a `LushaContact` with normalized fields (fullName, emails[], phones[], company details)
 - Falls back to mock data if `LUSHA_API_KEY` is not set
 - Throws `LushaApiError` with codes: `RATE_LIMIT`, `NOT_FOUND`, `API_ERROR`
+
+### lib/geocode.ts — City Name Resolver
+
+Resolves city names to their official/canonical form for Lusha API compatibility.
+
+**3-layer resolution:**
+1. **Static alias map** — instant lookup for ~20 common aliases (Bangalore→Bengaluru, NYC→New York, etc.)
+2. **In-memory cache** — auto-populated at runtime, avoids repeat lookups
+3. **OpenStreetMap Nominatim** — free geocoding API, resolves any city worldwide to its canonical name
+
+`resolveCity(city: string): Promise<string>` — checks each layer in order, falls back to original input if all fail.
+
+### lib/icp-filters.ts — Filter Validation
+
+- `ParsedFilters` interface — typed structure for ICP search filters
+- `VALID_DEPARTMENTS`, `VALID_SENIORITIES`, `VALID_COUNTRIES` — Lusha-compatible enums
+- `validateLlmResponse(raw, query)` — validates and normalizes LLM output
+- `fallbackParse(query)` — keyword-based parser for when LLM is unavailable
 
 ### lib/signal-score.ts — `computeSignalScore(contact)`
 
@@ -420,26 +445,38 @@ Public routes (no auth): `/login`, `/signup`, `/auth/callback`, `/_next/*`, `/ap
 ## Test Suite
 
 **Framework:** Vitest 4.1.0  
-**Total:** 7 files, 119 passing tests  
-**Requires:** Dev server running on `TEST_BASE_URL` (default: `http://localhost:3000`)
+**Total:** 8 files, 199 tests (198 passing, 1 skipped)  
+**Mock mode:** `pnpm test` runs all tests with zero Lusha credits consumed
 
 ```bash
-# Run all tests
+# Run all tests (starts mock server automatically)
 pnpm test
 
-# Run specific file
+# Run specific file (requires dev server running)
 pnpm exec vitest run tests/setup.test.ts --reporter=verbose
 ```
+
+### How mock mode works
+
+`test.sh` manages the full lifecycle:
+1. Kills any existing dev server on port 3000
+2. Starts a fresh dev server with `LUSHA_API_KEY=` (empty → mock data)
+3. Runs vitest (which also deletes `LUSHA_API_KEY` from its own process via `vitest.config.ts`)
+4. Kills the mock server
+5. Restarts the normal dev server with real API keys
+
+Tests check `HAS_REAL_KEY = !!process.env.LUSHA_API_KEY` to adjust assertions for mock vs real responses.
 
 | File | Tests | Coverage |
 |---|---|---|
 | `setup.test.ts` | 9 | Supabase connection, auth signup/login, RLS data isolation |
-| `lusha-integration.test.ts` | 8 | Lusha lookup (LinkedIn/email/name), add-to-list, dedup |
+| `lusha-integration.test.ts` | 9 | Lusha lookup (LinkedIn/email/name), add-to-list, dedup |
 | `bulk-upload.test.ts` | 46 | Bulk enrich validation, lookup methods, dedup, batching, DB insertion, save-leads |
-| `research-leads.test.ts` | 10 | GET /leads response shape, lookup dedup cache, bulk phone field |
-| `icp-discovery.test.ts` | 18 | ICP parse (NL → filters), ICP search (filters → results), E2E flow |
+| `research-leads.test.ts` | 17 | GET /leads response shape, lookup dedup cache, bulk phone field |
+| `icp-discovery.test.ts` | 70 | ICP parse (NL → filters), ICP search (filters → results), E2E flow, pagination, edge cases |
 | `signal-score.test.ts` | 17 | computeSignalScore unit tests (all signal types and edge cases) |
-| `new-features.test.ts` | 13 | save-leads enrichment/dedup, lookup signal_score, limits |
+| `new-features.test.ts` | 3 | save-leads enrichment/dedup, lookup signal_score |
+| `phases.test.ts` | 28 | Multi-phase enrichment, save-leads batching, query length limits |
 
 Tests create temporary users, run assertions, then clean up. Each file is self-contained.
 
@@ -449,7 +486,11 @@ Tests create temporary users, run assertions, then clean up. Each file is self-c
 
 | Issue | Impact | Workaround |
 |---|---|---|
-| LiteLLM endpoint (`litellm.dpdzero.com`) unreachable | ICP parse can't use LLM | Keyword fallback parser active (5s timeout then dictionary matching) |
+| Lusha uses canonical city names only | "Bangalore" returns 0 results, "Bengaluru" returns 39K | `lib/geocode.ts` resolves via alias map + Nominatim |
+| Lusha locations must be separate objects | `{city, country}` combined returns 0 results | `icp-search` sends `[{city: "X"}, {country: "Y"}]` separately |
+| Lusha country-only filter intermittently 500s | e.g. `{country: "India"}` sometimes fails | Prefer city filters; country-only is fallback |
+| Lusha `pages.size` minimum is 10 | Sizes < 10 return 400 | `fetchSize` always ≥ 10 |
 | Next.js dev server drops keep-alive connections | Intermittent SocketErrors in tests | Tests use `Connection: close` header + 3-attempt retry |
+| Next.js 16 blocks two dev servers from same dir | Can't run test server on separate port | `test.sh` stops dev server, runs tests, then restarts |
 | `middleware` file convention deprecated in Next.js 16 | Console warning on startup | Functional, migrate to `proxy` convention later |
 | `eslint` key in next.config.mjs no longer supported | Console warning on startup | Non-breaking, remove when convenient |
