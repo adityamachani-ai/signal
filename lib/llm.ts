@@ -15,15 +15,15 @@ let _llm: OpenAI | null = null
 
 export function getLlm(): OpenAI {
   if (!_llm) {
-    if (!process.env.AZURE_OPENAI_API_KEY) throw new Error('AZURE_OPENAI_API_KEY is not set')
-    if (!process.env.AZURE_OPENAI_ENDPOINT) throw new Error('AZURE_OPENAI_ENDPOINT is not set')
+    if (!process.env.LLM_API_KEY) throw new Error('LLM_API_KEY is not set')
+    if (!process.env.LLM_BASE_URL) throw new Error('LLM_BASE_URL is not set')
     _llm = new OpenAI({
-      apiKey: process.env.AZURE_OPENAI_API_KEY,
-      baseURL: process.env.AZURE_OPENAI_ENDPOINT,
+      apiKey: process.env.LLM_API_KEY,
+      baseURL: process.env.LLM_BASE_URL,
       fetch: noKeepAliveFetch,
     })
   }
   return _llm
 }
 
-export const LLM_MODEL = process.env.AZURE_OPENAI_MODEL_NAME ?? 'azure/gpt-4.1-nano'
+export const LLM_MODEL = process.env.LLM_MODEL ?? 'gpt-4.1-mini'

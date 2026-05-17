@@ -15,7 +15,7 @@ let testUserId: string
 let token: string
 
 const HAS_REAL_KEY = !!process.env.LUSHA_API_KEY
-const HAS_LLM_KEY = !!process.env.AZURE_OPENAI_API_KEY
+const HAS_LLM_KEY = !!process.env.LLM_API_KEY
 
 // ─── Setup ────────────────────────────────────────────────────────────────────
 
