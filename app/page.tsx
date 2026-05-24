@@ -9,7 +9,7 @@ import { ICPDiscovery } from "@/components/signal/icp-discovery"
 import { BulkUpload } from "@/components/signal/bulk-upload"
 
 export default function SignalPage() {
-  const [selectedMode, setSelectedMode] = useState<Mode>("specific")
+  const [selectedMode, setSelectedMode] = useState<Mode>("icp")
   const [searchQuery, setSearchQuery] = useState("")
   // Counter-based trigger so the same query can re-fire
   const [searchTrigger, setSearchTrigger] = useState(0)
@@ -31,7 +31,7 @@ export default function SignalPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#F7F6F3]">
+    <div className="min-h-screen bg-signal-bg">
       {/* Sidebar */}
       <Sidebar />
 
@@ -48,7 +48,7 @@ export default function SignalPage() {
         />
 
         {/* Tab strip */}
-        <div className="bg-white px-6">
+        <div className="bg-signal-bg px-6">
           <ModeSelector
             selectedMode={selectedMode}
             onModeChange={handleModeChange}

@@ -15,5 +15,7 @@ export default defineConfig({
     environment: 'node',
     fileParallelism: false,
     testTimeout: 30000,
+    globalSetup: ['./tests/global-setup.ts'],
+    setupFiles: ['./tests/setup-guard.ts'],
   },
 })

@@ -54,8 +54,7 @@ const HEADER_MAP: Record<string, FieldTarget> = {
 }
 
 const AVATAR_COLORS = [
-  "bg-pink-500", "bg-blue-500", "bg-green-500", "bg-purple-500",
-  "bg-orange-500", "bg-teal-500", "bg-red-500", "bg-indigo-500",
+  "bg-signal-accent-tint text-signal-accent-2",
 ]
 
 function getInitials(name: string) {
@@ -270,7 +269,8 @@ export function BulkUpload() {
 
   // ── Add to list ────────────────────────────────────────────────────────────
   const handleQueueClick = async (selectedLeadIds: string[]) => {
-    // Map selected table IDs back to real DB lead IDs from enrichResults
+    // The ListPicker component now handles the API call directly.
+    // This callback just marks the leads as added in local state.
     const validLeadIds = selectedLeadIds.filter(id => !id.startsWith("row_"))
 
     if (validLeadIds.length === 0) {
@@ -278,27 +278,11 @@ export function BulkUpload() {
       return
     }
 
-    try {
-      const res = await fetch("/api/research/add-to-list", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadIds: validLeadIds }),
-      })
-
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.error || "Failed to add to list")
-      }
-
-      const count = validLeadIds.length
-      showToastMessage(`${count} lead${count !== 1 ? "s" : ""} added to My List`)
-      // Mark rows as added instead of wiping the table
-      setLeads(prev => prev.map(l =>
-        validLeadIds.includes(l.id) ? { ...l, isAddedToList: true } : l
-      ))
-    } catch (err) {
-      showToastMessage(err instanceof Error ? err.message : "Failed to add to list")
-    }
+    const count = validLeadIds.length
+    showToastMessage(`${count} lead${count !== 1 ? "s" : ""} added to list`)
+    setLeads(prev => prev.map(l =>
+      validLeadIds.includes(l.id) ? { ...l, isAddedToList: true } : l
+    ))
   }
 
   function showToastMessage(msg: string) {
@@ -346,10 +330,10 @@ export function BulkUpload() {
 
       {/* ── ENRICHING: loading state ────────────────────────────────────────── */}
       {uploadState === "enriching" && (
-        <div className="bg-white border border-[#E5E4E0] rounded-xl p-10 text-center">
-          <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mx-auto mb-4" />
-          <p className="text-[15px] font-medium text-[#374151] mb-1">Enriching your leads…</p>
-          <p className="text-[13px] text-[#6B7280]">Looking up {rowCount} contacts via Lusha. This may take a moment.</p>
+        <div className="bg-signal-bg border border-signal-border rounded-xl p-10 text-center">
+          <Loader2 className="w-8 h-8 text-signal-accent animate-spin mx-auto mb-4" />
+          <p className="text-[15px] font-medium text-signal-text-2 mb-1">Enriching your leads…</p>
+          <p className="text-[13px] text-signal-text-3">Looking up {rowCount} contacts via Lusha. This may take a moment.</p>
 
         </div>
       )}
@@ -358,21 +342,21 @@ export function BulkUpload() {
       {uploadState === "preview" && (
         <div className="space-y-4">
           {/* Header bar */}
-          <div className="bg-white border border-[#E5E4E0] rounded-xl p-4">
+          <div className="bg-signal-bg border border-signal-border rounded-xl p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleBackToMapping}
-                  className="flex items-center gap-1 text-[13px] text-[#6B7280] hover:text-[#374151] transition-colors"
+                  className="flex items-center gap-1 text-[13px] text-signal-text-3 hover:text-signal-text-2 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back
                 </button>
-                <File className="w-5 h-5 text-[#6B7280]" />
-                <span className="font-medium text-[14px] text-[#374151]">{fileName}</span>
-                <span className="text-[13px] text-[#6B7280]">{rowCount} rows</span>
+                <File className="w-5 h-5 text-signal-text-3" />
+                <span className="font-medium text-[14px] text-signal-text-2">{fileName}</span>
+                <span className="text-[13px] text-signal-text-3">{rowCount} rows</span>
               </div>
-              <div className="flex items-center gap-2 text-[12px] text-[#6B7280]">
+              <div className="flex items-center gap-2 text-[12px] text-signal-text-3">
                 <span className="text-green-600 font-medium">{enrichedCount} enriched</span>
                 {alreadySavedCount > 0 && <span>· {alreadySavedCount} already saved</span>}
                 {duplicateCount > 0 && <span>· {duplicateCount} duplicates</span>}
@@ -384,8 +368,8 @@ export function BulkUpload() {
 
           {/* Name-lookup warning */}
           {enrichResults.some(r => r.nameLookupWarning) && (
-            <div className="flex items-start gap-2 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-[13px] text-amber-800">
-              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+            <div className="flex items-start gap-2 px-4 py-3 bg-[#FEF3C7] border border-[#FDE68A] rounded-xl text-[13px] text-[#92400E]">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-[#F59E0B]" />
               <span>
                 Some leads were matched by name + company. These may be less accurate — verify before reaching out.
               </span>
@@ -399,7 +383,7 @@ export function BulkUpload() {
             emptyStateMessage="No leads found"
             showStatusColumn={true}
             statusSummary={`${readyCount} lead${readyCount !== 1 ? 's' : ''} ready to add`}
-            actionButtonLabel="Add to My List"
+            actionButtonLabel="Add to List"
             onActionClick={handleQueueClick}
             autoSelectReady={true}
           />
@@ -409,7 +393,7 @@ export function BulkUpload() {
             <div className="mt-4 flex justify-center">
               <button
                 onClick={handleBackToUpload}
-                className="h-9 px-5 bg-white border border-[#E5E4E0] rounded-lg text-[13px] text-[#374151] hover:bg-[#F9FAFB] transition-colors"
+                className="h-9 px-5 bg-signal-bg border border-signal-border rounded-lg text-[13px] text-signal-text-2 hover:bg-signal-surface transition-colors"
               >
                 Upload another file
               </button>
@@ -421,41 +405,41 @@ export function BulkUpload() {
       {/* ── MAPPING: column mapper ────────────────────────────────────────────── */}
       {uploadState === "mapping" && (
         <div className="space-y-6">
-          <div className="bg-white border border-[#E5E4E0] rounded-xl p-6">
+          <div className="bg-signal-bg border border-signal-border rounded-xl p-6">
             {/* File pill */}
-            <div className="flex items-center justify-between p-3 bg-[#F9FAFB] border border-[#E5E4E0] rounded-lg mb-6">
+            <div className="flex items-center justify-between p-3 bg-signal-surface border border-signal-border rounded-lg mb-6">
               <div className="flex items-center gap-3">
-                <File className="w-5 h-5 text-[#6B7280]" />
-                <span className="font-medium text-[14px] text-[#374151]">{fileName}</span>
-                <span className="text-[13px] text-[#6B7280]">{rowCount} rows detected</span>
+                <File className="w-5 h-5 text-signal-text-3" />
+                <span className="font-medium text-[14px] text-signal-text-2">{fileName}</span>
+                <span className="text-[13px] text-signal-text-3">{rowCount} rows detected</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#D1FAE5] text-[#065F46] text-[11px] font-medium rounded-full">
                   <Check className="w-3 h-3" />
                   Valid CSV
                 </span>
-                <button onClick={handleBackToUpload} className="text-[12px] text-[#6B7280] hover:text-[#374151] transition-colors">
+                <button onClick={handleBackToUpload} className="text-[12px] text-signal-text-3 hover:text-signal-text-2 transition-colors">
                   Remove
                 </button>
               </div>
             </div>
 
             {/* Column mappings */}
-            <h3 className="text-[14px] font-medium text-[#374151] mb-1">Map your columns</h3>
-            <p className="text-[12px] text-[#9CA3AF] mb-4">
-              Each row needs at least one of: <span className="font-medium text-[#6B7280]">LinkedIn URL</span> · <span className="font-medium text-[#6B7280]">Email</span> · <span className="font-medium text-[#6B7280]">First name + Last name + Company</span>
+            <h3 className="text-[14px] font-medium text-signal-text-2 mb-1">Map your columns</h3>
+            <p className="text-[12px] text-signal-text-4 mb-4">
+              Each row needs at least one of: <span className="font-medium text-signal-text-3">LinkedIn URL</span> · <span className="font-medium text-signal-text-3">Email</span> · <span className="font-medium text-signal-text-3">First name + Last name + Company</span>
             </p>
             <div className="grid grid-cols-2 gap-3 mb-6">
               {mappings.map((mapping, index) => (
                 <div key={`${mapping.detected}-${index}`} className="flex items-center gap-3">
-                  <span className="px-2.5 py-1 bg-[#F3F4F6] text-[12px] text-[#6B7280] rounded-md font-mono min-w-0 truncate max-w-[120px]">
+                  <span className="px-2.5 py-1 bg-signal-raised text-[12px] text-signal-text-3 rounded-md font-mono min-w-0 truncate max-w-[120px]">
                     {mapping.detected}
                   </span>
-                  <ArrowRight className="w-4 h-4 text-[#9CA3AF] shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-signal-text-4 shrink-0" />
                   <select
                     value={mapping.mappedTo}
                     onChange={(e) => updateMapping(index, e.target.value as FieldTarget)}
-                    className="flex-1 h-9 px-3 border border-[#E5E4E0] rounded-lg text-[13px] text-[#374151] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white"
+                    className="flex-1 h-9 px-3 border border-signal-border rounded-lg text-[13px] text-signal-text-2 focus:outline-none focus:border-signal-accent focus:shadow-[0_0_0_3px_rgba(79,70,229,0.08)] transition-shadow bg-signal-bg"
                   >
                     {COLUMN_OPTIONS.map(opt => (
                       <option key={opt} value={opt}>{opt}</option>
@@ -474,8 +458,8 @@ export function BulkUpload() {
 
             {/* Row count warning */}
             {rowCount > MAX_API_ROWS && (
-              <div className="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg text-[13px] text-amber-800 flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+              <div className="mb-4 px-4 py-3 bg-[#FEF3C7] border border-[#FDE68A] rounded-lg text-[13px] text-[#92400E] flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-[#F59E0B]" />
                 <span>
                   Your file has {rowCount.toLocaleString()} rows but the maximum is {MAX_API_ROWS.toLocaleString()}.
                   Only the first {MAX_API_ROWS.toLocaleString()} rows will be enriched.
@@ -488,12 +472,12 @@ export function BulkUpload() {
               onClick={handleEnrich}
               disabled={!hasUsableMapping}
               title={!hasUsableMapping ? "Map at least LinkedIn URL, Email, or Full name + Company" : undefined}
-              className="w-full h-10 bg-[#18181B] text-white text-[13px] font-medium rounded-lg hover:bg-[#27272A] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full h-10 bg-[#18181B] dark:bg-[#FAFAFA] text-white dark:text-[#18181B] text-[13px] font-medium rounded-lg hover:bg-[#27272A] dark:hover:bg-[#E4E4E7] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Enrich &amp; preview {rowCount > MAX_API_ROWS ? `first ${MAX_API_ROWS.toLocaleString()}` : `${rowCount}`} leads
             </button>
             {!hasUsableMapping && (
-              <p className="text-[12px] text-amber-600 text-center mt-2">
+              <p className="text-[12px] text-[#92400E] text-center mt-2">
                 Map at least one of: LinkedIn URL · Email · Full name + Company
               </p>
             )}
@@ -504,7 +488,7 @@ export function BulkUpload() {
       {/* ── UPLOAD: drop zone ─────────────────────────────────────────────────── */}
       {uploadState === "upload" && (
         <div className="space-y-6">
-          <div className="bg-white border border-[#E5E4E0] rounded-xl p-6">
+          <div className="bg-signal-bg border border-signal-border rounded-xl p-6">
             {/* Drop zone */}
             <label
               onDragOver={handleDragOver}
@@ -512,7 +496,7 @@ export function BulkUpload() {
               onDrop={handleDrop}
               className={cn(
                 "flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors",
-                isDragging ? "border-indigo-500 bg-[#FAFAFE]" : "border-[#E5E4E0] hover:border-indigo-500 hover:bg-[#FAFAFE]"
+                isDragging ? "border-signal-accent bg-signal-surface" : "border-signal-border hover:border-signal-accent hover:bg-signal-surface"
               )}
             >
               <input
@@ -522,18 +506,18 @@ export function BulkUpload() {
                 onChange={handleFileInput}
                 className="hidden"
               />
-              <Upload className="w-8 h-8 text-[#9CA3AF] mx-auto mb-3" />
-              <p className="text-[14px] font-medium text-[#374151] mb-1">Drop your CSV here</p>
-              <p className="text-[13px] text-[#9CA3AF]">
-                or <span className="text-indigo-600">browse files</span> — up to 1,000 leads per upload
+              <Upload className="w-8 h-8 text-signal-text-4 mx-auto mb-3" />
+              <p className="text-[14px] font-medium text-signal-text-2 mb-1">Drop your CSV here</p>
+              <p className="text-[13px] text-signal-text-4">
+                or <span className="text-signal-accent">browse files</span> — up to 1,000 leads per upload
               </p>
-              <p className="text-[12px] text-[#6B7280] mt-3">
+              <p className="text-[12px] text-signal-text-3 mt-3">
                 Needs at least one of: <span className="font-medium">LinkedIn URL</span> · <span className="font-medium">work email</span> · <span className="font-medium">first name + last name + company</span>
               </p>
             </label>
 
             <div className="mt-2 text-center">
-              <button onClick={downloadSampleCSV} className="text-[12px] text-indigo-600 hover:underline">
+              <button onClick={downloadSampleCSV} className="text-[12px] text-signal-accent hover:underline">
                 Download sample CSV template
               </button>
             </div>

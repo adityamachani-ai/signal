@@ -37,6 +37,21 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Signal design tokens — light */
+  --signal-bg: #ffffff;
+  --signal-surface: #F9FAFB;
+  --signal-raised: #F3F4F6;
+  --signal-border: #E5E4E0;
+  --signal-border-faint: #F3F4F6;
+  --signal-text-1: #111827;
+  --signal-text-2: #374151;
+  --signal-text-3: #6B7280;
+  --signal-text-4: #9CA3AF;
+  --signal-accent: #4F46E5;
+  --signal-accent-2: #4338CA;
+  --signal-accent-tint: #EEF2FF;
+  --signal-accent-border: #C7D2FE;
 }
 
 .dark {
@@ -72,6 +87,21 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
+
+  /* Signal design tokens — dark */
+  --signal-bg: #18181B;
+  --signal-surface: #27272A;
+  --signal-raised: #3F3F46;
+  --signal-border: #3F3F46;
+  --signal-border-faint: #27272A;
+  --signal-text-1: #FAFAFA;
+  --signal-text-2: #D4D4D8;
+  --signal-text-3: #A1A1AA;
+  --signal-text-4: #71717A;
+  --signal-accent: #6366F1;
+  --signal-accent-2: #818CF8;
+  --signal-accent-tint: #1E1B4B;
+  --signal-accent-border: #4338CA;
 }
 
 @theme inline {
@@ -113,6 +143,21 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Signal utility classes */
+  --color-signal-bg: var(--signal-bg);
+  --color-signal-surface: var(--signal-surface);
+  --color-signal-raised: var(--signal-raised);
+  --color-signal-border: var(--signal-border);
+  --color-signal-border-faint: var(--signal-border-faint);
+  --color-signal-text-1: var(--signal-text-1);
+  --color-signal-text-2: var(--signal-text-2);
+  --color-signal-text-3: var(--signal-text-3);
+  --color-signal-text-4: var(--signal-text-4);
+  --color-signal-accent: var(--signal-accent);
+  --color-signal-accent-2: var(--signal-accent-2);
+  --color-signal-accent-tint: var(--signal-accent-tint);
+  --color-signal-accent-border: var(--signal-accent-border);
 }
 
 @layer base {

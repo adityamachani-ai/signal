@@ -138,7 +138,10 @@ Generated intelligence documents for leads.
 | why_now | jsonb | Array of signal cards |
 | intelligence | jsonb | Person + company intel |
 | recommended_approach | jsonb | Channel, angle, avoid |
-| outreach_drafts | jsonb | Per-channel drafts |
+| outreach_drafts | jsonb | Per-channel drafts (`linkedin-note`, `linkedin-dm`, `email`, `follow-up`, `call-opener`) |
+| angle | text | Recommended angle narrative (from `generateAngle`) |
+| pain_map | jsonb | Structured pain map with L1/L2/L3 layers |
+| who_they_are | jsonb | Career arc + communication style |
 | generated_at | timestamptz | |
 | generation_sources | jsonb | |
 | outreach_context | text | Rep's stated goal |
@@ -350,8 +353,9 @@ Searches Lusha Prospecting API with structured filters.
 - City names are resolved to canonical form via `lib/geocode.ts` (e.g. "Bangalore" → "Bengaluru")
 - Lusha requires locations as separate objects: `[{city: "Bengaluru"}, {country: "India"}]` — NOT combined
 - When seniority already covers the intent (e.g. "Founder"), the same word is excluded from jobTitles to avoid overly restrictive AND filtering
-- Deduplicates results by company (respects maxPerCompany)
+- Deduplicates results by company (max 3 per company for broad searches; unlimited for specific-company queries)
 - Falls back to mock data if no Lusha API key configured
+- **Credits:** 1 credit per search API call (regardless of result count); enrich uses same requestId at no extra cost
 
 ---
 
@@ -410,8 +414,62 @@ Returns `{ score: 'strong' | 'medium' | 'low', reasons: string[] }`
 
 ### lib/llm.ts — LLM Client
 
-- `getLlm()` — returns a lazy-initialized OpenAI client pointing at the configured Azure/LiteLLM endpoint
-- `LLM_MODEL` — model identifier (default: `azure/gpt-4.1-nano`)
+- `getLlm()` — returns a lazy-initialized OpenAI-compatible client pointing at `LLM_BASE_URL`
+- `LLM_MODEL` — model identifier (default: `gpt-5-mini`). Used by research agent and general-purpose LLM calls (ICP parse, signal scoring, etc.)
+- `BRIEF_MODEL` — model identifier (default: falls back to `LLM_MODEL`). Used by the 5 brief generation agents.
+- Uses `Connection: close` headers to avoid keep-alive socket drops
+
+#### Per-pipeline model split (implemented)
+
+`LLM_MODEL` is kept cheap/fast because it runs on every ICP search query and the research agent's agentic loop.
+
+`BRIEF_MODEL` is set separately for the 5 brief agents (`lib/brief-agents.ts`) which do heavier synthesis work. This allows using a smarter model for brief quality without affecting cost on high-volume operations.
+
+Current defaults in `.env.local`:
+- `LLM_MODEL=gpt-5-mini` — research agent, ICP parse, signal scoring
+- `BRIEF_MODEL=gpt-5.4` — Who They Are, Pain Map, Angle, Why Now, Outreach Drafts
+
+### lib/enrichment.ts — External Data Sources
+
+- `apifyLinkedInPerson(url)` — scrapes LinkedIn profile via `harvestapi~linkedin-profile-scraper` (input field: `urls`). Returns career history, education, skills, connections count.
+- `apifyLinkedInCompany(url)` — scrapes LinkedIn company page via `harvestapi~linkedin-company`
+- `apifyLinkedInPosts(url)` — scrapes recent posts via `harvestapi~linkedin-profile-posts` (`maxPosts: 20`)
+- `tavilySearch(query)` — web search via Tavily API. Returns up to 5 results per query, content sliced to 2000 chars.
+
+### lib/research-agent.ts — Research Agent
+
+Agentic loop that gathers prospect intelligence using OpenAI function calling with 4 tools (`linkedin_person`, `linkedin_company`, `linkedin_posts`, `web_search`). Max 12 iterations.
+
+**Tool strategy:** LinkedIn person + company + posts first, then up to 5 web searches (2 person-focused, 3 company/pain-focused). Includes web search verification instruction to prevent name collision contamination.
+
+**Safeguards:** Person data is only written on success (prevents overwrite from retry failures). Tool call log is preserved for debugging.
+
+### lib/brief-agents.ts — Brief Generation Pipeline
+
+5 structured LLM calls that transform raw enrichment data into a sales brief:
+1. `generateWhoTheyAre` — career arc, personal context, headline
+2. `generatePainMap` — evidence-based pain points mapped to playbook (3-layer framework)
+3. `generateAngle` — recommended approach and positioning
+4. `generateWhyNow` — timing signals and urgency assessment
+5. `generateOutreachDrafts` — channel-specific outreach messages with quality guardrails
+
+**`enrichmentSummary()` normalizes Apify data** — maps `experience` → positions, `position` → title, `startDate.text`/`endDate.text` for dates, `connectionsCount`/`followerCount`, `about` → summary. Posts include `url` for source linking. Web search results sliced to 15 entries. When person scrape fails (returns null), emits a fallback note instructing the model to reconstruct career from posts + web results.
+
+**Pain Map — 3-layer hybrid framework:**
+- **L1** — role-level baseline pains (present in most people with the same title)
+- **L2** — company amplifiers (pains made worse by this specific company's situation)
+- **L3** — individual signals (pains evidenced by this person's own posts, quotes, or actions)
+- Rule: L1-only pains (no L2/L3 evidence) are banned. Every surfaced pain must have at least one L2 or L3 signal. `observations` chain-of-thought field is stripped before return.
+
+**Outreach Drafts — quality guardrails per channel:**
+- `linkedin-note`: max 300 chars. Must reference one specific fact about the prospect.
+- `linkedin-dm`: 3–5 sentences. Must open with the prospect's own words quoted back.
+- `email`: returned as a single string `"Subject: [subject line]\n\n[body text]"`. Max 150 words.
+- `follow-up`: must use a different angle or pain than the linkedin-dm.
+- `call-opener`: must open with something about the prospect before mentioning the product.
+- **Banned openers** (never start any message with): "I've been following your insights", "I came across your profile", "Hope this finds you well", "Just wanted to follow up", "I wanted to quickly / briefly share".
+
+**Anti-hallucination:** All agents include CRITICAL constraint requiring evidence traceability. Web search results carry verification warnings. `personalContext` restricted to LinkedIn posts only (no web search data). `generateWhyNow` `observations` CoT field stripped before return.
 
 ### lib/supabase/
 
@@ -445,7 +503,7 @@ Public routes (no auth): `/login`, `/signup`, `/auth/callback`, `/_next/*`, `/ap
 ## Test Suite
 
 **Framework:** Vitest 4.1.0  
-**Total:** 8 files, 199 tests (198 passing, 1 skipped)  
+**Total:** 10 files, 251 tests  
 **Mock mode:** `pnpm test` runs all tests with zero Lusha credits consumed
 
 ```bash
@@ -469,14 +527,16 @@ Tests check `HAS_REAL_KEY = !!process.env.LUSHA_API_KEY` to adjust assertions fo
 
 | File | Tests | Coverage |
 |---|---|---|
-| `setup.test.ts` | 9 | Supabase connection, auth signup/login, RLS data isolation |
+| `setup.test.ts` | 11 | Supabase connection, auth signup/login, RLS data isolation |
 | `lusha-integration.test.ts` | 9 | Lusha lookup (LinkedIn/email/name), add-to-list, dedup |
-| `bulk-upload.test.ts` | 46 | Bulk enrich validation, lookup methods, dedup, batching, DB insertion, save-leads |
+| `bulk-upload.test.ts` | 36 | Bulk enrich validation, lookup methods, dedup, batching, DB insertion, save-leads |
 | `research-leads.test.ts` | 17 | GET /leads response shape, lookup dedup cache, bulk phone field |
 | `icp-discovery.test.ts` | 70 | ICP parse (NL → filters), ICP search (filters → results), E2E flow, pagination, edge cases |
 | `signal-score.test.ts` | 17 | computeSignalScore unit tests (all signal types and edge cases) |
-| `new-features.test.ts` | 3 | save-leads enrichment/dedup, lookup signal_score |
-| `phases.test.ts` | 28 | Multi-phase enrichment, save-leads batching, query length limits |
+| `new-features.test.ts` | 15 | save-leads enrichment/dedup, lookup signal_score, list management |
+| `phases.test.ts` | 30 | Multi-phase enrichment, save-leads batching, query length limits |
+| `multi-list.test.ts` | 36 | Named list CRUD, assign leads to lists, default list behavior |
+| `lookup-refresh.test.ts` | 10 | Re-enrich stale leads, refresh contact data |
 
 Tests create temporary users, run assertions, then clean up. Each file is self-contained.
 

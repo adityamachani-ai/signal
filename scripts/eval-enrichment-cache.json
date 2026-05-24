@@ -1,0 +1,2336 @@
+{
+  "person": null,
+  "company": {
+    "id": "3608",
+    "universalName": "nvidia",
+    "linkedinUrl": "https://www.linkedin.com/company/nvidia",
+    "name": "NVIDIA",
+    "tagline": "",
+    "website": "http://www.nvidia.com",
+    "logo": "https://media.licdn.com/dms/image/v2/D560BAQGV36q2EowSyw/company-logo_400_400/company-logo_400_400/0/1724881581208/nvidia_logo?e=1781136000&v=beta&t=IzAvvpOc2YiJQNRbRTiq7dAPIC9Id-hhOpHBWtk8iOs",
+    "foundedOn": {
+      "year": 1993
+    },
+    "employeeCount": 47830,
+    "employeeCountRange": {
+      "start": 10001
+    },
+    "followerCount": 5330268,
+    "description": "Since its founding in 1993, NVIDIA (NASDAQ: NVDA) has been a pioneer in accelerated computing. The company’s invention of the GPU in 1999 sparked the growth of the PC gaming market, redefined computer graphics, ignited the era of modern AI and is fueling the creation of the metaverse. NVIDIA is now a full-stack computing company with data-center-scale offerings that are reshaping industry.",
+    "companyType": "Public Company",
+    "locations": [
+      {
+        "country": "US",
+        "geographicArea": "CA",
+        "city": "Santa Clara",
+        "line1": "2701 San Tomas Expressway",
+        "postalCode": "95050",
+        "headquarter": true,
+        "parsed": {
+          "text": "Santa Clara, CA, United States",
+          "countryCode": "US",
+          "regionCode": null,
+          "country": "United States",
+          "countryFull": "United States of America",
+          "state": "California",
+          "city": "Santa Clara"
+        }
+      },
+      {
+        "country": "TW",
+        "geographicArea": "Taipei City",
+        "city": "Taipei City",
+        "line1": "No. 8, Ji Hu Rd.",
+        "postalCode": "114",
+        "headquarter": false,
+        "description": "NVIDIA BVI Holdings Limited, Taiwan Branch",
+        "parsed": {
+          "text": "Taipei, Taiwan, Province of China",
+          "countryCode": "TW",
+          "regionCode": null,
+          "country": "Taiwan",
+          "countryFull": "Taiwan, Province of China",
+          "state": "Taipei",
+          "city": "Taipei"
+        }
+      },
+      {
+        "country": "IN",
+        "geographicArea": "Telangana",
+        "city": "Hyderabad",
+        "line1": "Nanakramguda, Serilingampally Mandal",
+        "line2": "Plot # 6A&B, IT Park Layout, RR District",
+        "postalCode": "500046",
+        "headquarter": false,
+        "description": "NVIDIA Graphics Pvt. Ltd.",
+        "parsed": {
+          "text": "Hyderābād, India",
+          "countryCode": "IN",
+          "regionCode": null,
+          "country": "India",
+          "countryFull": "India",
+          "state": "Telangana",
+          "city": "Hyderābād"
+        }
+      },
+      {
+        "country": "IN",
+        "geographicArea": "Village Chakala, Andheri East",
+        "city": "Mumbai",
+        "line1": "No. 127 Andheri Kurla Road",
+        "line2": "CNB Square",
+        "postalCode": "400 093",
+        "headquarter": false,
+        "description": "NVIDIA Graphics Pvt. Ltd. ",
+        "parsed": {
+          "text": "Mumbai, India",
+          "countryCode": "IN",
+          "regionCode": null,
+          "country": "India",
+          "countryFull": "India",
+          "state": "Maharashtra",
+          "city": "Mumbai"
+        }
+      },
+      {
+        "country": "IN",
+        "geographicArea": "Yerwada",
+        "city": "Pune",
+        "line1": "Survey No. 144/145, Samrat Ashok Path",
+        "line2": "Off Airport Road",
+        "postalCode": "411 006",
+        "headquarter": false,
+        "description": "Commerzone, Building No. 5",
+        "parsed": {
+          "text": "Pune, India",
+          "countryCode": "IN",
+          "regionCode": null,
+          "country": "India",
+          "countryFull": "India",
+          "state": "Maharashtra",
+          "city": "Pune"
+        }
+      },
+      {
+        "country": "JP",
+        "geographicArea": "Minato-ku",
+        "city": "Tokyo",
+        "line1": "2-11-7 Akasaka",
+        "line2": " 13th Floor",
+        "postalCode": "107-0052",
+        "headquarter": false,
+        "description": "ATT New Tower ",
+        "parsed": {
+          "text": "Tokyo, Japan",
+          "countryCode": "JP",
+          "regionCode": null,
+          "country": "Japan",
+          "countryFull": "Japan",
+          "state": "Tokyo",
+          "city": "Tokyo"
+        }
+      }
+    ],
+    "specialities": [
+      "GPU-accelerated computing",
+      "artificial intelligence",
+      "deep learning",
+      "virtual reality",
+      "gaming",
+      "self-driving cars",
+      "supercomputing",
+      "robotics",
+      "virtualization",
+      "parallel computing",
+      "professional graphics",
+      "automotive technology"
+    ],
+    "industries": [
+      {
+        "id": "3",
+        "name": "Computer Hardware Manufacturing",
+        "urn": "urn:li:fs_industry:3",
+        "title": "Computer Hardware Manufacturing",
+        "hierarchy": "Manufacturing > Computers and Electronics Manufacturing > Computer Hardware Manufacturing"
+      }
+    ],
+    "logos": [
+      {
+        "url": "https://media.licdn.com/dms/image/v2/D560BAQGV36q2EowSyw/company-logo_400_400/company-logo_400_400/0/1724881581208/nvidia_logo?e=1781136000&v=beta&t=IzAvvpOc2YiJQNRbRTiq7dAPIC9Id-hhOpHBWtk8iOs",
+        "width": 400,
+        "height": 400
+      },
+      {
+        "url": "https://media.licdn.com/dms/image/v2/D560BAQGV36q2EowSyw/company-logo_200_200/company-logo_200_200/0/1724881581208/nvidia_logo?e=1781136000&v=beta&t=MwplEgvrBsKHxgdPWar63rif3iVM3912zPNf6Eh8WVk",
+        "width": 200,
+        "height": 200
+      },
+      {
+        "url": "https://media.licdn.com/dms/image/v2/D560BAQGV36q2EowSyw/company-logo_100_100/company-logo_100_100/0/1724881581208/nvidia_logo?e=1781136000&v=beta&t=WNf5RB7sVU90biEvzLvzupU2CEBdcbOk8oUX8BWjLOc",
+        "width": 100,
+        "height": 100
+      }
+    ],
+    "backgroundCover": "https://media.licdn.com/dms/image/v2/D563DAQE7hmSKOEQ4-g/image-scale_191_1128/B56ZhC2Y0mG4Ag-/0/1753468210886/nvidia_cover?e=1780153200&v=beta&t=5VXnnMSJhgByf-AUFtYAy0-lloSJvZ5BiM9XJvPELA8",
+    "backgroundCovers": [
+      {
+        "url": "https://media.licdn.com/dms/image/v2/D563DAQE7hmSKOEQ4-g/image-scale_191_1128/B56ZhC2Y0mG4Ag-/0/1753468210886/nvidia_cover?e=1780153200&v=beta&t=5VXnnMSJhgByf-AUFtYAy0-lloSJvZ5BiM9XJvPELA8",
+        "width": 1128,
+        "height": 191
+      },
+      {
+        "url": "https://media.licdn.com/dms/image/v2/D563DAQE7hmSKOEQ4-g/image-scale_127_750/B56ZhC2Y0mG4AQ-/0/1753468210886/nvidia_cover?e=1780153200&v=beta&t=e-EH0lpUp9CV-meveUWa4EcEEJFxM4BfOLHXYUhnBMI",
+        "width": 748,
+        "height": 127
+      },
+      {
+        "url": "https://media.licdn.com/dms/image/v2/D563DAQE7hmSKOEQ4-g/image-scale_108_640/B56ZhC2Y0mG4AU-/0/1753468210886/nvidia_cover?e=1780153200&v=beta&t=Lz5s2vt2OZ6FSGYYk-_voR_CKpMTz7vgJb9hsjnxS2M",
+        "width": 108,
+        "height": 18
+      }
+    ],
+    "fundingData": {
+      "fundingRoundListCrunchbaseUrl": "https://www.crunchbase.com/organization/nvidia/funding_rounds/funding_rounds_list?utm_source=linkedin&utm_medium=referral&utm_campaign=linkedin_companies&utm_content=all_fundings",
+      "lastFundingRound": {
+        "investorsCrunchbaseUrl": "https://www.crunchbase.com/funding_round/nvidia-grant--2cb62222?utm_source=linkedin&utm_medium=referral&utm_campaign=linkedin_companies&utm_content=all_investors",
+        "leadInvestors": [
+          {
+            "name": {
+              "text": "ARPA-E"
+            },
+            "investorCrunchbaseUrl": "https://www.crunchbase.com/organization/arpa-e?utm_source=linkedin&utm_medium=referral&utm_campaign=linkedin_companies&utm_content=investor"
+          }
+        ],
+        "fundingRoundCrunchbaseUrl": "https://www.crunchbase.com/funding_round/nvidia-grant--2cb62222?utm_source=linkedin&utm_medium=referral&utm_campaign=linkedin_companies&utm_content=last_funding",
+        "fundingType": "GRANT",
+        "moneyRaised": {
+          "currencyCode": "USD",
+          "amount": "5000000"
+        },
+        "numOtherInvestors": 0,
+        "announcedOn": {
+          "month": 5,
+          "day": 9,
+          "year": 2023
+        }
+      },
+      "companyCrunchbaseUrl": "https://www.crunchbase.com/organization/nvidia?utm_source=linkedin&utm_medium=referral&utm_campaign=linkedin_companies&utm_content=profile_cta",
+      "numFundingRounds": 7,
+      "updatedAt": 1748584812
+    },
+    "autoGenerated": false,
+    "callToActionUrl": "https://www.nvidia.com",
+    "similarOrganizations": [],
+    "peopleStats": [
+      {
+        "statTitle": "Show me only",
+        "values": [
+          {
+            "title": "People",
+            "count": null
+          },
+          {
+            "title": "Jobs",
+            "count": null
+          },
+          {
+            "title": "Posts",
+            "count": null
+          },
+          {
+            "title": "Companies",
+            "count": null
+          },
+          {
+            "title": "Products",
+            "count": null
+          },
+          {
+            "title": "Groups",
+            "count": null
+          },
+          {
+            "title": "Services",
+            "count": null
+          },
+          {
+            "title": "Events",
+            "count": null
+          },
+          {
+            "title": "Courses",
+            "count": null
+          },
+          {
+            "title": "Schools",
+            "count": null
+          }
+        ]
+      },
+      {
+        "statTitle": "Locations",
+        "values": [
+          {
+            "title": "United States",
+            "count": 24165
+          },
+          {
+            "title": "California, United States",
+            "count": 14678
+          },
+          {
+            "title": "San Francisco Bay Area",
+            "count": 13312
+          },
+          {
+            "title": "India",
+            "count": 7869
+          },
+          {
+            "title": "Israel",
+            "count": 5432
+          },
+          {
+            "title": "Santa Clara, CA",
+            "count": 4303
+          },
+          {
+            "title": "San Jose, CA",
+            "count": 3062
+          },
+          {
+            "title": "Karnataka, India",
+            "count": 2878
+          },
+          {
+            "title": "Greater Bengaluru Area",
+            "count": 2807
+          },
+          {
+            "title": "Bengaluru",
+            "count": 2677
+          },
+          {
+            "title": "Maharashtra, India",
+            "count": 2087
+          },
+          {
+            "title": "Texas, United States",
+            "count": 1570
+          },
+          {
+            "title": "Pune/Pimpri-Chinchwad Area",
+            "count": 1241
+          },
+          {
+            "title": "San Francisco, CA",
+            "count": 979
+          },
+          {
+            "title": "Greater Seattle Area",
+            "count": 972
+          }
+        ]
+      },
+      {
+        "statTitle": "School",
+        "values": [
+          {
+            "title": "Technion - Israel Institute of Technology",
+            "count": 1751
+          },
+          {
+            "title": "University of California, Berkeley",
+            "count": 974
+          },
+          {
+            "title": "Stanford University",
+            "count": 968
+          },
+          {
+            "title": "San José State University",
+            "count": 954
+          },
+          {
+            "title": "Tel Aviv University",
+            "count": 849
+          },
+          {
+            "title": "University of Southern California",
+            "count": 797
+          },
+          {
+            "title": "Georgia Institute of Technology",
+            "count": 732
+          },
+          {
+            "title": "Ben-Gurion University of the Negev",
+            "count": 731
+          },
+          {
+            "title": "Carnegie Mellon University",
+            "count": 688
+          },
+          {
+            "title": "Birla Institute of Technology and Science, Pilani",
+            "count": 688
+          },
+          {
+            "title": "University of Illinois Urbana-Champaign",
+            "count": 597
+          },
+          {
+            "title": "The University of Texas at Austin",
+            "count": 514
+          },
+          {
+            "title": "North Carolina State University",
+            "count": 464
+          },
+          {
+            "title": "UC San Diego",
+            "count": 424
+          },
+          {
+            "title": "Indian Institute of Technology, Bombay",
+            "count": 248
+          }
+        ]
+      },
+      {
+        "statTitle": "Current Function",
+        "values": [
+          {
+            "title": "Engineering",
+            "count": 27635
+          },
+          {
+            "title": "Information Technology",
+            "count": 5487
+          },
+          {
+            "title": "Arts and Design",
+            "count": 2866
+          },
+          {
+            "title": "Business Development",
+            "count": 2830
+          },
+          {
+            "title": "Operations",
+            "count": 2769
+          },
+          {
+            "title": "Quality Assurance",
+            "count": 2585
+          },
+          {
+            "title": "Sales",
+            "count": 2004
+          },
+          {
+            "title": "Program and Project Management",
+            "count": 1983
+          },
+          {
+            "title": "Research",
+            "count": 1411
+          },
+          {
+            "title": "Education",
+            "count": 1251
+          },
+          {
+            "title": "Human Resources",
+            "count": 1128
+          },
+          {
+            "title": "Product Management",
+            "count": 974
+          },
+          {
+            "title": "Marketing",
+            "count": 962
+          },
+          {
+            "title": "Media and Communication",
+            "count": 752
+          },
+          {
+            "title": "Community and Social Services",
+            "count": 493
+          }
+        ]
+      },
+      {
+        "statTitle": "Skill Explicit",
+        "values": [
+          {
+            "title": "Python (Programming Language)",
+            "count": 17486
+          },
+          {
+            "title": "C++",
+            "count": 15443
+          },
+          {
+            "title": "C (Programming Language)",
+            "count": 14894
+          },
+          {
+            "title": "Linux",
+            "count": 11039
+          },
+          {
+            "title": "Java",
+            "count": 8665
+          },
+          {
+            "title": "Software Development",
+            "count": 8071
+          },
+          {
+            "title": "MATLAB",
+            "count": 7309
+          },
+          {
+            "title": "Microsoft Office",
+            "count": 6704
+          },
+          {
+            "title": "Machine Learning",
+            "count": 6696
+          },
+          {
+            "title": "Leadership",
+            "count": 6423
+          },
+          {
+            "title": "SQL",
+            "count": 6417
+          },
+          {
+            "title": "Project Management",
+            "count": 6365
+          },
+          {
+            "title": "Algorithms",
+            "count": 5379
+          },
+          {
+            "title": "Management",
+            "count": 5367
+          },
+          {
+            "title": "Artificial Intelligence (AI)",
+            "count": 4095
+          }
+        ]
+      },
+      {
+        "statTitle": "Service categories",
+        "values": [
+          {
+            "title": "Software Development",
+            "count": 237
+          },
+          {
+            "title": "Consulting",
+            "count": 201
+          },
+          {
+            "title": "Operations",
+            "count": 158
+          },
+          {
+            "title": "Design",
+            "count": 148
+          },
+          {
+            "title": "Coaching & Mentoring",
+            "count": 140
+          },
+          {
+            "title": "Information Technology",
+            "count": 136
+          },
+          {
+            "title": "Marketing",
+            "count": 125
+          },
+          {
+            "title": "Application Development",
+            "count": 97
+          },
+          {
+            "title": "IT Consulting",
+            "count": 96
+          },
+          {
+            "title": "Web Development",
+            "count": 93
+          },
+          {
+            "title": "Custom Software Development",
+            "count": 84
+          },
+          {
+            "title": "Writing",
+            "count": 74
+          },
+          {
+            "title": "Career Development Coaching",
+            "count": 58
+          },
+          {
+            "title": "Business Consulting",
+            "count": 52
+          },
+          {
+            "title": "Interview Preparation",
+            "count": 34
+          }
+        ]
+      },
+      {
+        "statTitle": "Field of Study",
+        "values": [
+          {
+            "title": "Computer Science",
+            "count": 10134
+          },
+          {
+            "title": "Computational Science",
+            "count": 8563
+          },
+          {
+            "title": "Electrical and Electronics Engineering",
+            "count": 7764
+          },
+          {
+            "title": "Computer Engineering",
+            "count": 4410
+          },
+          {
+            "title": "Electrical, Electronics and Communications Engineering",
+            "count": 4198
+          },
+          {
+            "title": "Computer Engineering Technologies/Technicians",
+            "count": 3587
+          },
+          {
+            "title": "Computer Engineering Technology/Technician",
+            "count": 3285
+          },
+          {
+            "title": "Electrical and Computer Engineering",
+            "count": 1894
+          },
+          {
+            "title": "Physics",
+            "count": 1462
+          },
+          {
+            "title": "Mathematics",
+            "count": 1428
+          },
+          {
+            "title": "Information Technology",
+            "count": 1410
+          },
+          {
+            "title": "Electronics",
+            "count": 1380
+          },
+          {
+            "title": "Mechanical Engineering",
+            "count": 1374
+          },
+          {
+            "title": "Business Administration and Management, General",
+            "count": 1264
+          },
+          {
+            "title": "Marketing",
+            "count": 643
+          }
+        ]
+      }
+    ],
+    "originalQuery": {
+      "search": "https://www.linkedin.com/company/nvidia",
+      "location": "",
+      "scrapePeopleTab": "true"
+    },
+    "requestId": "32c8176c-220c-4afe-b625-8b5068f0ae18"
+  },
+  "posts": [
+    {
+      "type": "post",
+      "id": "7438278042805960704",
+      "linkedinUrl": "https://www.linkedin.com/posts/nvidia_nvidiagtc-ugcPost-7435112833303859200-4u7w",
+      "content": "Open models are at the center of one of the most important shifts in AI.\n\nAt #NVIDIAGTC, NVIDIA founder and CEO Jensen Huang is bringing together leaders from some of the most exciting AI companies to discuss what comes next.\n\nJoin us online or in person to hear where we are and where we’re headed: https://nvda.ws/3OH7Lgv\n\nFeaturing leaders from: Ai2, Black Forest Labs, Cursor, LangChain, Mistral AI, OpenEvidence, Perplexity, Reflection AI, Thinking Machines Lab, and University of Washington.",
+      "contentAttributes": [
+        {
+          "start": 349,
+          "length": 3,
+          "type": "COMPANY_NAME",
+          "hyperlink": null,
+          "textLink": null,
+          "company": {
+            "id": "3766239",
+            "name": "Ai2",
+            "linkedinUrl": "https://www.linkedin.com/company/allen-ai/"
+          }
+        },
+        {
+          "start": 354,
+          "length": 17,
+          "type": "COMPANY_NAME",
+          "hyperlink": null,
+          "textLink": null,
+          "company": {
+            "id": "104743663",
+            "name": "Black Forest Labs",
+            "linkedinUrl": "https://www.linkedin.com/company/bflai/"
+          }
+        },
+        {
+          "start": 373,
+          "length": 6,
+          "type": "COMPANY_NAME",
+          "hyperlink": null,
+          "textLink": null,
+          "company": {
+            "id": "105614038",
+            "name": "Cursor",
+            "linkedinUrl": "https://www.linkedin.com/company/cursorai/"
+          }
+        },
+        {
+          "start": 381,
+          "length": 9,
+          "type": "COMPANY_NAME",
+          "hyperlink": null,
+          "textLink": null,
+          "company": {
+            "id": "91342320",
+            "name": "LangChain",
+            "linkedinUrl": "https://www.linkedin.com/company/langchain/"
+          }
+        },
+        {
+          "start": 392,
+          "length": 10,
+          "type": "COMPANY_NAME",
+          "hyperlink": null,
+          "textLink": null,
+          "company": {
+            "id": "94273421",
+            "name": "Mistral AI",
+            "linkedinUrl": "https://www.linkedin.com/company/mistralai/"
+          }
+        },
+        {
+          "start": 404,
+          "length": 12,
+          "type": "COMPANY_NAME",
+          "hyperlink": null,
+          "textLink": null,
+          "company": {
+            "id": "81917876",
+            "name": "OpenEvidence",
+            "linkedinUrl": "https://www.linkedin.com/company/openevidence/"
+          }
+        },
+        {
+          "start": 418,
+          "length": 10,
+          "type": "COMPANY_NAME",
+          "hyperlink": null,
+          "textLink": null,
+          "company": {
+            "id": "88007673",
+            "name": "Perplexity",
+            "linkedinUrl": "https://www.linkedin.com/company/perplexity-ai/"
+          }
+        },
+        {
+          "start": 430,
+          "length": 13,
+          "type": "COMPANY_NAME",
+          "hyperlink": null,
+          "textLink": null,
+          "company": {
+            "id": "106009488",
+            "name": "Reflection",
+            "linkedinUrl": "https://www.linkedin.com/company/reflectionai/"
+          }
+        },
+        {
+          "start": 445,
+          "length": 21,
+          "type": "COMPANY_NAME",
+          "hyperlink": null,
+          "textLink": null,
+          "company": {
+            "id": "105913171",
+            "name": "Thinking Machines Lab",
+            "linkedinUrl": "https://www.linkedin.com/company/thinkingmachinesai/"
+          }
+        },
+        {
+          "start": 472,
+          "length": 24,
+          "type": "COMPANY_NAME",
+          "hyperlink": null,
+          "textLink": null,
+          "company": {
+            "id": "2584",
+            "name": "University of Washington",
+            "linkedinUrl": "https://www.linkedin.com/school/university-of-washington/"
+          }
+        }
+      ],
+      "author": {
+        "id": "3608",
+        "universalName": "nvidia",
+        "publicIdentifier": null,
+        "type": "company",
+        "name": "NVIDIA",
+        "linkedinUrl": "https://www.linkedin.com/company/nvidia/posts",
+        "info": "5,330,267 followers",
+        "website": null,
+        "websiteLabel": null,
+        "avatar": {
+          "url": "https://media.licdn.com/dms/image/v2/D560BAQGV36q2EowSyw/company-logo_400_400/company-logo_400_400/0/1724881581208/nvidia_logo?e=1781136000&v=beta&t=IzAvvpOc2YiJQNRbRTiq7dAPIC9Id-hhOpHBWtk8iOs",
+          "width": 400,
+          "height": 400
+        },
+        "urn": "3608"
+      },
+      "postedAt": {
+        "timestamp": 1773423681928,
+        "date": "2026-03-13T17:41:21.928Z",
+        "postedAgoShort": "2mo",
+        "postedAgoText": "2 months ago • Edited • Visible to anyone on or off LinkedIn"
+      },
+      "postImages": [],
+      "postVideo": {
+        "thumbnailUrl": "https://media.licdn.com/dms/image/v2/D4E10AQEruxNVOI5CPA/ads-video-thumbnail_720_1280/B4EZy7TsF2JYAg-/0/1772669028553?e=1780153200&v=beta&t=taMQL4aghu3S1e0bwODakoiahD_avMIzd6NevIXO9VM",
+        "videoUrl": "https://dms.licdn.com/playlist/vid/v2/D4E10AQEruxNVOI5CPA/mp4-720p-30fp-crf28/B4EZy7TsF2JYCA-/0/1772669029532?e=1780153200&v=beta&t=DtCUHVYKYwO1pFnFA6--2rxdkdnZ_iJRJxozTsZ3BbI"
+      },
+      "repostedBy": {
+        "name": "Jensen Huang",
+        "publicIdentifier": "jenhsunhuang",
+        "universalName": null,
+        "linkedinUrl": "https://www.linkedin.com/in/jenhsunhuang?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg"
+      },
+      "repostedAt": {
+        "timestamp": 1773423681928,
+        "date": "2026-03-13T17:41:21.928Z"
+      },
+      "socialContent": {
+        "hideCommentsCount": false,
+        "hideReactionsCount": false,
+        "hideSocialActivityCounts": false,
+        "hideShareAction": false,
+        "hideSendAction": false,
+        "hideRepostsCount": false,
+        "hideViewsCount": false,
+        "trustInterventionBanner": null,
+        "hideReactAction": false,
+        "hideCommentAction": false,
+        "shareUrl": "https://www.linkedin.com/posts/nvidia_nvidiagtc-ugcPost-7435112833303859200-4u7w?",
+        "showContributionExperience": false,
+        "showSocialDetail": true
+      },
+      "comments": [],
+      "header": {
+        "image": {
+          "url": "https://media.licdn.com/dms/image/v2/D5603AQEM7Pb1ndhi0Q/profile-displayphoto-crop_800_800/B56ZsU9UHlI8AM-/0/1765583176551?e=1781136000&v=beta&t=qp_qTeQYeu8d84zynDiOpbtev7UG1ZG87p4dhlZ0nMg",
+          "width": 800,
+          "height": 800
+        },
+        "linkedinUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7438278042805960704?updateEntityUrn=urn%3Ali%3Afsd_update%3A%28urn%3Ali%3Aactivity%3A7438278042805960704%2CMEMBER_SHARES%2CDEBUG_REASON%2CDEFAULT%2Cfalse%29&originTrackingId=vQ8Of29lDN%2FU3mheAQJGBQ%3D%3D",
+        "imageLink": "https://www.linkedin.com/in/jenhsunhuang?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "text": "Jensen Huang reposted this"
+      },
+      "entityId": "7438278042805960704",
+      "shareUrn": "urn:li:ugcPost:7435112833303859200",
+      "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7435112833303859200",
+      "engagement": {
+        "id": "7435112833303859200",
+        "likes": 2345,
+        "comments": 240,
+        "shares": 222,
+        "reactions": [
+          {
+            "type": "LIKE",
+            "count": 2104
+          },
+          {
+            "type": "PRAISE",
+            "count": 99
+          },
+          {
+            "type": "EMPATHY",
+            "count": 91
+          },
+          {
+            "type": "INTEREST",
+            "count": 27
+          },
+          {
+            "type": "APPRECIATION",
+            "count": 23
+          },
+          {
+            "type": "ENTERTAINMENT",
+            "count": 1
+          }
+        ]
+      },
+      "reactions": [],
+      "reactionIds": [],
+      "commentIds": [],
+      "query": {
+        "sortBy": "date",
+        "page": "1",
+        "targetUrl": "https://www.linkedin.com/in/jenhsunhuang",
+        "sessionId": "3668e70f-25d4-4e9f-a533-6a2617b59e6e"
+      }
+    },
+    {
+      "type": "post",
+      "id": "7385125951698866176",
+      "linkedinUrl": "https://www.linkedin.com/posts/jenhsunhuang_our-ceo-jensen-huang-joined-yl-wang-tsmc-activity-7385125951698866176-vX9i",
+      "content": "Today marks a new chapter for American manufacturing. \n\nFor the first time in our history, NVIDIA’s most advanced AI chips are being manufactured in the United States. Our Blackwell chip is reaching successful volume production at TSMC Arizona, setting in motion a new industrial revolution powered by intelligence. \n\nWithin the next four years, NVIDIA and our partners, TSMC, Foxconn, Amkor, Wistron, SPIL, will help build up to half a trillion dollars of AI infrastructure on U.S. soil. We’re no longer just building ideas, we’re building infrastructure.  \n\nTSMC has been our partner for more than 25 years. Their culture of relentless innovation and dependability has helped turn the biggest technical risks into global platforms. Together, we’re building AI factories that will power the next century of progress. \n\nThis is a proud moment for TSMC. A proud moment for the United States. And a proud moment for all of us at NVIDIA.",
+      "contentAttributes": [],
+      "author": {
+        "id": "ACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "universalName": null,
+        "publicIdentifier": "jenhsunhuang",
+        "type": "profile",
+        "name": "Jensen Huang",
+        "linkedinUrl": "https://www.linkedin.com/in/jenhsunhuang?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "info": "Founder and CEO, NVIDIA",
+        "website": null,
+        "websiteLabel": null,
+        "avatar": {
+          "url": "https://media.licdn.com/dms/image/v2/D5603AQEM7Pb1ndhi0Q/profile-displayphoto-crop_800_800/B56ZsU9UHlI8AM-/0/1765583176551?e=1781136000&v=beta&t=qp_qTeQYeu8d84zynDiOpbtev7UG1ZG87p4dhlZ0nMg",
+          "width": 800,
+          "height": 800
+        },
+        "urn": "322149465"
+      },
+      "postedAt": {
+        "timestamp": 1760751235890,
+        "date": "2025-10-18T01:33:55.890Z",
+        "postedAgoShort": "7mo",
+        "postedAgoText": "7 months ago • Visible to anyone on or off LinkedIn"
+      },
+      "postImages": [],
+      "repostId": "7385096285214679040",
+      "socialContent": {
+        "hideCommentsCount": false,
+        "hideReactionsCount": false,
+        "hideSocialActivityCounts": false,
+        "hideShareAction": false,
+        "hideSendAction": false,
+        "hideRepostsCount": false,
+        "hideViewsCount": false,
+        "trustInterventionBanner": null,
+        "hideReactAction": false,
+        "hideCommentAction": false,
+        "shareUrl": "https://www.linkedin.com/posts/jenhsunhuang_our-ceo-jensen-huang-joined-yl-wang-tsmc-activity-7385125951698866176-vX9i?",
+        "showContributionExperience": false,
+        "showSocialDetail": true
+      },
+      "comments": [],
+      "header": {
+        "text": null
+      },
+      "entityId": "7385125951698866176",
+      "shareUrn": "urn:li:share:7385125950977470464",
+      "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:share:7385125950977470464",
+      "repost": {
+        "id": "7385096285214679040",
+        "linkedinUrl": "https://www.linkedin.com/posts/nvidia_our-ceo-jensen-huang-joined-yl-wang-tsmc-activity-7385096285214679040-yR_g",
+        "content": "Our CEO Jensen Huang joined Y.L. Wang, TSMC vice president of operations, and Ray Chuang, CEO of TSMC Arizona, in Phoenix today to celebrate the first NVIDIA Blackwell wafer produced in the United States.\n\nThis achievement marks a huge step forward in paving the way for sustained American leadership in AI.\n\nOnshoring world-class chipmaking to American soil is crucial to meeting the growing demand for AI.  \n\nWithin the next four years, NVIDIA plans to produce up to one-half-trillion dollars of AI infrastructure in the U.S. —  collaborating with TSMC, Foxconn, Wistron, Amkor Technology, Inc., and SPIL 矽品.\n\nManufacturing the world’s AI technology stack in America will fuel innovation and bolster the US supply chain.\n\nThe production of American AI factories is projected to create hundreds of thousands of jobs and drive trillions of dollars in economic security over the coming decades.\n\nRead more: https://nvda.ws/46WwDYb",
+        "contentAttributes": [
+          {
+            "start": 39,
+            "length": 4,
+            "type": "COMPANY_NAME",
+            "hyperlink": null,
+            "textLink": null,
+            "company": {
+              "id": "8869",
+              "name": "TSMC",
+              "linkedinUrl": "https://www.linkedin.com/company/tsmc/"
+            }
+          },
+          {
+            "start": 550,
+            "length": 4,
+            "type": "COMPANY_NAME",
+            "hyperlink": null,
+            "textLink": null,
+            "company": {
+              "id": "8869",
+              "name": "TSMC",
+              "linkedinUrl": "https://www.linkedin.com/company/tsmc/"
+            }
+          },
+          {
+            "start": 556,
+            "length": 7,
+            "type": "COMPANY_NAME",
+            "hyperlink": null,
+            "textLink": null,
+            "company": {
+              "id": "5930",
+              "name": "Foxconn",
+              "linkedinUrl": "https://www.linkedin.com/company/foxconn/"
+            }
+          },
+          {
+            "start": 565,
+            "length": 7,
+            "type": "COMPANY_NAME",
+            "hyperlink": null,
+            "textLink": null,
+            "company": {
+              "id": "13924",
+              "name": "Wistron",
+              "linkedinUrl": "https://www.linkedin.com/company/wistron/"
+            }
+          },
+          {
+            "start": 574,
+            "length": 22,
+            "type": "COMPANY_NAME",
+            "hyperlink": null,
+            "textLink": null,
+            "company": {
+              "id": "7135",
+              "name": "Amkor Technology, Inc.",
+              "linkedinUrl": "https://www.linkedin.com/company/amkor-technology/"
+            }
+          },
+          {
+            "start": 602,
+            "length": 7,
+            "type": "COMPANY_NAME",
+            "hyperlink": null,
+            "textLink": null,
+            "company": {
+              "id": "10210679",
+              "name": "SPIL 矽品",
+              "linkedinUrl": "https://www.linkedin.com/company/%E7%9F%BD%E5%93%81%E7%B2%BE%E5%AF%86%E5%B7%A5%E6%A5%AD%E8%82%A1%E4%BB%BD%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8/"
+            }
+          }
+        ],
+        "author": {
+          "id": "3608",
+          "universalName": "nvidia",
+          "publicIdentifier": null,
+          "type": "company",
+          "name": "NVIDIA",
+          "linkedinUrl": "https://www.linkedin.com/company/nvidia/posts",
+          "info": "5,330,267 followers",
+          "website": null,
+          "websiteLabel": null,
+          "avatar": {
+            "url": "https://media.licdn.com/dms/image/v2/D560BAQGV36q2EowSyw/company-logo_400_400/company-logo_400_400/0/1724881581208/nvidia_logo?e=1781136000&v=beta&t=IzAvvpOc2YiJQNRbRTiq7dAPIC9Id-hhOpHBWtk8iOs",
+            "width": 400,
+            "height": 400
+          },
+          "urn": "3608"
+        },
+        "postedAt": {
+          "timestamp": 1760744162849,
+          "date": "2025-10-17T23:36:02.849Z",
+          "postedAgoShort": "7mo",
+          "postedAgoText": "7 months ago • Edited • Visible to anyone on or off LinkedIn"
+        },
+        "postImages": [
+          {
+            "url": "https://media.licdn.com/dms/image/v2/D5610AQEyy6hnHv21QQ/image-shrink_1280/B56Zn0h5k5G4AM-/0/1760744152179?e=1780153200&v=beta&t=lLI8ad5zPdr-xb0Fbk7oQby3OkV1lWhf2qA1xEj96N8",
+            "width": 1280,
+            "height": 906
+          }
+        ],
+        "socialContent": {
+          "hideCommentsCount": false,
+          "hideReactionsCount": false,
+          "hideSocialActivityCounts": false,
+          "hideShareAction": false,
+          "hideSendAction": false,
+          "hideRepostsCount": false,
+          "hideViewsCount": false,
+          "trustInterventionBanner": null,
+          "hideReactAction": false,
+          "hideCommentAction": false,
+          "shareUrl": "https://www.linkedin.com/posts/nvidia_our-ceo-jensen-huang-joined-yl-wang-tsmc-activity-7385096285214679040-yR_g?",
+          "showContributionExperience": false,
+          "showSocialDetail": true
+        },
+        "comments": [],
+        "header": {
+          "text": null
+        },
+        "entityId": "7385096285214679040",
+        "shareUrn": "urn:li:share:7385096284082298880",
+        "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:share:7385096284082298880",
+        "engagement": null
+      },
+      "engagement": {
+        "id": "7385125951698866176",
+        "likes": 4810,
+        "comments": 417,
+        "shares": 293,
+        "reactions": [
+          {
+            "type": "LIKE",
+            "count": 4108
+          },
+          {
+            "type": "PRAISE",
+            "count": 421
+          },
+          {
+            "type": "EMPATHY",
+            "count": 197
+          },
+          {
+            "type": "APPRECIATION",
+            "count": 49
+          },
+          {
+            "type": "INTEREST",
+            "count": 33
+          },
+          {
+            "type": "ENTERTAINMENT",
+            "count": 2
+          }
+        ]
+      },
+      "reactions": [],
+      "reactionIds": [],
+      "commentIds": [],
+      "query": {
+        "sortBy": "date",
+        "page": "1",
+        "targetUrl": "https://www.linkedin.com/in/jenhsunhuang",
+        "sessionId": "3668e70f-25d4-4e9f-a533-6a2617b59e6e"
+      }
+    },
+    {
+      "type": "post",
+      "id": "7334346168178458624",
+      "linkedinUrl": "https://www.linkedin.com/posts/nvidia-ai_inference-ugcPost-7334232241255919619-RwKz",
+      "content": "The More You Buy, the More You Make.\n\nNVIDIA’s AI Factory isn’t just infrastructure—it’s a force multiplier. \n\nIt scales AI #inference and unlocks massive economic gains in productivity, accelerating breakthroughs in health, climate, and science. \n\nThis is compute turning into capital and progress.\n\nLearn More ➡️ https://nvda.ws/3FDQTTr",
+      "contentAttributes": [],
+      "author": {
+        "id": "18000077",
+        "universalName": "nvidia-ai",
+        "publicIdentifier": null,
+        "type": "company",
+        "name": "NVIDIA AI",
+        "linkedinUrl": "https://www.linkedin.com/showcase/nvidia-ai/posts",
+        "info": "1,816,736 followers",
+        "website": null,
+        "websiteLabel": null,
+        "avatar": {
+          "url": "https://media.licdn.com/dms/image/v2/D560BAQGe-H392ULJ-Q/company-logo_400_400/company-logo_400_400/0/1724882065232/nvidia_ai_logo?e=1781136000&v=beta&t=0-O2IlA0rz-Zsiih8E1FUWEZI-4YB8Co6H0E49c3zbc",
+          "width": 400,
+          "height": 400
+        },
+        "urn": "18000077"
+      },
+      "postedAt": {
+        "timestamp": 1748644392056,
+        "date": "2025-05-30T22:33:12.056Z",
+        "postedAgoShort": "11mo",
+        "postedAgoText": "11 months ago • Visible to anyone on or off LinkedIn"
+      },
+      "postImages": [],
+      "postVideo": {
+        "thumbnailUrl": "https://media.licdn.com/dms/image/v2/D5610AQGFxf-chto4Mw/ads-video-thumbnail_720_1280/B56ZchtQSTHEAg-/0/1748617219353?e=1780153200&v=beta&t=Lv9vhFkoOjqUXcESs3PJw5eR9zEkLMnDkcf5ucpEVO8",
+        "videoUrl": "https://dms.licdn.com/playlist/vid/v2/D5610AQGFxf-chto4Mw/mp4-720p-30fp-crf28/B56ZchtQSTHEBw-/0/1748617219893?e=1780153200&v=beta&t=ucKGRBQdp_AGleRe3DSg08sH7bVfiHFoQfpLwqp0sFw"
+      },
+      "repostedBy": {
+        "name": "Jensen Huang",
+        "publicIdentifier": "jenhsunhuang",
+        "universalName": null,
+        "linkedinUrl": "https://www.linkedin.com/in/jenhsunhuang?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg"
+      },
+      "repostedAt": {
+        "timestamp": 1748644392056,
+        "date": "2025-05-30T22:33:12.056Z"
+      },
+      "socialContent": {
+        "hideCommentsCount": false,
+        "hideReactionsCount": false,
+        "hideSocialActivityCounts": false,
+        "hideShareAction": false,
+        "hideSendAction": false,
+        "hideRepostsCount": false,
+        "hideViewsCount": false,
+        "trustInterventionBanner": null,
+        "hideReactAction": false,
+        "hideCommentAction": false,
+        "shareUrl": "https://www.linkedin.com/posts/nvidia-ai_inference-ugcPost-7334232241255919619-RwKz?",
+        "showContributionExperience": false,
+        "showSocialDetail": true
+      },
+      "comments": [],
+      "header": {
+        "image": {
+          "url": "https://media.licdn.com/dms/image/v2/D5603AQEM7Pb1ndhi0Q/profile-displayphoto-crop_800_800/B56ZsU9UHlI8AM-/0/1765583176551?e=1781136000&v=beta&t=qp_qTeQYeu8d84zynDiOpbtev7UG1ZG87p4dhlZ0nMg",
+          "width": 800,
+          "height": 800
+        },
+        "linkedinUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7334346168178458624?updateEntityUrn=urn%3Ali%3Afsd_update%3A%28urn%3Ali%3Aactivity%3A7334346168178458624%2CMEMBER_SHARES%2CDEBUG_REASON%2CDEFAULT%2Cfalse%29&originTrackingId=RAnPamS0zgiht2yt9XI4Gg%3D%3D",
+        "imageLink": "https://www.linkedin.com/in/jenhsunhuang?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "text": "Jensen Huang reposted this"
+      },
+      "entityId": "7334346168178458624",
+      "shareUrn": "urn:li:ugcPost:7334232241255919619",
+      "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7334232241255919619",
+      "engagement": {
+        "id": "7334232241255919619",
+        "likes": 2515,
+        "comments": 147,
+        "shares": 200,
+        "reactions": [
+          {
+            "type": "LIKE",
+            "count": 2316
+          },
+          {
+            "type": "EMPATHY",
+            "count": 88
+          },
+          {
+            "type": "PRAISE",
+            "count": 69
+          },
+          {
+            "type": "INTEREST",
+            "count": 22
+          },
+          {
+            "type": "APPRECIATION",
+            "count": 17
+          },
+          {
+            "type": "ENTERTAINMENT",
+            "count": 3
+          }
+        ]
+      },
+      "reactions": [],
+      "reactionIds": [],
+      "commentIds": [],
+      "query": {
+        "sortBy": "date",
+        "page": "1",
+        "targetUrl": "https://www.linkedin.com/in/jenhsunhuang",
+        "sessionId": "3668e70f-25d4-4e9f-a533-6a2617b59e6e"
+      }
+    },
+    {
+      "type": "post",
+      "id": "7437075028833247232",
+      "linkedinUrl": "https://www.linkedin.com/posts/jenhsunhuang_ai-is-one-of-the-most-powerful-forces-shaping-activity-7437075028833247232-hBKm",
+      "content": "AI is one of the most powerful forces shaping the world today. It’s not a clever app or a single model; it’s essential infrastructure, like electricity and the internet.\n\nFor most of computing history, software was pre-recorded. Humans described an algorithm. Computers executed it. AI breaks that model.\n\nFor the first time, computers can understand unstructured information and generate intelligence in real time. Every response is newly created. Every answer depends on the context you provide.\n\nBecause intelligence is produced in real time, the entire computing stack beneath it had to be reinvented — and when you look at AI industrially, it resolves into a five-layer stack: Energy → Chips → Infrastructure → Models → Applications.\n\nWhen you see AI as essential infrastructure, the implications become clear.\nAI starts with a transformer LLM. But it’s much more.  It is an industrial transformation that reshapes how energy is produced and consumed, how factories are built, how work is organized, and how economies grow.\n\nIt is becoming the foundational infrastructure of the modern world. The choices we make now — how fast we build, how broadly we participate, and how responsibly we deploy it — will shape what this era becomes.\n\nI wrote more about this here: https://nvda.ws/3OhbiSi",
+      "contentAttributes": [],
+      "author": {
+        "id": "ACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "universalName": null,
+        "publicIdentifier": "jenhsunhuang",
+        "type": "profile",
+        "name": "Jensen Huang",
+        "linkedinUrl": "https://www.linkedin.com/in/jenhsunhuang?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "info": "Founder and CEO, NVIDIA",
+        "website": null,
+        "websiteLabel": null,
+        "avatar": {
+          "url": "https://media.licdn.com/dms/image/v2/D5603AQEM7Pb1ndhi0Q/profile-displayphoto-crop_800_800/B56ZsU9UHlI8AM-/0/1765583176551?e=1781136000&v=beta&t=qp_qTeQYeu8d84zynDiOpbtev7UG1ZG87p4dhlZ0nMg",
+          "width": 800,
+          "height": 800
+        },
+        "urn": "322149465"
+      },
+      "postedAt": {
+        "timestamp": 1773136861046,
+        "date": "2026-03-10T10:01:01.046Z",
+        "postedAgoShort": "2mo",
+        "postedAgoText": "2 months ago • Visible to anyone on or off LinkedIn"
+      },
+      "postImages": [],
+      "postVideo": {
+        "thumbnailUrl": "https://media.licdn.com/dms/image/v2/D5605AQFUNPX-qiiFHQ/feedshare-thumbnail_720_1280/B56ZzQl2ErIIA8-/0/1773026109216?e=1780153200&v=beta&t=VAGwE8df_JaPn98VGT3w6I4slPYGiW7PQhG3uCG_WWw",
+        "videoUrl": "https://dms.licdn.com/playlist/vid/v2/D5605AQFUNPX-qiiFHQ/mp4-720p-30fp-crf28/B56ZzQl2ErIICI-/0/1773026110024?e=1780153200&v=beta&t=EKhMPjzyN4Uf_oUvWEF6O-XgiPL8DICVNjIaJioNqzo"
+      },
+      "socialContent": {
+        "hideCommentsCount": false,
+        "hideReactionsCount": false,
+        "hideSocialActivityCounts": false,
+        "hideShareAction": false,
+        "hideSendAction": false,
+        "hideRepostsCount": false,
+        "hideViewsCount": false,
+        "trustInterventionBanner": null,
+        "hideReactAction": false,
+        "hideCommentAction": false,
+        "shareUrl": "https://www.linkedin.com/posts/jenhsunhuang_ai-is-one-of-the-most-powerful-forces-shaping-activity-7437075028833247232-hBKm?",
+        "showContributionExperience": false,
+        "showSocialDetail": true
+      },
+      "comments": [],
+      "header": {
+        "text": null
+      },
+      "entityId": "7437075028833247232",
+      "shareUrn": "urn:li:ugcPost:7436610489738092545",
+      "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7436610489738092545",
+      "engagement": {
+        "id": "7436610489738092545",
+        "likes": 8825,
+        "comments": 667,
+        "shares": 1059,
+        "reactions": [
+          {
+            "type": "LIKE",
+            "count": 7763
+          },
+          {
+            "type": "INTEREST",
+            "count": 508
+          },
+          {
+            "type": "EMPATHY",
+            "count": 351
+          },
+          {
+            "type": "PRAISE",
+            "count": 133
+          },
+          {
+            "type": "APPRECIATION",
+            "count": 64
+          },
+          {
+            "type": "ENTERTAINMENT",
+            "count": 6
+          }
+        ]
+      },
+      "reactions": [],
+      "reactionIds": [],
+      "commentIds": [],
+      "query": {
+        "sortBy": "date",
+        "page": "1",
+        "targetUrl": "https://www.linkedin.com/in/jenhsunhuang",
+        "sessionId": "3668e70f-25d4-4e9f-a533-6a2617b59e6e"
+      }
+    },
+    {
+      "type": "post",
+      "id": "7274896484691558400",
+      "linkedinUrl": "https://www.linkedin.com/posts/nvidia_nvidia-unveils-its-most-affordable-generative-ugcPost-7274836550599749632-d6vt",
+      "content": null,
+      "contentAttributes": [],
+      "author": {
+        "id": "3608",
+        "universalName": "nvidia",
+        "publicIdentifier": null,
+        "type": "company",
+        "name": "NVIDIA",
+        "linkedinUrl": "https://www.linkedin.com/company/nvidia/posts",
+        "info": "5,330,267 followers",
+        "website": null,
+        "websiteLabel": null,
+        "avatar": {
+          "url": "https://media.licdn.com/dms/image/v2/D560BAQGV36q2EowSyw/company-logo_400_400/company-logo_400_400/0/1724881581208/nvidia_logo?e=1781136000&v=beta&t=IzAvvpOc2YiJQNRbRTiq7dAPIC9Id-hhOpHBWtk8iOs",
+          "width": 400,
+          "height": 400
+        },
+        "urn": "3608"
+      },
+      "postedAt": {
+        "timestamp": 1734470482991,
+        "date": "2024-12-17T21:21:22.991Z",
+        "postedAgoShort": "1yr",
+        "postedAgoText": "1 year ago • Visible to anyone on or off LinkedIn"
+      },
+      "postImages": [],
+      "repostId": "7274794498323312640",
+      "repostedBy": {
+        "name": "Jensen Huang",
+        "publicIdentifier": "jenhsunhuang",
+        "universalName": null,
+        "linkedinUrl": "https://www.linkedin.com/in/jenhsunhuang?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg"
+      },
+      "repostedAt": {
+        "timestamp": 1734470482991,
+        "date": "2024-12-17T21:21:22.991Z"
+      },
+      "socialContent": {
+        "hideCommentsCount": false,
+        "hideReactionsCount": false,
+        "hideSocialActivityCounts": false,
+        "hideShareAction": false,
+        "hideSendAction": false,
+        "hideRepostsCount": false,
+        "hideViewsCount": false,
+        "trustInterventionBanner": null,
+        "hideReactAction": false,
+        "hideCommentAction": false,
+        "shareUrl": "https://www.linkedin.com/posts/nvidia_nvidia-unveils-its-most-affordable-generative-ugcPost-7274836550599749632-d6vt?",
+        "showContributionExperience": false,
+        "showSocialDetail": true
+      },
+      "comments": [],
+      "header": {
+        "image": {
+          "url": "https://media.licdn.com/dms/image/v2/D5603AQEM7Pb1ndhi0Q/profile-displayphoto-crop_800_800/B56ZsU9UHlI8AM-/0/1765583176551?e=1781136000&v=beta&t=qp_qTeQYeu8d84zynDiOpbtev7UG1ZG87p4dhlZ0nMg",
+          "width": 800,
+          "height": 800
+        },
+        "linkedinUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7274896484691558400?updateEntityUrn=urn%3Ali%3Afsd_update%3A%28urn%3Ali%3Aactivity%3A7274896484691558400%2CMEMBER_SHARES%2CDEBUG_REASON%2CDEFAULT%2Cfalse%29&originTrackingId=aOwhTT8uIrJuGFkQ9QbAfg%3D%3D",
+        "imageLink": "https://www.linkedin.com/in/jenhsunhuang?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "text": "Jensen Huang reposted this"
+      },
+      "entityId": "7274896484691558400",
+      "shareUrn": "urn:li:ugcPost:7274836550599749632",
+      "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7274836550599749632",
+      "repost": {
+        "id": "7274794498323312640",
+        "linkedinUrl": "https://www.linkedin.com/posts/nvidiarobotics_nvidia-unveils-its-most-affordable-generative-activity-7274794498323312640-naah",
+        "content": "Introducing the NVIDIA Jetson Orin Nano Super Developer Kit. 🎉 \n\nWith up to 67 TOPS of AI performance (1.7X improvement), it supports the most popular #generativeAI models. Priced at just $249 USD, it’s the ideal solution for building your next #genAI application.\n\nExisting Orin Nano users can download the latest JetPack SDK for a \"super\" boost. Learn more. https://nvda.ws/3DlbMkU",
+        "contentAttributes": [],
+        "author": {
+          "id": "37553728",
+          "universalName": "nvidiarobotics",
+          "publicIdentifier": null,
+          "type": "company",
+          "name": "NVIDIA Robotics",
+          "linkedinUrl": "https://www.linkedin.com/showcase/nvidiarobotics/posts",
+          "info": "506,566 followers",
+          "website": null,
+          "websiteLabel": null,
+          "avatar": {
+            "url": "https://media.licdn.com/dms/image/v2/D560BAQGMUleuQ_kXJA/company-logo_400_400/company-logo_400_400/0/1724885393272/nvidiarobotics_logo?e=1781136000&v=beta&t=Z28n09jdWkEsDIkZwV8fmhUDWU3i60wmkm7PoOJ5OrM",
+            "width": 400,
+            "height": 400
+          },
+          "urn": "37553728"
+        },
+        "postedAt": {
+          "timestamp": 1734446167546,
+          "date": "2024-12-17T14:36:07.546Z",
+          "postedAgoShort": "1yr",
+          "postedAgoText": "1 year ago • Visible to anyone on or off LinkedIn"
+        },
+        "postImages": [],
+        "postVideo": {
+          "thumbnailUrl": "https://media.licdn.com/dms/image/v2/D5610AQE-3DGxQX19pA/ads-video-thumbnail_720_1280/ads-video-thumbnail_720_1280/0/1734446156866?e=1780153200&v=beta&t=aDFFIbFug2A2k4XZ1ZwefK-d-LkHgn6hsoHO7-0bBhg",
+          "videoUrl": "https://dms.licdn.com/playlist/vid/v2/D5610AQE-3DGxQX19pA/mp4-720p-30fp-crf28/mp4-720p-30fp-crf28/0/1734446161066?e=1780153200&v=beta&t=I8ioZh2VvyuaQFeQoF8ByYsm9jR_cFGNx9KtAX-JBD8"
+        },
+        "socialContent": {
+          "hideCommentsCount": false,
+          "hideReactionsCount": false,
+          "hideSocialActivityCounts": false,
+          "hideShareAction": false,
+          "hideSendAction": false,
+          "hideRepostsCount": false,
+          "hideViewsCount": false,
+          "trustInterventionBanner": null,
+          "hideReactAction": false,
+          "hideCommentAction": false,
+          "shareUrl": "https://www.linkedin.com/posts/nvidiarobotics_nvidia-unveils-its-most-affordable-generative-activity-7274794498323312640-naah?",
+          "showContributionExperience": false,
+          "showSocialDetail": true
+        },
+        "comments": [],
+        "header": {
+          "text": null
+        },
+        "entityId": "7274794498323312640",
+        "shareUrn": "urn:li:ugcPost:7274794497526439936",
+        "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7274794497526439936",
+        "engagement": null
+      },
+      "engagement": {
+        "id": "7274836550599749632",
+        "likes": 6703,
+        "comments": 184,
+        "shares": 420,
+        "reactions": [
+          {
+            "type": "LIKE",
+            "count": 5835
+          },
+          {
+            "type": "EMPATHY",
+            "count": 374
+          },
+          {
+            "type": "PRAISE",
+            "count": 297
+          },
+          {
+            "type": "ENTERTAINMENT",
+            "count": 97
+          },
+          {
+            "type": "INTEREST",
+            "count": 68
+          },
+          {
+            "type": "APPRECIATION",
+            "count": 32
+          }
+        ]
+      },
+      "reactions": [],
+      "reactionIds": [],
+      "commentIds": [],
+      "query": {
+        "sortBy": "date",
+        "page": "1",
+        "targetUrl": "https://www.linkedin.com/in/jenhsunhuang",
+        "sessionId": "3668e70f-25d4-4e9f-a533-6a2617b59e6e"
+      }
+    },
+    {
+      "type": "post",
+      "id": "6135253751583227904",
+      "linkedinUrl": "https://www.linkedin.com/posts/jenhsunhuang_today-while-amazon-was-announcing-some-fantastic-activity-6135253751583227904-M5fT",
+      "content": null,
+      "contentAttributes": [],
+      "author": {
+        "id": "ACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "universalName": null,
+        "publicIdentifier": "jenhsunhuang",
+        "type": "profile",
+        "name": "Jensen Huang",
+        "linkedinUrl": "https://www.linkedin.com/in/jenhsunhuang?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "info": "Founder and CEO, NVIDIA",
+        "website": null,
+        "websiteLabel": null,
+        "avatar": {
+          "url": "https://media.licdn.com/dms/image/v2/D5603AQEM7Pb1ndhi0Q/profile-displayphoto-crop_800_800/B56ZsU9UHlI8AM-/0/1765583176551?e=1781136000&v=beta&t=qp_qTeQYeu8d84zynDiOpbtev7UG1ZG87p4dhlZ0nMg",
+          "width": 800,
+          "height": 800
+        },
+        "urn": "322149465"
+      },
+      "postedAt": {
+        "timestamp": 1462758481880,
+        "date": "2016-05-09T01:48:01.880Z",
+        "postedAgoShort": "10yr",
+        "postedAgoText": "10 years ago • Visible to anyone on or off LinkedIn"
+      },
+      "postImages": [],
+      "repostId": "6131685990345031680",
+      "socialContent": {
+        "hideCommentsCount": false,
+        "hideReactionsCount": false,
+        "hideSocialActivityCounts": false,
+        "hideShareAction": false,
+        "hideSendAction": false,
+        "hideRepostsCount": false,
+        "hideViewsCount": false,
+        "trustInterventionBanner": null,
+        "hideReactAction": false,
+        "hideCommentAction": false,
+        "shareUrl": "https://www.linkedin.com/posts/jenhsunhuang_today-while-amazon-was-announcing-some-fantastic-activity-6135253751583227904-M5fT?",
+        "showContributionExperience": false,
+        "showSocialDetail": true
+      },
+      "comments": [],
+      "header": {
+        "text": null
+      },
+      "entityId": "6135253751583227904",
+      "shareUrn": "urn:li:share:6135253751654539264",
+      "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:share:6135253751654539264",
+      "repost": {
+        "id": "6131685990345031680",
+        "linkedinUrl": "https://www.linkedin.com/posts/bsatya_today-while-amazon-was-announcing-some-fantastic-activity-6131685990345031680-PTGt",
+        "content": "Today, while Amazon was announcing some fantastic earnings and stock price was soaring, our chief was spending most of the day in our internal Machine learning conference - eagerly listening, patiently waiting in queue to ask question and graciously mingling with everyone. A true inspiration! \nAlso, speaks a lot about the importance of the role ML has played and will play at Amazon. Ping me to  know more about ML opportunities at Amazon.",
+        "contentAttributes": [],
+        "author": {
+          "id": "ACoAAACA0qsBusXs_ssYCUVN0CbPnqEwdI917Dw",
+          "universalName": null,
+          "publicIdentifier": "bsatya",
+          "type": "profile",
+          "name": "Satyadarshi Behera",
+          "linkedinUrl": "https://www.linkedin.com/in/bsatya?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAAACA0qsBusXs_ssYCUVN0CbPnqEwdI917Dw",
+          "info": "Data Science Leader (ex- CRED, ex- Amazon, ex- Media.net)",
+          "website": null,
+          "websiteLabel": null,
+          "avatar": null,
+          "urn": "8442539"
+        },
+        "postedAt": {
+          "timestamp": 1461907861315,
+          "date": "2016-04-29T05:31:01.315Z",
+          "postedAgoShort": "10yr",
+          "postedAgoText": "10 years ago • Visible to anyone on or off LinkedIn"
+        },
+        "postImages": [
+          {
+            "url": "https://media.licdn.com/dms/image/v2/C4E22AQHXLUqirsV53g/feedshare-shrink_1280/feedshare-shrink_1280/0/1583300955525?e=1781136000&v=beta&t=xGPHQ3ZzUFD8kFq1VPX5qWmTRz3-8NBIbL2znJe4FR8",
+            "width": 939,
+            "height": 644
+          }
+        ],
+        "socialContent": {
+          "hideCommentsCount": false,
+          "hideReactionsCount": false,
+          "hideSocialActivityCounts": false,
+          "hideShareAction": false,
+          "hideSendAction": false,
+          "hideRepostsCount": false,
+          "hideViewsCount": false,
+          "trustInterventionBanner": null,
+          "hideReactAction": false,
+          "hideCommentAction": false,
+          "shareUrl": "https://www.linkedin.com/posts/bsatya_today-while-amazon-was-announcing-some-fantastic-activity-6131685990345031680-PTGt?",
+          "showContributionExperience": false,
+          "showSocialDetail": true
+        },
+        "comments": [],
+        "header": {
+          "text": null
+        },
+        "entityId": "6131685990345031680",
+        "shareUrn": "urn:li:share:6131685990412148736",
+        "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:share:6131685990412148736",
+        "engagement": null
+      },
+      "engagement": {
+        "id": "6135253751583227904",
+        "likes": 482,
+        "comments": 41,
+        "shares": 16,
+        "reactions": [
+          {
+            "type": "LIKE",
+            "count": 420
+          },
+          {
+            "type": "PRAISE",
+            "count": 32
+          },
+          {
+            "type": "EMPATHY",
+            "count": 18
+          },
+          {
+            "type": "INTEREST",
+            "count": 6
+          },
+          {
+            "type": "APPRECIATION",
+            "count": 5
+          },
+          {
+            "type": "ENTERTAINMENT",
+            "count": 1
+          }
+        ]
+      },
+      "reactions": [],
+      "reactionIds": [],
+      "commentIds": [],
+      "query": {
+        "sortBy": "date",
+        "page": "1",
+        "targetUrl": "https://www.linkedin.com/in/jenhsunhuang",
+        "sessionId": "3668e70f-25d4-4e9f-a533-6a2617b59e6e"
+      }
+    },
+    {
+      "type": "post",
+      "id": "7384962088290570241",
+      "linkedinUrl": "https://www.linkedin.com/posts/jenhsunhuang_from-rockets-to-ai-nine-years-after-the-activity-7384962088290570241-SxUt",
+      "content": "Nine years after delivering the first DGX, I brought one of the first DGX Sparks to Elon at Starbase. A petaflop AI supercomputer, on a desk. \n\nFrom a single Spark, a world of intelligence!",
+      "contentAttributes": [],
+      "author": {
+        "id": "ACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "universalName": null,
+        "publicIdentifier": "jenhsunhuang",
+        "type": "profile",
+        "name": "Jensen Huang",
+        "linkedinUrl": "https://www.linkedin.com/in/jenhsunhuang?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "info": "Founder and CEO, NVIDIA",
+        "website": null,
+        "websiteLabel": null,
+        "avatar": {
+          "url": "https://media.licdn.com/dms/image/v2/D5603AQEM7Pb1ndhi0Q/profile-displayphoto-crop_800_800/B56ZsU9UHlI8AM-/0/1765583176551?e=1781136000&v=beta&t=qp_qTeQYeu8d84zynDiOpbtev7UG1ZG87p4dhlZ0nMg",
+          "width": 800,
+          "height": 800
+        },
+        "urn": "322149465"
+      },
+      "postedAt": {
+        "timestamp": 1760712167809,
+        "date": "2025-10-17T14:42:47.809Z",
+        "postedAgoShort": "7mo",
+        "postedAgoText": "7 months ago • Visible to anyone on or off LinkedIn"
+      },
+      "postImages": [],
+      "repostId": "7384677446056407041",
+      "socialContent": {
+        "hideCommentsCount": false,
+        "hideReactionsCount": false,
+        "hideSocialActivityCounts": false,
+        "hideShareAction": false,
+        "hideSendAction": false,
+        "hideRepostsCount": false,
+        "hideViewsCount": false,
+        "trustInterventionBanner": null,
+        "hideReactAction": false,
+        "hideCommentAction": false,
+        "shareUrl": "https://www.linkedin.com/posts/jenhsunhuang_from-rockets-to-ai-nine-years-after-the-activity-7384962088290570241-SxUt?",
+        "showContributionExperience": false,
+        "showSocialDetail": true
+      },
+      "comments": [],
+      "header": {
+        "text": null
+      },
+      "entityId": "7384962088290570241",
+      "shareUrn": "urn:li:ugcPost:7384962087653044224",
+      "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7384962087653044224",
+      "repost": {
+        "id": "7384677446056407041",
+        "linkedinUrl": "https://www.linkedin.com/posts/nvidia_from-rockets-to-ai-nine-years-after-the-activity-7384677446056407041-Us04",
+        "content": "From rockets to AI. Nine years after the original NVIDIA DGX-1 handoff, Jensen Huang delivered a brand-new DGX Spark to Elon Musk at Starbase.\n\nThe DGX Spark is a petaflop powerhouse built for creators, researchers, and developers — a desktop-sized supercomputer with five times the performance of the first DGX-1.  🚀✨\n\nFilmed at SpaceX's rocket factory in Texas, this moment captures a conversation between the two visionaries.\n\n➡️  https://nvda.ws/4q5C2DI\n📹 https://nvda.ws/495JyZ8",
+        "contentAttributes": [
+          {
+            "start": 72,
+            "length": 12,
+            "type": "PROFILE_MENTION",
+            "hyperlink": null,
+            "textLink": null,
+            "profile": {
+              "id": "ACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+              "firstName": "Jensen",
+              "lastName": "Huang",
+              "linkedinUrl": "https://www.linkedin.com/in/jenhsunhuang",
+              "publicIdentifier": "jenhsunhuang"
+            }
+          },
+          {
+            "start": 330,
+            "length": 6,
+            "type": "COMPANY_NAME",
+            "hyperlink": null,
+            "textLink": null,
+            "company": {
+              "id": "30846",
+              "name": "SpaceX",
+              "linkedinUrl": "https://www.linkedin.com/company/spacex/"
+            }
+          }
+        ],
+        "author": {
+          "id": "3608",
+          "universalName": "nvidia",
+          "publicIdentifier": null,
+          "type": "company",
+          "name": "NVIDIA",
+          "linkedinUrl": "https://www.linkedin.com/company/nvidia/posts",
+          "info": "5,330,267 followers",
+          "website": null,
+          "websiteLabel": null,
+          "avatar": {
+            "url": "https://media.licdn.com/dms/image/v2/D560BAQGV36q2EowSyw/company-logo_400_400/company-logo_400_400/0/1724881581208/nvidia_logo?e=1781136000&v=beta&t=IzAvvpOc2YiJQNRbRTiq7dAPIC9Id-hhOpHBWtk8iOs",
+            "width": 400,
+            "height": 400
+          },
+          "urn": "3608"
+        },
+        "postedAt": {
+          "timestamp": 1760644303812,
+          "date": "2025-10-16T19:51:43.812Z",
+          "postedAgoShort": "7mo",
+          "postedAgoText": "7 months ago • Visible to anyone on or off LinkedIn"
+        },
+        "postImages": [],
+        "postVideo": {
+          "thumbnailUrl": "https://media.licdn.com/dms/image/v2/D5610AQEG5hj0aICUOg/ads-video-thumbnail_720_1280/B56Znuk7h9I4AY-/0/1760644287630?e=1780153200&v=beta&t=Zw5KTJW0tSYpm5v3fGJhbaRjonnyUlgZR_gZYTywDSw",
+          "videoUrl": "https://dms.licdn.com/playlist/vid/v2/D5610AQEG5hj0aICUOg/mp4-720p-30fp-crf28/B56Znuk7h9I4Bs-/0/1760644296687?e=1780153200&v=beta&t=suaHQ2TdZzKCNVyJG7708f6YVzcvWSo6zmZF8ZNOG_8"
+        },
+        "socialContent": {
+          "hideCommentsCount": false,
+          "hideReactionsCount": false,
+          "hideSocialActivityCounts": false,
+          "hideShareAction": false,
+          "hideSendAction": false,
+          "hideRepostsCount": false,
+          "hideViewsCount": false,
+          "trustInterventionBanner": null,
+          "hideReactAction": false,
+          "hideCommentAction": false,
+          "shareUrl": "https://www.linkedin.com/posts/nvidia_from-rockets-to-ai-nine-years-after-the-activity-7384677446056407041-Us04?",
+          "showContributionExperience": false,
+          "showSocialDetail": true
+        },
+        "comments": [],
+        "header": {
+          "text": null
+        },
+        "entityId": "7384677446056407041",
+        "shareUrn": "urn:li:ugcPost:7384677444806561792",
+        "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7384677444806561792",
+        "engagement": null
+      },
+      "engagement": {
+        "id": "7384962087653044224",
+        "likes": 3076,
+        "comments": 139,
+        "shares": 173,
+        "reactions": [
+          {
+            "type": "LIKE",
+            "count": 2663
+          },
+          {
+            "type": "EMPATHY",
+            "count": 188
+          },
+          {
+            "type": "PRAISE",
+            "count": 168
+          },
+          {
+            "type": "INTEREST",
+            "count": 31
+          },
+          {
+            "type": "APPRECIATION",
+            "count": 23
+          },
+          {
+            "type": "ENTERTAINMENT",
+            "count": 3
+          }
+        ]
+      },
+      "reactions": [],
+      "reactionIds": [],
+      "commentIds": [],
+      "query": {
+        "sortBy": "date",
+        "page": "1",
+        "targetUrl": "https://www.linkedin.com/in/jenhsunhuang",
+        "sessionId": "3668e70f-25d4-4e9f-a533-6a2617b59e6e"
+      }
+    },
+    {
+      "type": "post",
+      "id": "7376760642663272448",
+      "linkedinUrl": "https://www.linkedin.com/posts/jenhsunhuang_why-nvidia-built-nemotron-activity-7376760642663272448-HWNN",
+      "content": "AI should be open and accessible, that’s why we built Nemotron. \n\nhttps://nvda.ws/4pCUT8P",
+      "contentAttributes": [],
+      "author": {
+        "id": "ACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "universalName": null,
+        "publicIdentifier": "jenhsunhuang",
+        "type": "profile",
+        "name": "Jensen Huang",
+        "linkedinUrl": "https://www.linkedin.com/in/jenhsunhuang?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "info": "Founder and CEO, NVIDIA",
+        "website": null,
+        "websiteLabel": null,
+        "avatar": {
+          "url": "https://media.licdn.com/dms/image/v2/D5603AQEM7Pb1ndhi0Q/profile-displayphoto-crop_800_800/B56ZsU9UHlI8AM-/0/1765583176551?e=1781136000&v=beta&t=qp_qTeQYeu8d84zynDiOpbtev7UG1ZG87p4dhlZ0nMg",
+          "width": 800,
+          "height": 800
+        },
+        "urn": "322149465"
+      },
+      "postedAt": {
+        "timestamp": 1758756790796,
+        "date": "2025-09-24T23:33:10.796Z",
+        "postedAgoShort": "7mo",
+        "postedAgoText": "7 months ago • Visible to anyone on or off LinkedIn"
+      },
+      "postImages": [],
+      "repostId": "7376736906727870464",
+      "socialContent": {
+        "hideCommentsCount": false,
+        "hideReactionsCount": false,
+        "hideSocialActivityCounts": false,
+        "hideShareAction": false,
+        "hideSendAction": false,
+        "hideRepostsCount": false,
+        "hideViewsCount": false,
+        "trustInterventionBanner": null,
+        "hideReactAction": false,
+        "hideCommentAction": false,
+        "shareUrl": "https://www.linkedin.com/posts/jenhsunhuang_why-nvidia-built-nemotron-activity-7376760642663272448-HWNN?",
+        "showContributionExperience": false,
+        "showSocialDetail": true
+      },
+      "comments": [],
+      "header": {
+        "text": null
+      },
+      "entityId": "7376760642663272448",
+      "shareUrn": "urn:li:ugcPost:7376760642164350976",
+      "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7376760642164350976",
+      "repost": {
+        "id": "7376736906727870464",
+        "linkedinUrl": "https://www.linkedin.com/posts/nvidia_why-nvidia-built-nemotron-activity-7376736906727870464-v5Lw",
+        "content": "“There's two reasons why we're building Nemotron. The first is because it helps us build the GPUs and systems for the future.”\n\nThe second reason is because trust is the foundation of impactful AI–and it starts with understanding. That’s why Nemotron was built open source at its core—so developers, researchers, and enterprises can build together.\n\nHear from Bryan Catanzaro, VP of Applied Deep Learning Research at NVIDIA, on why making AI open benefits everyone.\n\n👉 https://nvda.ws/4pCUT8P",
+        "contentAttributes": [],
+        "author": {
+          "id": "3608",
+          "universalName": "nvidia",
+          "publicIdentifier": null,
+          "type": "company",
+          "name": "NVIDIA",
+          "linkedinUrl": "https://www.linkedin.com/company/nvidia/posts",
+          "info": "5,330,267 followers",
+          "website": null,
+          "websiteLabel": null,
+          "avatar": {
+            "url": "https://media.licdn.com/dms/image/v2/D560BAQGV36q2EowSyw/company-logo_400_400/company-logo_400_400/0/1724881581208/nvidia_logo?e=1781136000&v=beta&t=IzAvvpOc2YiJQNRbRTiq7dAPIC9Id-hhOpHBWtk8iOs",
+            "width": 400,
+            "height": 400
+          },
+          "urn": "3608"
+        },
+        "postedAt": {
+          "timestamp": 1758751131708,
+          "date": "2025-09-24T21:58:51.708Z",
+          "postedAgoShort": "7mo",
+          "postedAgoText": "7 months ago • Edited • Visible to anyone on or off LinkedIn"
+        },
+        "postImages": [],
+        "postVideo": {
+          "thumbnailUrl": "https://media.licdn.com/dms/image/v2/D5610AQGGz-0x9osWBQ/ads-video-thumbnail_720_1280/B56Zl9u21dKAAc-/0/1758751110680?e=1780153200&v=beta&t=wMyAf-RNbF1Vm2NtE84ggJos0CIMcFUuoYIwLjVeYvo",
+          "videoUrl": "https://dms.licdn.com/playlist/vid/v2/D5610AQGGz-0x9osWBQ/mp4-720p-30fp-crf28/B56Zl9u21eKAAY-/0/1758751122991?e=1780153200&v=beta&t=JSBHQyEfwEFcbW3UAgkIO60QzQrZ7Mg7PCpO_6reoeA"
+        },
+        "socialContent": {
+          "hideCommentsCount": false,
+          "hideReactionsCount": false,
+          "hideSocialActivityCounts": false,
+          "hideShareAction": false,
+          "hideSendAction": false,
+          "hideRepostsCount": false,
+          "hideViewsCount": false,
+          "trustInterventionBanner": null,
+          "hideReactAction": false,
+          "hideCommentAction": false,
+          "shareUrl": "https://www.linkedin.com/posts/nvidia_why-nvidia-built-nemotron-activity-7376736906727870464-v5Lw?",
+          "showContributionExperience": false,
+          "showSocialDetail": true
+        },
+        "comments": [],
+        "header": {
+          "text": null
+        },
+        "entityId": "7376736906727870464",
+        "shareUrn": "urn:li:ugcPost:7376736905633173506",
+        "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7376736905633173506",
+        "engagement": null
+      },
+      "engagement": {
+        "id": "7376760642164350976",
+        "likes": 1739,
+        "comments": 110,
+        "shares": 168,
+        "reactions": [
+          {
+            "type": "LIKE",
+            "count": 1509
+          },
+          {
+            "type": "PRAISE",
+            "count": 104
+          },
+          {
+            "type": "EMPATHY",
+            "count": 89
+          },
+          {
+            "type": "INTEREST",
+            "count": 25
+          },
+          {
+            "type": "APPRECIATION",
+            "count": 11
+          },
+          {
+            "type": "ENTERTAINMENT",
+            "count": 1
+          }
+        ]
+      },
+      "reactions": [],
+      "reactionIds": [],
+      "commentIds": [],
+      "query": {
+        "sortBy": "date",
+        "page": "1",
+        "targetUrl": "https://www.linkedin.com/in/jenhsunhuang",
+        "sessionId": "3668e70f-25d4-4e9f-a533-6a2617b59e6e"
+      }
+    },
+    {
+      "type": "post",
+      "id": "7282508257972178944",
+      "linkedinUrl": "https://www.linkedin.com/posts/jenhsunhuang_ces2025-ai-activity-7282508257972178944-zLua",
+      "content": "Enjoyed sharing this at CES. Hope you take a moment to watch.",
+      "contentAttributes": [],
+      "author": {
+        "id": "ACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "universalName": null,
+        "publicIdentifier": "jenhsunhuang",
+        "type": "profile",
+        "name": "Jensen Huang",
+        "linkedinUrl": "https://www.linkedin.com/in/jenhsunhuang?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "info": "Founder and CEO, NVIDIA",
+        "website": null,
+        "websiteLabel": null,
+        "avatar": {
+          "url": "https://media.licdn.com/dms/image/v2/D5603AQEM7Pb1ndhi0Q/profile-displayphoto-crop_800_800/B56ZsU9UHlI8AM-/0/1765583176551?e=1781136000&v=beta&t=qp_qTeQYeu8d84zynDiOpbtev7UG1ZG87p4dhlZ0nMg",
+          "width": 800,
+          "height": 800
+        },
+        "urn": "322149465"
+      },
+      "postedAt": {
+        "timestamp": 1736285271161,
+        "date": "2025-01-07T21:27:51.161Z",
+        "postedAgoShort": "1yr",
+        "postedAgoText": "1 year ago • Visible to anyone on or off LinkedIn"
+      },
+      "postImages": [],
+      "repostId": "7282480827119161344",
+      "socialContent": {
+        "hideCommentsCount": false,
+        "hideReactionsCount": false,
+        "hideSocialActivityCounts": false,
+        "hideShareAction": false,
+        "hideSendAction": false,
+        "hideRepostsCount": false,
+        "hideViewsCount": false,
+        "trustInterventionBanner": null,
+        "hideReactAction": false,
+        "hideCommentAction": false,
+        "shareUrl": "https://www.linkedin.com/posts/jenhsunhuang_ces2025-ai-activity-7282508257972178944-zLua?",
+        "showContributionExperience": false,
+        "showSocialDetail": true
+      },
+      "comments": [],
+      "header": {
+        "text": null
+      },
+      "entityId": "7282508257972178944",
+      "shareUrn": "urn:li:share:7282508257233936384",
+      "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:share:7282508257233936384",
+      "repost": {
+        "id": "7282480827119161344",
+        "linkedinUrl": "https://www.linkedin.com/posts/nvidia_ces2025-ai-activity-7282480827119161344-ORkh",
+        "content": "Our founder and CEO Jensen Huang kicked off #CES2025 with a news-packed keynote that included new products to advance gaming, autonomous vehicles, robotics, and agentic #AI.\n\nCatch up on the latest announcements and watch the replay: https://nvda.ws/4a6bmLo",
+        "contentAttributes": [],
+        "author": {
+          "id": "3608",
+          "universalName": "nvidia",
+          "publicIdentifier": null,
+          "type": "company",
+          "name": "NVIDIA",
+          "linkedinUrl": "https://www.linkedin.com/company/nvidia/posts",
+          "info": "5,330,267 followers",
+          "website": null,
+          "websiteLabel": null,
+          "avatar": {
+            "url": "https://media.licdn.com/dms/image/v2/D560BAQGV36q2EowSyw/company-logo_400_400/company-logo_400_400/0/1724881581208/nvidia_logo?e=1781136000&v=beta&t=IzAvvpOc2YiJQNRbRTiq7dAPIC9Id-hhOpHBWtk8iOs",
+            "width": 400,
+            "height": 400
+          },
+          "urn": "3608"
+        },
+        "postedAt": {
+          "timestamp": 1736278731136,
+          "date": "2025-01-07T19:38:51.136Z",
+          "postedAgoShort": "1yr",
+          "postedAgoText": "1 year ago • Visible to anyone on or off LinkedIn"
+        },
+        "postImages": [
+          {
+            "url": "https://media.licdn.com/dms/image/v2/D5610AQFK1eG36oLVog/image-shrink_1280/image-shrink_1280/0/1736278720578?e=1780153200&v=beta&t=okXE467WI-htb4mLO1BPIXb-xeu25wecMQnWSY9UBuQ",
+            "width": 1280,
+            "height": 853
+          }
+        ],
+        "socialContent": {
+          "hideCommentsCount": false,
+          "hideReactionsCount": false,
+          "hideSocialActivityCounts": false,
+          "hideShareAction": false,
+          "hideSendAction": false,
+          "hideRepostsCount": false,
+          "hideViewsCount": false,
+          "trustInterventionBanner": null,
+          "hideReactAction": false,
+          "hideCommentAction": false,
+          "shareUrl": "https://www.linkedin.com/posts/nvidia_ces2025-ai-activity-7282480827119161344-ORkh?",
+          "showContributionExperience": false,
+          "showSocialDetail": true
+        },
+        "comments": [],
+        "header": {
+          "text": null
+        },
+        "entityId": "7282480827119161344",
+        "shareUrn": "urn:li:share:7282480826401898499",
+        "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:share:7282480826401898499",
+        "engagement": null
+      },
+      "engagement": {
+        "id": "7282508257972178944",
+        "likes": 8404,
+        "comments": 472,
+        "shares": 325,
+        "reactions": [
+          {
+            "type": "LIKE",
+            "count": 7340
+          },
+          {
+            "type": "PRAISE",
+            "count": 482
+          },
+          {
+            "type": "EMPATHY",
+            "count": 456
+          },
+          {
+            "type": "INTEREST",
+            "count": 78
+          },
+          {
+            "type": "APPRECIATION",
+            "count": 46
+          },
+          {
+            "type": "ENTERTAINMENT",
+            "count": 2
+          }
+        ]
+      },
+      "reactions": [],
+      "reactionIds": [],
+      "commentIds": [],
+      "query": {
+        "sortBy": "date",
+        "page": "1",
+        "targetUrl": "https://www.linkedin.com/in/jenhsunhuang",
+        "sessionId": "3668e70f-25d4-4e9f-a533-6a2617b59e6e"
+      }
+    },
+    {
+      "type": "post",
+      "id": "7308563103888068608",
+      "linkedinUrl": "https://www.linkedin.com/posts/jenhsunhuang_nvidia-ceo-jensen-huang-keynote-at-gtc-2025-activity-7308563103888068608-DItb",
+      "content": "Incredible week at GTC. As always, we revealed the next click of NVIDIA—this time highlighting AI infrastructure, AI factories, agentic AI, and robotics. Watch the pregame show and keynote here. https://lnkd.in/gDmipnfy",
+      "contentAttributes": [],
+      "author": {
+        "id": "ACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "universalName": null,
+        "publicIdentifier": "jenhsunhuang",
+        "type": "profile",
+        "name": "Jensen Huang",
+        "linkedinUrl": "https://www.linkedin.com/in/jenhsunhuang?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAABMznFkB_XPgkYHnUl33kIHTWt1DtMAV6Pg",
+        "info": "Founder and CEO, NVIDIA",
+        "website": null,
+        "websiteLabel": null,
+        "avatar": {
+          "url": "https://media.licdn.com/dms/image/v2/D5603AQEM7Pb1ndhi0Q/profile-displayphoto-crop_800_800/B56ZsU9UHlI8AM-/0/1765583176551?e=1781136000&v=beta&t=qp_qTeQYeu8d84zynDiOpbtev7UG1ZG87p4dhlZ0nMg",
+          "width": 800,
+          "height": 800
+        },
+        "urn": "322149465"
+      },
+      "postedAt": {
+        "timestamp": 1742497230503,
+        "date": "2025-03-20T19:00:30.503Z",
+        "postedAgoShort": "1yr",
+        "postedAgoText": "1 year ago • Visible to anyone on or off LinkedIn"
+      },
+      "postImages": [],
+      "article": {
+        "title": "NVIDIA CEO Jensen Huang Keynote at GTC 2025",
+        "subtitle": "nvidia.com",
+        "link": "https://www.nvidia.com/gtc/keynote/?ncid=so-link-924669",
+        "linkLabel": "Open article: NVIDIA CEO Jensen Huang Keynote at GTC 2025 by nvidia.com",
+        "description": null,
+        "image": {
+          "url": "https://media.licdn.com/dms/image/sync/v2/D4E27AQGpsEPGHo9eKQ/articleshare-shrink_1280_800/articleshare-shrink_1280_800/0/1740727888041?e=1780153200&v=beta&t=bs9PGs_hTi0UJUoUC0BMeE1UMfYlE8cqaQI5fZChoFo",
+          "width": 1200,
+          "height": 630
+        }
+      },
+      "socialContent": {
+        "hideCommentsCount": false,
+        "hideReactionsCount": false,
+        "hideSocialActivityCounts": false,
+        "hideShareAction": false,
+        "hideSendAction": false,
+        "hideRepostsCount": false,
+        "hideViewsCount": false,
+        "trustInterventionBanner": null,
+        "hideReactAction": false,
+        "hideCommentAction": false,
+        "shareUrl": "https://www.linkedin.com/posts/jenhsunhuang_nvidia-ceo-jensen-huang-keynote-at-gtc-2025-activity-7308563103888068608-DItb?",
+        "showContributionExperience": false,
+        "showSocialDetail": true
+      },
+      "comments": [],
+      "header": {
+        "text": null
+      },
+      "entityId": "7308563103888068608",
+      "shareUrn": "urn:li:share:7308563103095345153",
+      "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:share:7308563103095345153",
+      "engagement": {
+        "id": "7308563103888068608",
+        "likes": 7073,
+        "comments": 317,
+        "shares": 440,
+        "reactions": [
+          {
+            "type": "LIKE",
+            "count": 6216
+          },
+          {
+            "type": "PRAISE",
+            "count": 405
+          },
+          {
+            "type": "EMPATHY",
+            "count": 358
+          },
+          {
+            "type": "INTEREST",
+            "count": 60
+          },
+          {
+            "type": "APPRECIATION",
+            "count": 32
+          },
+          {
+            "type": "ENTERTAINMENT",
+            "count": 2
+          }
+        ]
+      },
+      "reactions": [],
+      "reactionIds": [],
+      "commentIds": [],
+      "query": {
+        "sortBy": "date",
+        "page": "1",
+        "targetUrl": "https://www.linkedin.com/in/jenhsunhuang",
+        "sessionId": "3668e70f-25d4-4e9f-a533-6a2617b59e6e"
+      }
+    }
+  ],
+  "webSearchResults": [
+    {
+      "url": "https://www.crn.com/news/ai/2024/the-10-biggest-nvidia-news-stories-of-2024",
+      "title": "The 10 Biggest Nvidia News Stories Of 2024 - CRN",
+      "content": "CRN rounds up the 10 biggest Nvidia news stories of 2024, which range from the launch of its next-generation Blackwell GPU architecture and",
+      "score": 0.84918517,
+      "raw_content": null
+    },
+    {
+      "url": "https://www.reuters.com/markets/companies/NVDA.O",
+      "title": "(NVDA.O) | Stock Price & Latest News - Reuters",
+      "content": "NVIDIA Corporation is an artificial intelligence (AI) infrastructure company. ... 2024. Revenue. 215,938.00. Gross Profit. 153,463.00. Net Income. 120,067.00.",
+      "score": 0.8184036,
+      "raw_content": null
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=N_nQbVfm4zI",
+      "title": "Nvidia (NVDA) Announces New Products At CES 2024 - YouTube",
+      "content": "Nvidia (NVDA) is clearly the leader in inventory management, notes Darin Tuttle. He discusses Nvidia as it announced new products on Monday",
+      "score": 0.7574541,
+      "raw_content": null
+    },
+    {
+      "url": "https://nvidianews.nvidia.com/news/latest",
+      "title": "Latest News - NVIDIA Newsroom",
+      "content": "NVIDIA Names Suzanne Nora Johnson to Board of Directors. NVIDIA today announced that it has named to its board of directors Suzanne Nora Johnson, effective July",
+      "score": 0.6044228,
+      "raw_content": null
+    },
+    {
+      "url": "https://finance.yahoo.com/quote/NVDA",
+      "title": "NVIDIA Corporation (NVDA) Stock Price, News, Quote & History",
+      "content": "News headlines Nvidia's recent announcements signal robust growth in AI and CPU markets, with projected revenues of $200 billion. The semiconductor sector is",
+      "score": 0.5513086,
+      "raw_content": null
+    },
+    {
+      "url": "https://www.ziprecruiter.com/Jobs/Nvidia-2024",
+      "title": "Nvidia 2024 Jobs (NOW HIRING) Feb 2026 - ZipRecruiter",
+      "content": "Browse 60 NVIDIA 2024 jobs from companies with openings that are hiring now. Find job postings near you and 1-click apply to your next",
+      "score": 0.99937856,
+      "raw_content": null
+    },
+    {
+      "url": "https://www.bloomberg.com/news/articles/2024-12-12/nvidia-steps-up-hiring-in-china-to-focus-on-ai-driven-cars",
+      "title": "Nvidia Steps Up Hiring in China to Focus on AI-Driven Cars",
+      "content": "Nvidia Corp. has added hundreds of staff in China this year to enhance its research capabilities and focus on new autonomous driving technologies.",
+      "score": 0.9993333,
+      "raw_content": null
+    },
+    {
+      "url": "https://www.nvidia.com/en-us/about-nvidia/careers/how-we-hire",
+      "title": "How We Hire",
+      "content": "It’s OK to apply for the top five roles that best match your background. Depending on the role, you may have several interviews. If your skills and background match a different role, or if a new opportunity opens up during this process, you may be invited to interview for that position as well. During the final stage interview, you’ll have an opportunity to speak with a community resource group member as a part of our Insider Chat program. While there’s no official limit, we recommend that you limit your applications to the top three to five roles that best match your interests and experience. For assistance or an accommodation due to a disability, contact NVIDIA HR at 408-486-1405 or provide your contact information prior to your interview and we’ll contact you. For full-time roles, you’ll typically be asked to participate in phone interviews, followed by virtual or in-person interviews. NVIDIA is committed to offering reasonable accommodations, upon request, to job applicants with disabilities.",
+      "score": 0.99773055,
+      "raw_content": null
+    },
+    {
+      "url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite",
+      "title": "careers at nvidia - this page",
+      "content": "*   ### [Senior Product Engineer](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Thailand-Remote/Senior-Product-Engineer_JR2018270)    locations Thailand, Remote    posted on Posted Today. *   ### [Senior Solutions Architect Networking](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/India-Mumbai/Senior-Solutions-Architect-Networking_JR2017796)    locations 2 Locations    posted on Posted Today. *   ### [Senior Solutions Architect Networking](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/India-Mumbai/Senior-Solutions-Architect-Networking_JR2017864)    locations 2 Locations    posted on Posted Today. *   ### [Senior Solutions Architect - Gen AI](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/India-Bengaluru/Senior-Solutions-Architect---Gen-AI_JR2018112)    locations India, Bengaluru    posted on Posted Today. *   ### [Manufacturing Test Engineer](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/China-Shenzhen/Manufacturing-Test-Engineer_JR2017799)    locations China, Shenzhen    posted on Posted Today. *   ### [Senior Product Engineer](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/China-Shenzhen/Senior-Product-Engineer_JR2018203)    locations China, Shenzhen    posted on Posted Today. *   ### [Senior Developer Relations Manager](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Korea-Seoul/Senior-Developer-Relations-Manager_JR2018216-1)    locations Korea, Seoul    posted on Posted Today. *   ### [Solutions Architect - AI Technology Center for Physical AI](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Korea-Seoul/Solutions-Architect---AI-Technology-Center-for-Physical-AI_JR2018374)    locations Korea, Seoul    posted on Posted Today. *   ### [Solutions Architect - AI Technology Center, Scientific Applications](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/Korea-Seoul/Solutions-Architect---AI-Technology-Center--Scientific-Applications_JR2018377)    locations Korea, Seoul    posted on Posted Today. *   ### [Senior Solution Architect - ISV](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/China-Beijing/Senior-Solution-Architect---ISV_JR2017931)    locations 3 Locations    posted on Posted Today. *   ### [Senior System Software Engineer - AI Performance and Efficiency Tools](https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/job/China-Shanghai/Senior-System-Software-Engineer---AI-Performance-and-Efficiency-Tools_JR1996042)    locations China, Shanghai    posted on Posted Today.",
+      "score": 0.994089,
+      "raw_content": null
+    },
+    {
+      "url": "http://nvidia.eightfold.ai/careers",
+      "title": "Careers at NVIDIA Corporation - Eightfold AI",
+      "content": "`{\"themeOptions\": {\"name\": \"PCS Default\", \"customTheme\": {\"varTheme\": {\"primary-color-100\": \"#000000\", \"primary-color-90\": \"#0d0d0d\", \"primary-color-80\": \"#333333\", \"primary-color-70\": \"#595959\", \"primary-color-60\": \"#808080\", \"primary-color-50\": \"#969696\", \"primary-color-40\": \"#adadad\", \"primary-color-30\": \"#c4c4c4\", \"primary-color-20\": \"#dbdbdb\", \"primary-color-10\": \"#f2f2f2\", \"accent-color\": \"#76b900\", \"accent-color-100\": \"#76b900\", \"accent-color-90\": \"#76b900\", \"accent-color-80\": \"#76b900\", \"accent-color-70\": \"#76b900\", \"accent-color-60\": \"#76b900\", \"accent-color-50\": \"#76b900\", \"accent-color-40\": \"#76b900\", \"accent-color-30\": \"#76b900\", \"accent-color-20\": \"#76b900\", \"accent-color-10\": \"#76b900\", \"text-primary-color\": \"#1a1a1a\", \"text-secondary-color\": \"#000000\", \"text-inverse-color\": \"#000000\", \"anchor-color\": \"#666666\", \"border-color\": \"#cccccc\", \"avatar-color\": \"#76b900\", \"border-radius-xl\": \"2px\", \"border-radius-l\": \"2px\", \"border-radius-m\": \"2px\", \"border-radius-s\": \"2px\", \"button-primary-background-color\": \"#76b900\", \"button-primary-text-color\": \"#000000\", \"button-primary-hover-background-color\": \"#91c733\", \"button-primary-hover-text-color\": \"#000000\", \"button-primary-active-background-color\": \"#91c733\", \"button-secondary-background-color\": \"#ffffff\", \"button-secondary-text-color\": \"#000000\", \"button-secondary-border-width\": \"2px\", \"button-secondary-hover-background-color\": \"#ffffff\", \"button-secondary-hover-text-color\": \"#000000\", \"button-secondary-hover-border-color\": \"#000000\", \"button-secondary-active-background-color\": \"#ffffff\", \"button-secondary-active-text-color\": \"#000000\", \"button-secondary-active-border-color\": \"#000000\", \"button-default-text-color\": \"#666666\", \"button-two-state-active-text-color\": \"#000000\", \"button-two-state-active-background-color\": \"#dddddd\", \"card-background-color\": \"#ffffff\", \"card-border-color\": \"#cccccc\", \"apply-button-background-color\": \"#76b900\", \"apply-button-text-color\": \"#000000\", \"button-system-ui-text-color\": \"#000000\", \"button-default-background-color\": \"#eeeeee\", \"tab-pill-border-radius\": \"100px\", \"card-border-radius\": \"2\", \"green-color-10\": \"#faffe6\", \"green-color-20\": \"#ecffad\", \"green-color-30\": \"#deff82\", \"green-color-40\": \"#bae84f\", \"green-color-50\": \"#97d124\", \"green-color-60\": \"#76b900\", \"green-color-70\": \"#599400\", \"green-color-80\": \"#3e6e00\", \"green-color-90\": \"#264700\", \"green-color-100\": \"#112100\", \"green-color\": \"#76b900\", \"button-two-state-hover-text-color\": \"#000000\", \"button-two-state-hover-background-color\": \"#dddddd\", \"entity-project-color-10\": \"#fdf0ff\", \"entity-project-color-20\": \"#f8dbff\", \"entity-project-color-30\": \"#eeb0ff\", \"entity-project-color-40\": \"#cc79e8\", \"entity-project-color-50\": \"#ab49d1\", \"entity-project-color-60\": \"#8922b9\", \"entity-project-color-70\": \"#671394\", \"entity-project-color-80\": \"#47096e\", \"entity-project-color-90\": \"#2b0247\", \"entity-project-color-100\": \"#120021\", \"entity-project-color\": \"#8922b9\", \"entity-career-path-color-10\": \"#f0fcff\", \"entity-career-path-color-20\": \"#d9f7ff\", \"entity-career-path-color-30\": \"#adecff\", \"entity-career-path-color-40\": \"#7dd5f5\", \"entity-career-path-color-50\": \"#4bb2de\", \"entity-career-path-color-60\": \"#2290c7\", \"entity-career-path-color-70\": \"#136da1\", \"entity-career-path-color-80\": \"#094d7a\", \"entity-career-path-color-90\": \"#023054\", \"entity-career-path-color-100\": \"#00182e\", \"entity-career-path-color\": \"#2290c7\", \"entity-course-color-10\": \"#f0fffa\", \"entity-course-color-20\": \"#d4fff2\", \"entity-course-color-30\": \"#a8ffe8\", \"entity-course-color-40\": \"#74edd1\", \"entity-course-color-50\": \"#45d6b9\", \"entity-course-color-60\": \"#1dbfa4\", \"entity-course-color-70\": \"#0f9987\", \"entity-course-color-80\": \"#067368\", \"entity-course-color-90\": \"#004d47\", \"entity-course-color-100\": \"#002625\", \"entity-course-color\": \"#1dbfa4\", \"entity-job-color-10\": \"#fffce6\", \"entity-job-color-20\": \"#fff4ad\", \"entity-job-color-30\": \"#ffea82\", \"entity-job-color-40\": \"#ffdd57\", \"entity-job-color-50\": \"#ffce2b\", \"entity-job-color-60\": \"#ffbc01\", \"entity-job-color-70\": \"#d99800\", \"entity-job-color-80\": \"#b37700\", \"entity-job-color-90\": \"#8c5900\", \"entity-job-color-100\": \"#663d00\", \"entity-job-color\": \"#ffbc01\", \"entity-person-color-10\": \"#fff0f6\", \"entity-person-color-20\": \"#ffe0ee\", \"entity-person-color-30\": \"#ffb5d9\", \"entity-person-color-40\": \"#ff8ac6\", \"entity-person-color-50\": \"#e856a6\", \"entity-person-color-60\": \"#d12a8b\", \"entity-person-color-70\": \"#ab1a73\", \"entity-person-color-80\": \"#850d5b\", \"entity-person-color-90\": \"#5e0542\", \"entity-person-color-100\": \"#380229\", \"entity-person-color\": \"#d12a8b\", \"courses-card-color\": \"var(--grey-background1-color)\", \"courses-card-button-text\": \"var(--text-secondary-color)\", \"button-system-ui-hover-text-color\": \"#000000\", \"button-system-ui-hover-background-color\": \"#eeeeee\", \"button-pill-shape-border-radius\": \"var(--border-radius-l)\", \"home-banner-subtitle-color\": \"var(--text-primary-color)\", \"home-banner-title-color\": \"var(--black-color)\", \"careerhub-legacy-banner-subtitle-color\": \"var(--text-primary-color)\", \"careerhub-legacy-banner-title-color\": \"var(--black-color)\", \"careerhub-legacy-banner-color2\": \"var(--white-color)\", \"careerhub-legacy-banner-color1\": \"var(--white-color)\", \"button-default-border-color\": \"#000000\", \"button-default-hover-text-color\": \"#000000\", \"button-default-hover-background-color\": \"#dddddd\", \"button-default-active-background-color\": \"#dddddd\", \"button-secondary-border-color\": \"var(--accent-color)\", \"tab-pill-active-background\": \"#76b900\", \"tab-pill-active-label\": \"#000000\", \"facet-pill-border\": \"1px solid #cccccc\", \"facet-pill-background\": \"#f7f7f7\", \"facet-pill-label\": \"#1a1a1a\", \"facet-pill-hover-border\": \"1px solid #cccccc\", \"facet-pill-hover-background\": \"#f7f7f7\", \"facet-pill-hover-label\": \"#1a1a1a\", \"highlight-hover-background-color\": \"#76b900\", \"highlight-background-color\": \"#76b90080\", \"highlight-hover-foreground-color\": \"#000\", \"highlight-foreground-color\": \"#000\", \"highlight-hover-border-color\": \"#76b900\", \"highlight-border-color\": \"#76b90080\", \"red-color-10\": \"#fff1f0\",",
+      "score": 0.9728308,
+      "raw_content": null
+    }
+  ],
+  "toolCallLog": [
+    "linkedin_person(https://www.linkedin.com/in/jenhsunhuang)",
+    "linkedin_company(https://www.linkedin.com/company/nvidia)",
+    "linkedin_posts(https://www.linkedin.com/in/jenhsunhuang)",
+    "web_search(\"NVIDIA Corporation recent news 2024\")",
+    "web_search(\"NVIDIA Corporation hiring 2024\")",
+    "linkedin_person(https://www.linkedin.com/in/jenhsunhuang)"
+  ]
+}

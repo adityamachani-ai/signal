@@ -56,7 +56,7 @@ Sales reps and sales leaders at B2B SaaS companies, Series A through C. Teams of
 |---|---|---|
 | Research | `/` | Lead input — 3 modes: specific lead, ICP discovery, bulk CSV upload |
 | Lists | `/lists` | Active lead pipeline with contact data and signal scores |
-| Brief + Outreach | `/brief/[slug]` | Split-screen: full intelligence brief (left) + outreach composer (right) |
+| Brief + Outreach | `/brief/[slug]` | Split-screen: full intelligence brief (left, `flex-1`) + outreach composer (right, fixed `360px`). Outreach panel has 5 channel tabs; email tab surfaces a separate Subject input populated from the LLM draft. |
 | Signals | `/signals` | Monitoring inbox — trigger events across all leads, organised by strength and recency |
 | Playbook | `/playbook` | Team brain — ICP config, value props, competitors, signal weights, communication style |
 | Settings | `/settings` | Integrations (HubSpot, Salesforce, Gmail, Slack), account, billing, API |
@@ -68,20 +68,33 @@ Sales reps and sales leaders at B2B SaaS companies, Series A through C. Teams of
 The **Research module** is fully functional end-to-end with real data:
 
 **Built and working:**
-- Supabase auth (email/password signup + login, session management, middleware-protected routes)
+- Supabase auth — email/password + Google OAuth (signup, login, session management, middleware-protected routes, OAuth callback handler)
 - Database persistence — 5 tables with RLS policies, auto-provisioning triggers for new users
 - Lusha API integration — single lead lookup (LinkedIn/email/name), ICP prospecting search, CSV bulk enrichment
-- ICP Discovery — natural language query → structured filters → Lusha search results (with LLM + keyword fallback parser)
+- ICP Discovery — natural language query → structured filters → Lusha search results (LLM parsing via OpenAI `gpt-5-mini` + keyword fallback)
+- Multi-list support — create named lists, assign leads to specific lists, manage across pipeline
 - City name normalisation — 3-layer resolver (static alias map → in-memory cache → OpenStreetMap Nominatim geocoding) so "Bangalore" resolves to "Bengaluru" for Lusha
 - Signal score computation — automated lead scoring based on contact data quality and seniority
-- Deduplication — across all enrichment paths (lookup, bulk, save-leads)
-- 199 passing tests across 8 test files (vitest), all running in mock mode (0 Lusha credits consumed)
+- Deduplication — across all enrichment paths (lookup, bulk, save-leads), with smart per-company limits for broad searches
+- Lookup refresh — re-enrich stale leads with updated contact data
+- Brief generation — AI research agent (agentic loop with LinkedIn + web search tools) + 5 brief agents (Who They Are, Pain Map, Angle, Why Now, Outreach Drafts) using `gpt-5.4`
+- Pain Map uses a 3-layer hybrid framework (L1 role-baseline, L2 company amplifiers, L3 individual signals); L1-only pains are banned — every surfaced pain must have L2/L3 evidence
+- Outreach Drafts enforces quality guardrails: banned generic openers, LinkedIn DM must open with prospect's own quoted words, follow-up must use a different angle, call opener leads with the prospect not the product, email returned as a single `Subject: ...
 
-**Still mocked (needs to be built):**
-- Brief generation — AI synthesis engine (streaming output via Vercel AI SDK)
+[body]` string
+- Brief page (`/brief/[slug]`) extracts the email subject line from the LLM draft into a dedicated Subject input field; Copy to clipboard re-composes subject + body
+- Multi-source data enrichment — LinkedIn profile scraping (Apify), LinkedIn posts, company data, web search (Tavily)
+- Playground — test brief generation without saving to DB, debug dumps to `/tmp/playground-enrichment-*.json`
+- 251 tests across 10 test files (vitest), all running in mock mode (0 Lusha credits consumed)
+- Google OAuth login — "Continue with Google" button on login and signup pages using Supabase OAuth with `/auth/callback` redirect
+- Settings page — fully rewritten with real user data (profile photo or initials, editable display name, read-only email, account deletion with confirmation); all fake billing/plan/invoice data removed
+- Sidebar — real user profile (Google photo or initials, display name, email) with functional Sign Out; fake credits widget removed
+- Account deletion API — `POST /api/account/delete` permanently deletes the authenticated user via Supabase admin client
+- Top bar — removed hardcoded avatar placeholder; theme toggle remains
+
+**Still to be built:**
 - Signal monitoring — real-time trigger event detection across leads
 - CRM integrations (HubSpot, Salesforce, Gmail)
-- Multi-source data enrichment (LinkedIn scraping, Google News, job boards)
 
 > See [ARCHITECTURE.md](ARCHITECTURE.md) for full technical details.
 
@@ -96,7 +109,7 @@ The **Research module** is fully functional end-to-end with real data:
 - **UI Components:** shadcn/ui
 - **Database & Auth:** Supabase (supabase-js 2.99.3)
 - **Enrichment:** Lusha API
-- **LLM:** Azure OpenAI via LiteLLM proxy (with keyword fallback)
+- **LLM:** OpenAI `gpt-5-mini` (research agent, ICP parse) + `gpt-5.4` (brief generation)
 - **Testing:** Vitest 4.1.0
 - **Package manager:** pnpm
 
@@ -134,11 +147,11 @@ SUPABASE_SERVICE_ROLE_KEY=<your-supabase-service-role-key>
 # Lusha (optional — uses mock data if not set)
 LUSHA_API_KEY=<your-lusha-api-key>
 
-# Azure OpenAI / LiteLLM (optional — keyword fallback if unavailable)
-AZURE_OPENAI_API_KEY=<your-llm-api-key>
-AZURE_OPENAI_ENDPOINT=<your-llm-endpoint>
-AZURE_OPENAI_MODEL_NAME=azure/gpt-4.1-nano
-AZURE_OPENAI_REGION=southindia
+# LLM (optional — keyword fallback parser if unavailable)
+LLM_API_KEY=<your-openai-api-key>
+LLM_BASE_URL=<your-litellm-proxy-url>
+LLM_MODEL=gpt-5-mini
+BRIEF_MODEL=gpt-5.4
 
 # Tests
 TEST_BASE_URL=http://localhost:3000
@@ -150,8 +163,20 @@ TEST_BASE_URL=http://localhost:3000
 # Run full test suite (starts mock server automatically — 0 Lusha credits)
 pnpm test
 
-# Run a specific test file (requires mock server or dev server running)
-pnpm exec vitest run tests/setup.test.ts --reporter=verbose
+# Run a specific test file
+bash test.sh tests/setup.test.ts
 ```
 
-> **Note:** `pnpm test` automatically starts a dev server in mock mode (no Lusha API key), runs all tests, then restarts your normal dev server with real keys. Tests never consume Lusha credits.
+> **Warning:** Never run `npx vitest run` directly — it may hit a dev server with real API keys and consume Lusha credits. Always use `pnpm test` or `bash test.sh` which starts a dedicated mock server.
+
+> `pnpm test` automatically starts a dev server in mock mode (no Lusha API key), runs all tests, then restarts your normal dev server with real keys. Tests never consume Lusha credits.
+
+---
+
+## Lusha Credit Model
+
+- **Free plan:** 40 credits/month
+- **Search** (`/prospecting/contact/search`): **1 credit per API call** (regardless of result count)
+- **Enrich** (`/prospecting/contact/enrich`): free when using the same `requestId` from search
+- **Mock mode:** All tests run with `LUSHA_API_KEY` unset, returning mock data at zero cost
+- Credits reset monthly; unused credits do not roll over

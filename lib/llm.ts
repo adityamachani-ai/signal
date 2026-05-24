@@ -26,4 +26,5 @@ export function getLlm(): OpenAI {
   return _llm
 }
 
-export const LLM_MODEL = process.env.LLM_MODEL ?? 'gpt-4.1-mini'
+export const LLM_MODEL = process.env.LLM_MODEL ?? 'gpt-5-mini'
+export const BRIEF_MODEL = process.env.BRIEF_MODEL ?? LLM_MODEL

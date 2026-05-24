@@ -53,7 +53,10 @@ create table if not exists leads (
 
   -- State
   in_list boolean default false,            -- has been added to the user's active list
-  brief_generated boolean default false,    -- has a brief been generated
+  brief_generated boolean default false,    -- has a brief been generated (legacy boolean, kept for compat)
+  brief_status text check (brief_status in ('generating', 'generated')),  -- null=never, 'generating'=in-flight, 'generated'=saved
+  brief_generation_started_at timestamptz,  -- when the most recent generation kick-off happened
+  brief_generated_at timestamptz,           -- when the last successful save completed
 
   created_at timestamptz default now(),
   updated_at timestamptz default now()
@@ -66,7 +69,10 @@ create table if not exists lists (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade not null,
   name text not null default 'My List',
-  created_at timestamptz default now()
+  color text,
+  description text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
 );
 
 -- Junction: which leads are in which list
@@ -110,6 +116,7 @@ create table if not exists playbooks (
   user_id uuid references auth.users(id) on delete cascade not null,
 
   -- Product section
+  product_name text,
   problem text,
   for_who text,
   different text,

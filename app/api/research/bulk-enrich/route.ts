@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { lookupContact, LushaApiError } from '@/lib/lusha'
 import { getAuthUser } from '@/lib/auth'
 import { createServiceClient } from '@/lib/supabase/service'
-import { computeSignalScore } from '@/lib/signal-score'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -248,8 +247,6 @@ export async function POST(request: NextRequest) {
       if (!contact) continue
 
       // ── Insert new lead ──────────────────────────────────────────────────
-      const { score, reasons } = computeSignalScore(contact)
-
       const { data: newLead, error: insertError } = await supabase
         .from('leads')
         .insert({
@@ -275,8 +272,6 @@ export async function POST(request: NextRequest) {
           enrichment_source: 'lusha',
           enrichment_raw: contact.rawPayload,
           enriched_at: new Date().toISOString(),
-          signal_score: score,
-          signal_reasons: reasons,
         })
         .select('id')
         .single()

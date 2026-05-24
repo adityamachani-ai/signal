@@ -29,17 +29,17 @@ export function TagInput({ tags, onTagsChange, placeholder = "Type and press Ent
   }
 
   return (
-    <div className="min-h-[40px] border border-[#E5E4E0] rounded-lg p-2 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500">
+    <div className="min-h-[40px] border border-signal-border rounded-lg p-2 focus-within:border-signal-accent focus-within:shadow-[0_0_0_3px_rgba(79,70,229,0.08)] transition-shadow">
       <div className="flex flex-wrap gap-1.5">
         {tags.map((tag) => (
           <span
             key={tag}
-            className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[12px] font-medium rounded-full"
+            className="inline-flex items-center gap-1 px-2 py-0.5 bg-signal-accent-tint text-signal-accent-2 text-[12px] font-medium rounded-full"
           >
             {tag}
             <button
               onClick={() => removeTag(tag)}
-              className="hover:text-indigo-900 transition-colors"
+              className="hover:text-signal-accent-2 transition-colors"
             >
               <X className="w-3 h-3" />
             </button>
@@ -51,7 +51,7 @@ export function TagInput({ tags, onTagsChange, placeholder = "Type and press Ent
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={tags.length === 0 ? placeholder : ""}
-          className="flex-1 min-w-[120px] text-[13px] bg-transparent outline-none placeholder:text-[#9CA3AF]"
+          className="flex-1 min-w-[120px] text-[13px] bg-transparent outline-none placeholder:text-signal-text-4"
         />
       </div>
     </div>

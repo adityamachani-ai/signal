@@ -153,6 +153,12 @@ export async function POST(request: NextRequest) {
   if (!res.ok) {
     const errText = await res.text()
     console.error('[icp-search] Lusha error:', res.status, errText)
+    if (res.status === 402) {
+      return NextResponse.json(
+        { error: 'Lusha credits exhausted. Please upgrade your Lusha account or add more credits.' },
+        { status: 402 }
+      )
+    }
     return NextResponse.json({ error: 'Lusha search failed', detail: errText }, { status: res.status })
   }
 

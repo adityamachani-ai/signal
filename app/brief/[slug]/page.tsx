@@ -1,27 +1,47 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import { Sidebar } from "@/components/signal/sidebar"
 import {
-  ArrowLeft, RefreshCw, Share2, Mail, Phone, Linkedin, MapPin,
-  Clock, Zap, ChevronDown, ChevronRight, Copy, ExternalLink, Check
+  ArrowLeft, RefreshCw, Share2, Mail, Linkedin, MapPin,
+  Clock, ChevronRight, Copy, ExternalLink, Check,
+  Briefcase, MessageSquareQuote, ArrowRight, Loader2,
+  GraduationCap, ChevronDown, Phone
 } from "lucide-react"
+import type {
+  WhoTheyAre,
+  PainMap,
+  Angle,
+  WhyNow,
+  OutreachDrafts,
+  BriefSseEvent,
+  CareerStep as CareerStepType,
+  EducationEntry,
+  CompanyBadge,
+} from "@/lib/brief-types"
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function renderWithLinks(text: string) {
+  const parts = text.split(/(\[[^\]]+\]\(https?:\/\/[^)]+\))/g)
+  return parts.map((part, i) => {
+    const match = part.match(/^\[([^\]]+)\]\((https?:\/\/[^)]+)\)$/)
+    if (match) {
+      return (
+        <a key={i} href={match[2]} target="_blank" rel="noopener noreferrer"
+          className="underline decoration-signal-text-4 hover:text-signal-accent transition-colors">
+          {match[1]}
+        </a>
+      )
+    }
+    return <span key={i}>{part}</span>
+  })
+}
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type Tab = "linkedin-note" | "linkedin-dm" | "email" | "follow-up" | "call-opener"
-type Tone = "Conversational" | "Direct" | "Formal"
-
-// ─── Draft content per tab ────────────────────────────────────────────────────
-
-const DRAFTS: Record<Tab, string> = {
-  "linkedin-note": "Hi Jordan — saw your post about outbound quality last week and it resonated. We work with a few Series B sales teams going through the exact same scaling crunch you're in right now (4+ AEs hired in under 60 days). Would love to share what's been working. Open to connecting?",
-  "linkedin-dm": "Hi Jordan — your post about SDR burnout really resonated. We work with VP Sales at Series B companies in exactly your situation — scaling fast, trying to maintain quality, feeling board pressure. I've seen a few things work well for teams in the 4-8 AE range. Would it be useful to compare notes?",
-  "email": "Hi Jordan,\n\nSaw the Series B announcement and your recent posts about outbound quality — sounds like you're building something fast.\n\nWe work with a handful of VP Sales at post-Series B SaaS companies going through the exact same thing: new AEs ramping, board pressure on pipeline, current stack starting to creak.\n\nWorth 20 minutes to compare notes?\n\n[Your name]",
-  "follow-up": "Hi Jordan — following up on my note from last week. Still think the timing is right given what you're building. The outbound quality problem doesn't get easier as you add more AEs — if anything it gets harder. Let me know if this lands at a better moment.",
-  "call-opener": "Jordan — thanks for picking up, I'll be quick. I saw your post about outbound quality and we work with teams in exactly your situation — Series B, scaling fast, trying to maintain quality. Wanted to see if it's worth a proper conversation. Do you have 2 minutes?",
-}
 
 const TAB_LABELS: Record<Tab, string> = {
   "linkedin-note": "LinkedIn note",
@@ -31,223 +51,688 @@ const TAB_LABELS: Record<Tab, string> = {
   "call-opener": "Call opener",
 }
 
-// ─── Subcomponents ────────────────────────────────────────────────────────────
+interface LeadData {
+  id: string
+  full_name: string
+  job_title?: string | null
+  company_name?: string | null
+  company_domain?: string | null
+  linkedin_url?: string | null
+  company_linkedin_url?: string | null
+  email?: string | null
+  phone_direct?: string | null
+  phone_mobile?: string | null
+  city?: string | null
+  country?: string | null
+  brief_generated?: boolean | null
+  brief_status?: 'generating' | 'generated' | null
+  brief_generation_started_at?: string | null
+  brief_generated_at?: string | null
+}
 
-function SectionLabel({ children, dot }: { children: React.ReactNode; dot?: string }) {
+// ─── Time helper ─────────────────────────────────────────────────────────────
+
+function timeAgo(dateStr: string | null | undefined): string {
+  if (!dateStr) return ''
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  if (days === 1) return 'yesterday'
+  if (days < 7) return `${days} days ago`
+  return new Date(dateStr).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+}
+
+// ─── Skeleton ────────────────────────────────────────────────────────────────
+
+function Skeleton({ className }: { className?: string }) {
+  return <div className={`animate-pulse rounded bg-signal-raised ${className ?? ""}`} />
+}
+
+// ─── Section header ───────────────────────────────────────────────────────────
+
+function SectionHeader({ title }: { title: string }) {
   return (
     <div className="flex items-center gap-2 mb-3">
-      {dot && <span className="w-2 h-2 rounded-full" style={{ background: dot }} />}
-      <span className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-[0.8px]">{children}</span>
+      <span className="text-[11px] font-semibold text-signal-text-4 uppercase tracking-[0.8px]">{title}</span>
+      <span className="h-px flex-1 bg-signal-raised" />
     </div>
   )
 }
 
-function StrengthBadge({ strength }: { strength: "Strong" | "Medium" }) {
-  return strength === "Strong" ? (
-    <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#D1FAE5] text-[#065F46]">Strong</span>
-  ) : (
-    <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#FEF3C7] text-[#92400E]">Medium</span>
-  )
-}
+// ─── Career step ──────────────────────────────────────────────────────────────
 
-function SignalCard({ title, desc, date, strength }: { title: string; desc: string; date: string; strength: "Strong" | "Medium" }) {
+function CareerStep({ role, company, duration, note, highlight, companyLogo }: CareerStepType) {
   return (
-    <div className="bg-[#F9FAFB] border border-[#F3F4F6] rounded-lg p-3">
-      <div className="flex items-start justify-between gap-2">
-        <span className="text-[13px] font-medium text-[#111]">{title}</span>
-        <StrengthBadge strength={strength} />
+    <div className="flex gap-3">
+      <div className="flex flex-col items-center shrink-0">
+        <div
+          className="w-2.5 h-2.5 rounded-full mt-1.5 border-2"
+          style={{ background: highlight ? "var(--signal-accent)" : "var(--signal-bg)", borderColor: highlight ? "var(--signal-accent)" : "var(--signal-border)" }}
+        />
+        <div className="w-[1.5px] flex-1 bg-signal-raised mt-1" />
       </div>
-      <p className="text-[12px] text-[#6B7280] leading-relaxed mt-1.5">{desc}</p>
-      <p className="text-[11px] text-[#9CA3AF] mt-1.5">{date}</p>
+      <div className="pb-4 flex-1">
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="text-[13px] font-medium text-signal-text-1">{role}</span>
+          <span className="text-[11px] text-signal-text-4 shrink-0">{duration}</span>
+        </div>
+        <p className="text-[12px] text-signal-text-3 mt-0.5 flex items-center gap-1.5">
+          {companyLogo && (
+            <img src={companyLogo} alt="" className="w-3.5 h-3.5 rounded-sm object-cover inline-block" />
+          )}
+          {company}
+        </p>
+        {note && <p className="text-[12px] text-signal-text-2 mt-1.5 leading-relaxed">{note}</p>}
+      </div>
     </div>
   )
 }
 
-function IntelRow({ label, children }: { label: string; children: React.ReactNode }) {
+// ─── Bold markdown renderer ──────────────────────────────────────────────────
+
+function BoldText({ text }: { text: string }) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/)
   return (
-    <div className="mb-3">
-      <span className="block text-[11px] text-[#9CA3AF] mb-0.5">{label}</span>
-      <div className="text-[13px] text-[#374151] leading-relaxed">{children}</div>
+    <>
+      {parts.map((part, i) =>
+        part.startsWith("**") && part.endsWith("**") ? (
+          <strong key={i} className="font-semibold text-signal-text-1">{part.slice(2, -2)}</strong>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  )
+}
+
+// ─── Who They Are section ────────────────────────────────────────────────────
+
+const ARC_PREVIEW_COUNT = 3
+
+function WhoTheyAreSection({ whoTheyAre }: { whoTheyAre: WhoTheyAre }) {
+  const [arcExpanded, setArcExpanded] = useState(false)
+  const visibleArc = arcExpanded ? whoTheyAre.arc : whoTheyAre.arc.slice(0, ARC_PREVIEW_COUNT)
+  const hasMoreArc = whoTheyAre.arc.length > ARC_PREVIEW_COUNT
+
+  return (
+    <div className="mt-4 space-y-5">
+      {/* Career Summary — on top with bold key phrases */}
+      {whoTheyAre.careerSummary && (
+        <p className="text-[13px] text-signal-text-2 leading-relaxed">
+          <BoldText text={whoTheyAre.careerSummary} />
+        </p>
+      )}
+
+      {/* Two-column grid: Career + Voice */}
+      <div className="grid grid-cols-2 gap-7">
+        <div>
+          <div className="text-[10px] font-semibold text-signal-text-4 uppercase tracking-[0.8px] flex items-center gap-1.5 mb-3">
+            <Briefcase className="w-3 h-3" /> Career
+          </div>
+          {visibleArc.map((step, i) => <CareerStep key={i} {...step} />)}
+          {hasMoreArc && (
+            <button
+              onClick={() => setArcExpanded(v => !v)}
+              className="flex items-center gap-1.5 text-[12px] text-signal-text-3 hover:text-signal-text-2 transition-colors mt-1"
+            >
+              <ChevronDown
+                className="w-3.5 h-3.5 transition-transform"
+                style={{ transform: arcExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
+              />
+              {arcExpanded ? "Show less" : `Show ${whoTheyAre.arc.length - ARC_PREVIEW_COUNT} more roles`}
+            </button>
+          )}
+        </div>
+        <div>
+          <div className="text-[10px] font-semibold text-signal-text-4 uppercase tracking-[0.8px] flex items-center gap-1.5 mb-3">
+            <MessageSquareQuote className="w-3 h-3" /> Voice
+          </div>
+          {whoTheyAre.personalContext ? (
+            <div className="border-l-2 border-signal-border pl-3 py-0.5">
+              <p className="text-[12px] text-signal-text-2 leading-snug">{whoTheyAre.personalContext}</p>
+            </div>
+          ) : (
+            <p className="text-[12px] text-signal-text-4">No recent post data found.</p>
+          )}
+        </div>
+      </div>
+
+      {/* Education — separate section */}
+      {whoTheyAre.education && whoTheyAre.education.length > 0 && (
+        <div>
+          <div className="text-[10px] font-semibold text-signal-text-4 uppercase tracking-[0.8px] flex items-center gap-1.5 mb-3">
+            <GraduationCap className="w-3 h-3" /> Education
+          </div>
+          <div className="space-y-2">
+            {whoTheyAre.education.map((edu, i) => (
+              <div key={i} className="flex items-start gap-2.5">
+                {edu.schoolLogo ? (
+                  <img src={edu.schoolLogo} alt="" className="w-4 h-4 rounded-sm object-cover mt-0.5 shrink-0" />
+                ) : (
+                  <div className="w-4 h-4 rounded-sm bg-signal-raised flex items-center justify-center mt-0.5 shrink-0">
+                    <GraduationCap className="w-2.5 h-2.5 text-signal-text-4" />
+                  </div>
+                )}
+                <div>
+                  <p className="text-[12px] font-medium text-signal-text-1">{edu.school}</p>
+                  {edu.degree && <p className="text-[11px] text-signal-text-3">{edu.degree}</p>}
+                  {edu.years && <p className="text-[11px] text-signal-text-4">{edu.years}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
-function Tag({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-block bg-[#F3F4F6] text-[#374151] rounded px-2 py-0.5 text-[11px] mr-1 mb-1">{children}</span>
-  )
+// ─── Research Progress Animation ─────────────────────────────────────────────
+
+const RESEARCH_ANIMATION_STYLES = `
+  @keyframes sigSweep {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(600%); }
+  }
+  @keyframes sigOrb {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.45); }
+    50%      { box-shadow: 0 0 0 7px rgba(99,102,241,0); }
+  }
+  @keyframes sigFadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes sigCheckIn {
+    0%   { transform: scale(0);   opacity: 0; }
+    60%  { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(1);   opacity: 1; }
+  }
+  @keyframes sigBlink {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.3; }
+  }
+`
+
+function ResearchProgress({
+  phase, toolCallLog, whoTheyAre, painMap, angle, whyNow, leadName,
+}: {
+  phase: GenerationPhase
+  toolCallLog: string[]
+  whoTheyAre: WhoTheyAre | null
+  painMap: PainMap | null
+  angle: Angle | null
+  whyNow: WhyNow | null
+  leadName: string
+}) {
+  const [activeChip, setActiveChip] = useState(0)
+  useEffect(() => {
+    if (phase !== "researching") return
+    const t = setInterval(() => setActiveChip(n => (n + 1) % 4), 2000)
+    return () => clearInterval(t)
+  }, [phase])
+
+  const chips = ["Scanning professional history", "Analysing company signals", "Reading public activity", "Cross-referencing sources"]
+
+  const sources = [
+    toolCallLog.some(l => l.startsWith("linkedin_person"))  && "Professional context",
+    toolCallLog.some(l => l.startsWith("linkedin_company")) && "Company signals",
+    toolCallLog.some(l => l.startsWith("linkedin_posts"))   && "Public activity",
+    toolCallLog.filter(l => l.startsWith("web_search")).length > 0 && "External sources",
+  ].filter(Boolean) as string[]
+
+  const steps = [
+    { label: "Who they are",    done: !!whoTheyAre },
+    { label: "Pain map",        done: !!painMap },
+    { label: "The angle",       done: !!angle },
+    { label: "Why now",         done: !!whyNow },
+    { label: "Outreach drafts", done: false },
+  ]
+  const activeIdx = steps.findIndex(s => !s.done)
+
+  if (phase === "researching" || phase === "polling") {
+    return (
+      <>
+        <style>{RESEARCH_ANIMATION_STYLES}</style>
+        <div className="pt-8 pb-6">
+          <div className="flex items-center gap-2.5 mb-5">
+            <span style={{
+              display: "inline-block", width: 8, height: 8, borderRadius: "50%",
+              background: "#6366F1", animation: "sigOrb 1.8s ease-in-out infinite",
+            }} />
+            <span className="text-[14px] font-semibold text-signal-text-1">
+              Researching {leadName}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {chips.map((chip, i) => (
+              <div key={chip}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-[12px] transition-all duration-500"
+                style={{
+                  background: activeChip === i ? "var(--signal-accent-tint)" : "var(--signal-surface)",
+                  color:      activeChip === i ? "var(--signal-accent-2)" : "var(--signal-text-4)",
+                  fontWeight: activeChip === i ? 600 : 400,
+                  border:     `1px solid ${activeChip === i ? "var(--signal-accent-border)" : "transparent"}`,
+                }}>
+                <span style={{
+                  display: "inline-block", width: 5, height: 5, borderRadius: "50%",
+                  background: activeChip === i ? "var(--signal-accent)" : "var(--signal-border)",
+                  transition: "background 0.4s",
+                  ...(activeChip === i ? { animation: "sigBlink 1s ease-in-out infinite" } : {}),
+                }} />
+                {chip}
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 relative h-[2px] bg-signal-raised rounded-full overflow-hidden">
+            <div style={{
+              position: "absolute", top: 0, left: 0, height: "100%", width: "18%",
+              background: "linear-gradient(90deg, transparent, #818CF8, #6366F1, transparent)",
+              animation: "sigSweep 2.4s ease-in-out infinite",
+            }} />
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  if (phase === "generating") {
+    return (
+      <>
+        <style>{RESEARCH_ANIMATION_STYLES}</style>
+        <div className="pt-8 pb-6">
+          {sources.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-5">
+              {sources.map((s, i) => (
+                <span key={s} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium"
+                  style={{
+                    background: "#F0FDF4", color: "#15803D",
+                    border: "1px solid #BBF7D0",
+                    animation: `sigFadeUp 0.4s ease ${i * 0.07}s both`,
+                  }}>
+                  <Check className="w-2.5 h-2.5" style={{ color: "#22C55E" }} />
+                  {s}
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="flex items-center gap-2.5 mb-4">
+            <span style={{
+              display: "inline-block", width: 8, height: 8, borderRadius: "50%",
+              background: "#6366F1", animation: "sigOrb 1.8s ease-in-out infinite",
+            }} />
+            <span className="text-[14px] font-semibold text-signal-text-1">Writing brief</span>
+          </div>
+          <div className="space-y-2.5">
+            {steps.map((step, i) => {
+              const isActive = !step.done && i === activeIdx
+              return (
+                <div key={step.label} className="flex items-center gap-2.5 text-[12px]"
+                  style={{ animation: `sigFadeUp 0.35s ease ${i * 0.06}s both` }}>
+                  <div className="w-[18px] h-[18px] rounded-full flex items-center justify-center shrink-0 transition-all duration-300"
+                    style={{
+                      background: step.done ? "#DCFCE7" : isActive ? "var(--signal-accent-tint)" : "var(--signal-surface)",
+                      border: `1.5px solid ${step.done ? "#86EFAC" : isActive ? "var(--signal-accent-border)" : "var(--signal-border)"}`,
+                    }}>
+                    {step.done ? (
+                      <Check className="w-2.5 h-2.5"
+                        style={{ color: "#22C55E", animation: "sigCheckIn 0.3s ease" }} />
+                    ) : isActive ? (
+                      <span style={{
+                        display: "inline-block", width: 4, height: 4, borderRadius: "50%",
+                        background: "#818CF8", animation: "sigBlink 0.9s ease-in-out infinite",
+                      }} />
+                    ) : (
+                      <span style={{ display: "inline-block", width: 4, height: 4, borderRadius: "50%", background: "var(--signal-border)" }} />
+                    )}
+                  </div>
+                  <span className="transition-colors duration-300" style={{
+                    color:      step.done ? "#15803D" : isActive ? "var(--signal-accent-2)" : "var(--signal-text-4)",
+                    fontWeight: step.done ? 500 : isActive ? 600 : 400,
+                  }}>
+                    {step.label}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  return null
 }
 
-function ApproachRow({ label, children }: { label: string; children: React.ReactNode }) {
+
+
+// ─── Generate screen ──────────────────────────────────────────────────────────
+
+function GenerateScreen({ lead, onGenerate }: { lead: LeadData; onGenerate: () => void }) {
   return (
-    <div className="mb-3">
-      <span className="block text-[11px] text-[#9CA3AF] mb-0.5">{label}</span>
-      <div className="text-[13px] text-[#374151] leading-relaxed">{children}</div>
+    <div className="flex-1 flex items-center justify-center">
+      <div className="text-center max-w-sm">
+        <div className="w-14 h-14 rounded-full bg-signal-accent-tint flex items-center justify-center mx-auto mb-4">
+          <span className="text-[18px] font-bold text-signal-accent-2">
+            {lead.full_name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
+          </span>
+        </div>
+        <h2 className="text-[18px] font-semibold text-signal-text-1 mb-1">{lead.full_name}</h2>
+        <p className="text-[13px] text-signal-text-3 mb-6">
+          {[lead.job_title, lead.company_name].filter(Boolean).join(" · ")}
+        </p>
+        <button
+          onClick={onGenerate}
+          className="w-full h-11 bg-[#1C1C1C] dark:bg-[#FAFAFA] text-white dark:text-[#18181B] rounded-xl text-[14px] font-medium hover:bg-[#333] dark:hover:bg-[#E4E4E7] transition-colors mb-2"
+        >
+          Generate Brief
+        </button>
+        <p className="text-[11px] text-signal-text-4">Uses 1 credit · ~90 seconds</p>
+      </div>
     </div>
   )
 }
 
 // ─── Brief Panel ──────────────────────────────────────────────────────────────
 
-function BriefPanel() {
+type GenerationPhase = "idle" | "researching" | "generating" | "done" | "polling"
+
+function BriefPanel({
+  lead, phase, whoTheyAre, painMap, angle, whyNow, toolCallLog,
+}: {
+  lead: LeadData
+  phase: GenerationPhase
+  whoTheyAre: WhoTheyAre | null
+  painMap: PainMap | null
+  angle: Angle | null
+  whyNow: WhyNow | null
+  toolCallLog: string[]
+}) {
   const [sourcesOpen, setSourcesOpen] = useState(false)
+  const [contextOpen, setContextOpen] = useState(false)
+  const [evidenceOpen, setEvidenceOpen] = useState(false)
+
+  const initials = lead.full_name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
+  const subtitle = [lead.job_title, lead.company_name].filter(Boolean).join(" · ")
+  const location = [lead.city, lead.country].filter(Boolean).join(", ")
+
+  const isSpinning = phase === "researching" || phase === "generating" || phase === "polling"
 
   return (
-    <div className="w-[55%] h-full overflow-y-auto px-10 py-8 shrink-0">
+    <div className="flex-1 h-full overflow-y-auto px-12 py-8 min-w-0">
       {/* Header */}
-      <div className="flex items-start justify-between pb-6 border-b border-[#F3F4F6]">
+      <div className="flex items-start justify-between pb-5 border-b border-signal-border-faint">
         <div className="flex items-start gap-3.5">
-          <div className="w-12 h-12 rounded-full bg-[#EEF2FF] flex items-center justify-center shrink-0">
-            <span className="text-[15px] font-semibold text-[#4338CA]">JH</span>
+          <div className="w-11 h-11 rounded-full bg-signal-accent-tint flex items-center justify-center shrink-0">
+            <span className="text-[14px] font-semibold text-signal-accent-2">{initials}</span>
           </div>
           <div>
-            <h1 className="text-[24px] font-bold text-[#111] leading-tight">Jordan Hassan</h1>
-            <p className="text-[14px] text-[#6B7280] mt-0.5">VP of Sales · Meridian</p>
-            <p className="text-[13px] text-[#9CA3AF] mt-0.5">7 months in role</p>
+            <h1 className="text-[22px] font-bold text-signal-text-1 leading-tight">{lead.full_name}</h1>
+            <p className="text-[13px] text-signal-text-3 mt-0.5">{subtitle}</p>
+            <div className="flex items-center gap-3 mt-1.5 text-[12px] text-signal-text-3">
+              {lead.email && (
+                <span className="flex items-center gap-1"><Mail className="w-3 h-3 text-signal-text-4" /> {lead.email}</span>
+              )}
+              {lead.email && lead.linkedin_url && <span className="text-signal-text-4">·</span>}
+              {lead.linkedin_url && (
+                <a href={lead.linkedin_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-signal-accent">
+                  <Linkedin className="w-3 h-3" /> Profile
+                </a>
+              )}
+              {(lead.phone_direct || lead.phone_mobile) && (
+                <>
+                  <span className="text-signal-text-4">·</span>
+                  <span className="flex items-center gap-1">
+                    <Phone className="w-3 h-3 text-signal-text-4" />
+                    {lead.phone_direct ?? lead.phone_mobile}
+                  </span>
+                </>
+              )}
+              {location && (
+                <>
+                  <span className="text-signal-text-4">·</span>
+                  <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-signal-text-4" /> {location}</span>
+                </>
+              )}
+            </div>
           </div>
         </div>
-        <div className="text-right shrink-0">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#D1FAE5] text-[#065F46] text-[13px] font-medium rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-            Strong timing
-          </span>
-          <p className="text-[11px] text-[#6B7280] mt-1">3 active signals</p>
+      </div>
+
+      {/* Research progress */}
+      {isSpinning && (
+        <ResearchProgress
+          phase={phase}
+          toolCallLog={toolCallLog}
+          whoTheyAre={whoTheyAre}
+          painMap={painMap}
+          angle={angle}
+          whyNow={whyNow}
+          leadName={lead.full_name}
+        />
+      )}
+
+      {/* The Angle */}
+      <div className="pt-9 pb-8 border-b border-signal-border-faint">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-[10px] font-bold text-signal-accent uppercase tracking-[1.2px]">The Angle</span>
+          <span className="h-px flex-1 bg-signal-accent-border" />
         </div>
-      </div>
-
-      {/* Contact row */}
-      <div className="flex items-center flex-wrap gap-2 mt-3.5 pb-5 border-b border-[#F3F4F6]">
-        <Mail className="w-3.5 h-3.5 text-[#9CA3AF]" />
-        <span className="text-[13px] text-[#374151]">jordan@meridian.io</span>
-        <span className="text-[#D1D5DB]">·</span>
-        <Phone className="w-3.5 h-3.5 text-[#9CA3AF]" />
-        <span className="text-[13px] text-[#374151]">+1 415 555 0172</span>
-        <span className="text-[#D1D5DB]">·</span>
-        <Linkedin className="w-3.5 h-3.5 text-[#9CA3AF]" />
-        <a href="#" className="text-[13px] text-[#4F46E5]">View profile</a>
-        <span className="text-[#D1D5DB]">·</span>
-        <MapPin className="w-3.5 h-3.5 text-[#9CA3AF]" />
-        <span className="text-[13px] text-[#374151]">San Francisco, CA</span>
-      </div>
-
-      {/* Summary */}
-      <div className="py-6 border-b border-[#F3F4F6]">
-        <SectionLabel>Summary</SectionLabel>
-        <p className="text-[14px] text-[#1C1C1C] leading-[1.8]">
-          Jordan joined Meridian as VP of Sales 7 months ago — her first VP role, recruited from Salesforce where she ran the mid-market APAC team. The company raised an $18M Series B in February and the board expects 3x pipeline growth by Q3. She has hired 4 AEs in the last 8 weeks and published two LinkedIn posts about outbound quality problems and SDR burnout. The combination of new leadership mandate, aggressive headcount scaling, and stated frustration with current outbound tools is a textbook trigger: she is evaluating her stack right now, not in 6 months.
-        </p>
+        {angle ? (
+          <>
+            <p className="text-[20px] text-signal-text-1 leading-[1.45] font-medium tracking-[-0.01em]">{angle.headline}</p>
+            <p className="text-[13px] text-signal-text-3 mt-3 leading-relaxed">{angle.reasoning}</p>
+            <div className="flex items-center gap-5 mt-5">
+              <div className="flex items-center gap-2 text-[12px] text-signal-text-3">
+                <span>Confidence</span>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <span key={i} className="w-2 h-2 rounded-full" style={{
+                      background: (angle.confidence === "high" && i <= 4) ||
+                        (angle.confidence === "medium" && i <= 3) ||
+                        (angle.confidence === "low" && i <= 2) ? "#4F46E5" : "#E5E7EB",
+                    }} />
+                  ))}
+                </div>
+                <span className="text-signal-text-4 capitalize">{angle.confidence}</span>
+              </div>
+              <span className="text-signal-border">·</span>
+              <a href="#outreach" className="text-[12px] font-medium text-signal-accent hover:text-signal-accent-2 flex items-center gap-1">
+                Jump to outreach <ArrowRight className="w-3 h-3" />
+              </a>
+            </div>
+          </>
+        ) : isSpinning ? (
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-full" />
+            <Skeleton className="h-7 w-3/4" />
+            <Skeleton className="h-4 w-1/2 mt-4" />
+          </div>
+        ) : null}
       </div>
 
       {/* Why Now */}
-      <div className="py-6 border-b border-[#F3F4F6]">
-        <SectionLabel dot="#10B981">Why Now</SectionLabel>
-        <div className="grid grid-cols-2 gap-2.5">
-          <SignalCard title="Series B raised ($18M)" desc="New budget, new mandate, stack review incoming." date="6 weeks ago" strength="Strong" />
-          <SignalCard title="Published outbound frustration post" desc="Explicitly stated pain — perfect hook." date="2 weeks ago" strength="Strong" />
-          <SignalCard title="3 new AE roles posted" desc="Scaling team fast means scaling tool needs." date="Ongoing" strength="Strong" />
-          <SignalCard title="Previous employer layoffs" desc="Sensitive context — handle carefully." date="3 weeks ago" strength="Medium" />
-        </div>
-        <div className="flex items-center gap-1.5 mt-2.5">
-          <Clock className="w-3.5 h-3.5 text-[#9CA3AF]" />
-          <span className="text-[12px] text-[#9CA3AF]">Signal window: 2–3 weeks before urgency fades</span>
-        </div>
-      </div>
-
-      {/* Intelligence */}
-      <div className="py-6 border-b border-[#F3F4F6]">
-        <SectionLabel>Intelligence</SectionLabel>
-        <div className="grid grid-cols-2 gap-8">
-          <div>
-            <p className="text-[12px] font-semibold text-[#374151] mb-2.5">Person</p>
-            <IntelRow label="Career arc">Specialist deepening expertise. IC → Manager → Director → VP over 9 years. High performer pattern.</IntelRow>
-            <IntelRow label="Communication style">
-              <span className="inline-block bg-[#EEF2FF] text-[#4338CA] rounded-full px-2 py-0.5 text-[11px] mr-1.5">D / C</span>
-              Direct and metrics-heavy. Lead with ROI — skip pleasantries.
-            </IntelRow>
-            <IntelRow label="Warm connections">2 shared connections: Alex Rivera (Salesforce 2019–21) and Priya Nair (SaaStr 2023). Alex is a strong intro path.</IntelRow>
-            <IntelRow label="Likely objection">"We already have a tool." Pivot: what happens when that tool meets 8 new AEs in 60 days.</IntelRow>
-          </div>
-          <div>
-            <p className="text-[12px] font-semibold text-[#374151] mb-2.5">Company</p>
-            <IntelRow label="Funding">Series B · $18M · Feb 2024 · Led by a16z · Total: $24M</IntelRow>
-            <IntelRow label="Headcount">127 employees · 40% YoY growth · 8 open roles</IntelRow>
-            <IntelRow label="Tech stack">
-              <div className="flex flex-wrap mt-0.5">
-                <Tag>Salesforce</Tag><Tag>Outreach</Tag><Tag>Gong</Tag><Tag>Slack</Tag>
+      <section className="mt-8">
+        <SectionHeader title="Why now" />
+        {whyNow ? (
+          <>
+            <div className="space-y-1.5">
+              {whyNow.signals.map((signal, i) => (
+                <div key={i} className="flex items-center gap-2 text-[13px]">
+                  <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: signal.strong ? "#10B981" : "#F59E0B" }} />
+                  <span className="text-signal-text-1">{signal.text}</span>
+                  <span className="text-signal-text-4">{signal.date}</span>
+                </div>
+              ))}
+            </div>
+            {whyNow.summary && (
+              <div className="flex items-center gap-1.5 mt-2.5 text-[12px] text-signal-text-4">
+                <Clock className="w-3 h-3" />
+                <span>{whyNow.summary}</span>
               </div>
-            </IntelRow>
-            <IntelRow label="Recent news">Series B (Feb 2024), TechCrunch GTM roundup (Jan 2024)</IntelRow>
-            <IntelRow label="Competitor signals">Evaluated Salesloft recently. Currently on Outreach.</IntelRow>
-          </div>
-        </div>
-      </div>
+            )}
+          </>
+        ) : isSpinning ? (
+          <div className="space-y-2">{[1, 2, 3].map(i => <Skeleton key={i} className="h-5 w-full" />)}</div>
+        ) : null}
+      </section>
 
-      {/* Recommended Approach */}
-      <div className="py-6 border-b border-[#F3F4F6]">
-        <div className="border-l-[3px] border-[#4F46E5] pl-5 -ml-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Zap className="w-3.5 h-3.5 text-[#4F46E5]" />
-            <span className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-[0.8px]">Recommended Approach</span>
-          </div>
-          <div className="grid grid-cols-2 gap-8">
-            <div>
-              <ApproachRow label="Best channel">LinkedIn DM — she posts 3x/week and engages with comments. Email will get lost.</ApproachRow>
-              <ApproachRow label="Lead with">The Series B hiring ramp. 4 AEs in 8 weeks as context, not a pitch.</ApproachRow>
+      {/* What Hurts */}
+      <section className="mt-8">
+        <SectionHeader title="What hurts" />
+        {painMap ? (
+          <>
+            <div className="space-y-3">
+              {painMap.items.map((item, i) => {
+                const isTop = item.pain === painMap.topPain
+                return (
+                  <div key={i}>
+                    <div className="flex items-start gap-2 text-[13px] leading-[1.55]">
+                      <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${isTop ? 'bg-signal-accent' : 'bg-signal-text-4'}`} />
+                      <span className={`${isTop ? 'text-signal-text-1 font-semibold' : 'text-signal-text-1 font-medium'}`}>{item.pain}</span>
+                    </div>
+                    {item.keyProof && (
+                      <p className="text-[11px] text-signal-text-4 ml-[18px] mt-1 leading-snug">↳ {renderWithLinks(item.keyProof)}</p>
+                    )}
+                  </div>
+                )
+              })}
             </div>
-            <div>
-              <ApproachRow label="Angle">Outbound quality at scale. She wrote about it. Don't use a generic hook.</ApproachRow>
-              <ApproachRow label="Avoid">Feature lists, demo requests, "just 15 minutes." Former enterprise rep — seen every pitch.</ApproachRow>
+            <div className="mt-3">
+              <button onClick={() => setEvidenceOpen(v => !v)}
+                className="flex items-center gap-1.5 text-[12px] text-signal-text-4 hover:text-signal-text-3 transition-colors">
+                <ChevronRight className="w-3.5 h-3.5 transition-transform" style={{ transform: evidenceOpen ? "rotate(90deg)" : "rotate(0deg)" }} />
+                Show reasoning
+              </button>
+              {evidenceOpen && (
+                <div className="mt-2.5 ml-5 space-y-3">
+                  {painMap.items.map((item, gi) => (
+                    <div key={gi}>
+                      <span className="text-[12px] font-medium text-signal-text-2">{item.pain}</span>
+                      <div className="mt-1 space-y-1">
+                        {item.evidence.map((e, ei) => (
+                          <div key={ei} className="flex gap-2 text-[12px] text-signal-text-3 leading-[1.55]">
+                            <span className="text-signal-accent-border shrink-0">→</span>
+                            <span>{renderWithLinks(e)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-          <div className="bg-[#F0F4FF] border border-[#E0E7FF] rounded-lg p-3 mt-3">
-            <p className="text-[13px] text-[#374151] leading-relaxed">Reach out within 2 weeks. The competitor evaluation window and post-hire chaos overlap right now — highest-signal moment.</p>
-          </div>
-        </div>
-      </div>
+          </>
+        ) : isSpinning ? (
+          <div className="space-y-2">{[1, 2, 3].map(i => <Skeleton key={i} className="h-5 w-full" />)}</div>
+        ) : null}
+      </section>
 
-      {/* Sources */}
-      <div className="py-5">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[13px] font-medium text-[#374151]">Sources</span>
-          <span className="px-2 py-0.5 bg-[#D1FAE5] text-[#065F46] text-[11px] rounded-full">Verified 12</span>
-          <span className="px-2 py-0.5 bg-[#FEF3C7] text-[#92400E] text-[11px] rounded-full">Inferred 4</span>
-          <span className="px-2 py-0.5 bg-[#F3F4F6] text-[#6B7280] text-[11px] rounded-full">Check 1</span>
-          <button onClick={() => setSourcesOpen(v => !v)} className="ml-auto text-[12px] text-[#4F46E5]">
-            {sourcesOpen ? "Hide sources" : "Show sources"}
-          </button>
-        </div>
-        {sourcesOpen && (
-          <div className="mt-3 space-y-2">
-            {["LinkedIn profile (verified)", "Crunchbase funding data", "LinkedIn posts (2)", "Job postings — LinkedIn", "News: TechCrunch (Jan 2024)"].map(src => (
-              <div key={src} className="flex items-center justify-between text-[12px] py-1.5 border-b border-[#F9FAFB]">
-                <span className="text-[#374151]">{src}</span>
-                <ExternalLink className="w-3.5 h-3.5 text-[#9CA3AF]" />
+      {/* Who They Are */}
+      <section className="mt-8">
+        <button onClick={() => setContextOpen(v => !v)} className="w-full flex items-center justify-between group">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-semibold text-signal-text-4 uppercase tracking-[0.8px]">Who they are</span>
+            <span className="text-[12px] text-signal-text-4">Career arc + communication style</span>
+          </div>
+          <ChevronRight className="w-3.5 h-3.5 text-signal-text-4 transition-transform group-hover:text-signal-text-3"
+            style={{ transform: contextOpen ? "rotate(90deg)" : "rotate(0deg)" }} />
+        </button>
+        {/* Company bar — always visible when data exists */}
+        {whoTheyAre?.companies && whoTheyAre.companies.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2.5 mt-3">
+            {whoTheyAre.companies.map((c, i) => (
+              <div key={i} className="flex items-center gap-2 px-2.5 py-1.5 bg-signal-surface rounded-lg border border-signal-border-faint">
+                {c.logo ? (
+                  <img src={c.logo} alt="" className="w-5 h-5 rounded object-cover" />
+                ) : (
+                  <div className="w-5 h-5 rounded bg-signal-raised flex items-center justify-center">
+                    <span className="text-[9px] font-semibold text-signal-text-4">{c.name.charAt(0)}</span>
+                  </div>
+                )}
+                <span className="text-[12px] text-signal-text-2 font-medium">{c.name}</span>
               </div>
             ))}
           </div>
         )}
-      </div>
+        {contextOpen && whoTheyAre && (
+          <WhoTheyAreSection whoTheyAre={whoTheyAre} />
+        )}
+        {contextOpen && !whoTheyAre && isSpinning && (
+          <div className="mt-4 space-y-2">{[1, 2, 3].map(i => <Skeleton key={i} className="h-5 w-full" />)}</div>
+        )}
+      </section>
+
+      {/* Sources */}
+      {toolCallLog.length > 0 && (
+        <div className="mt-8 pt-4 border-t border-signal-border-faint">
+          <button onClick={() => setSourcesOpen(v => !v)} className="flex items-center gap-2 w-full text-left">
+            <ChevronRight className="w-3.5 h-3.5 text-signal-text-4 transition-transform"
+              style={{ transform: sourcesOpen ? "rotate(90deg)" : "rotate(0deg)" }} />
+            <span className="text-[11px] font-semibold text-signal-text-4 uppercase tracking-[0.8px]">Sources</span>
+            <span className="text-[12px] text-signal-text-3">{toolCallLog.length} calls</span>
+          </button>
+          {sourcesOpen && (
+            <div className="mt-3 space-y-1.5">
+              {toolCallLog.map((src, i) => (
+                <div key={i} className="flex items-center justify-between text-[12px] py-1.5 px-2 -mx-2 rounded hover:bg-signal-surface">
+                  <span className="text-signal-text-2 font-mono text-[11px]">{src}</span>
+                  <ExternalLink className="w-3 h-3 text-signal-text-4" />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
 
 // ─── Outreach Panel ───────────────────────────────────────────────────────────
 
-function OutreachPanel() {
+function OutreachPanel({ outreachDrafts, isLoading }: { outreachDrafts: OutreachDrafts | null; isLoading: boolean }) {
+  const EMPTY: Record<Tab, string> = { "linkedin-note": "", "linkedin-dm": "", email: "", "follow-up": "", "call-opener": "" }
   const [activeTab, setActiveTab] = useState<Tab>("linkedin-note")
-  const [drafts, setDrafts] = useState<Record<Tab, string>>(DRAFTS)
-  const [subject, setSubject] = useState("Scaling outbound at Meridian")
-  const [tone, setTone] = useState<Tone>("Conversational")
-  const [whyOpen, setWhyOpen] = useState(false)
-  const [regenerateInput, setRegenerateInput] = useState("")
+  const [drafts, setDrafts] = useState<Record<Tab, string>>(EMPTY)
+  const [subject, setSubject] = useState("")
   const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    if (outreachDrafts) {
+      const normalized = { ...outreachDrafts } as unknown as Record<Tab, string>
+      // Defensive: LLM sometimes returns email as { subject, body } object instead of a string
+      const email = normalized['email']
+      if (email && typeof email === 'object') {
+        const e = email as unknown as { subject?: string; body?: string }
+        normalized['email'] = [e.subject ? `Subject: ${e.subject}` : '', e.body ?? ''].filter(Boolean).join('\n\n')
+      }
+      // Extract Subject: line from email draft into the subject input
+      const emailStr = normalized['email']
+      if (typeof emailStr === 'string' && emailStr.startsWith('Subject:')) {
+        const firstBreak = emailStr.indexOf('\n\n')
+        if (firstBreak !== -1) {
+          setSubject(emailStr.slice('Subject:'.length, firstBreak).trim())
+          normalized['email'] = emailStr.slice(firstBreak + 2)
+        } else {
+          setSubject(emailStr.slice('Subject:'.length).trim())
+          normalized['email'] = ''
+        }
+      }
+      setDrafts(normalized)
+    }
+  }, [outreachDrafts])
 
   const currentDraft = drafts[activeTab]
   const charCount = currentDraft.length
-  const charLimit = 300
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(currentDraft)
+    const text = activeTab === 'email' && subject
+      ? `Subject: ${subject}\n\n${currentDraft}`
+      : currentDraft
+    navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }
@@ -255,155 +740,62 @@ function OutreachPanel() {
   const tabs: Tab[] = ["linkedin-note", "linkedin-dm", "email", "follow-up", "call-opener"]
 
   return (
-    <div
-      className="w-[45%] border-l border-[#E5E4E0] flex flex-col overflow-y-auto shrink-0"
-      style={{ height: "calc(100vh - 52px)" }}
-    >
-      <div className="px-7 py-6 flex flex-col h-full">
-        {/* Header */}
-        <h2 className="text-[16px] font-semibold text-[#1C1C1C] mb-5">Outreach</h2>
+    <div id="outreach" className="w-[360px] border-l border-signal-border flex flex-col overflow-y-auto overflow-x-hidden shrink-0"
+      style={{ height: "calc(100vh - 52px)" }}>
+      <div className="px-7 py-6 flex flex-col h-full min-w-0">
+        <h2 className="text-[16px] font-semibold text-signal-text-1 mb-5">Outreach</h2>
 
-        {/* Tabs */}
         <div className="flex gap-1.5 flex-wrap mb-4">
           {tabs.map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
+            <button key={tab} onClick={() => setActiveTab(tab)}
               className="px-3.5 py-1.5 text-[12px] rounded-lg border transition-colors"
               style={{
-                background: activeTab === tab ? "#1C1C1C" : "white",
-                color: activeTab === tab ? "white" : "#6B7280",
-                borderColor: activeTab === tab ? "#1C1C1C" : "#E5E4E0",
-              }}
-            >
+                background: activeTab === tab ? "var(--signal-text-1)" : "var(--signal-bg)",
+                color: activeTab === tab ? "var(--signal-bg)" : "var(--signal-text-3)",
+                borderColor: activeTab === tab ? "var(--signal-text-1)" : "var(--signal-border)",
+              }}>
               {TAB_LABELS[tab]}
             </button>
           ))}
         </div>
 
-        {/* Character count (LinkedIn note only) */}
-        {activeTab === "linkedin-note" && (
+        {activeTab === "linkedin-note" && outreachDrafts && (
           <div className="mb-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] text-[#9CA3AF]">{charCount} / {charLimit}</span>
-            </div>
-            <div className="h-[3px] bg-[#F3F4F6] rounded-full overflow-hidden">
-              <div
-                className="h-full bg-[#4F46E5] rounded-full transition-all"
-                style={{ width: `${Math.min((charCount / charLimit) * 100, 100)}%` }}
-              />
+            <span className="text-[11px] text-signal-text-4">{charCount} / 300</span>
+            <div className="h-[3px] bg-signal-raised rounded-full overflow-hidden mt-1">
+              <div className="h-full bg-signal-accent rounded-full transition-all" style={{ width: `${Math.min((charCount / 300) * 100, 100)}%` }} />
             </div>
           </div>
         )}
 
-        {/* Subject line (email only) */}
-        {activeTab === "email" && (
+        {activeTab === "email" && outreachDrafts && (
           <div className="mb-4">
-            <label className="block text-[12px] text-[#9CA3AF] mb-1">Subject</label>
-            <input
-              type="text"
-              value={subject}
-              onChange={e => setSubject(e.target.value)}
+            <label className="block text-[12px] text-signal-text-4 mb-1">Subject</label>
+            <input type="text" value={subject} onChange={e => setSubject(e.target.value)}
               placeholder="Subject line..."
-              className="w-full border-b border-[#E5E4E0] pb-1.5 text-[14px] font-medium text-[#1C1C1C] outline-none bg-transparent"
-            />
+              className="w-full border-b border-signal-border pb-1.5 text-[14px] font-medium text-signal-text-1 outline-none bg-transparent" />
           </div>
         )}
 
-        {/* Draft textarea */}
-        <textarea
-          value={currentDraft}
-          onChange={e => setDrafts(prev => ({ ...prev, [activeTab]: e.target.value }))}
-          className="w-full flex-1 min-h-[160px] text-[14px] text-[#1C1C1C] leading-[1.8] outline-none resize-none bg-transparent font-[inherit]"
-          style={{ border: "none" }}
-        />
+        {isLoading ? (
+          <div className="flex-1 space-y-2 pt-2">
+            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-4 w-full" />)}
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+        ) : (
+          <textarea value={currentDraft}
+            onChange={e => setDrafts(prev => ({ ...prev, [activeTab]: e.target.value }))}
+            className="w-full flex-1 min-h-[160px] text-[14px] text-signal-text-1 leading-[1.8] outline-none resize-none bg-transparent font-[inherit]"
+            placeholder={outreachDrafts ? "" : "Brief not generated yet — click Generate Brief to start."}
+            style={{ border: "none" }} />
+        )}
 
-        {/* Why this works */}
-        <div className="border-t border-[#F3F4F6] pt-3 mt-3">
-          <button
-            onClick={() => setWhyOpen(v => !v)}
-            className="flex items-center justify-between w-full"
-          >
-            <span className="text-[12px] font-medium text-[#6B7280]">Why this works</span>
-            <ChevronRight
-              className="w-4 h-4 text-[#9CA3AF] transition-transform"
-              style={{ transform: whyOpen ? "rotate(90deg)" : "rotate(0deg)" }}
-            />
+        <div className="border-t border-signal-border-faint pt-4 mt-4">
+          <button onClick={handleCopy} disabled={!outreachDrafts}
+            className="flex items-center justify-center gap-2 w-full h-[38px] border border-signal-border rounded-lg text-[13px] text-signal-text-2 hover:bg-signal-surface transition-colors disabled:opacity-40">
+            {copied ? <Check className="w-4 h-4 text-[#10B981]" /> : <Copy className="w-4 h-4" />}
+            {copied ? "Copied!" : "Copy to clipboard"}
           </button>
-          {whyOpen && (
-            <div className="mt-2.5 space-y-2">
-              {[
-                { color: "#4F46E5", label: "Hook", text: "References her LinkedIn post directly — shows you've done research, not mass-blasting." },
-                { color: "#10B981", label: "Timing", text: "Three-signal overlap: Series B + new AEs + published frustration. Outreach this week is significantly more likely to land." },
-                { color: "#F59E0B", label: "Tone", text: "D/C DISC profile — direct and metrics-focused. Gets to the point in sentence one, no pleasantries." },
-              ].map(row => (
-                <div key={row.label} className="flex gap-2.5">
-                  <div className="w-[3px] rounded-full shrink-0 mt-0.5" style={{ background: row.color }} />
-                  <div>
-                    <span className="text-[10px] text-[#9CA3AF] uppercase tracking-wide block">{row.label}</span>
-                    <span className="text-[12px] text-[#374151] leading-relaxed">{row.text}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Controls */}
-        <div className="border-t border-[#F3F4F6] pt-3.5 mt-3.5 flex items-center gap-2 flex-wrap">
-          <span className="text-[11px] text-[#9CA3AF]">Tone:</span>
-          {(["Conversational", "Direct", "Formal"] as Tone[]).map(t => (
-            <button
-              key={t}
-              onClick={() => setTone(t)}
-              className="px-3 py-1 rounded-full text-[12px] border transition-colors"
-              style={{
-                background: tone === t ? "#EEF2FF" : "white",
-                color: tone === t ? "#4F46E5" : "#6B7280",
-                borderColor: tone === t ? "#C7D2FE" : "#E5E4E0",
-              }}
-            >
-              {t}
-            </button>
-          ))}
-          <div className="ml-auto flex items-center gap-1.5">
-            <input
-              type="text"
-              value={regenerateInput}
-              onChange={e => setRegenerateInput(e.target.value)}
-              placeholder="e.g. make it shorter..."
-              className="border border-[#E5E4E0] rounded-md h-[30px] px-2.5 text-[12px] w-[160px] outline-none text-[#374151] placeholder:text-[#D1D5DB]"
-            />
-            <button className="border border-[#E5E4E0] rounded-md h-[30px] px-3 text-[12px] text-[#374151] hover:bg-[#F9FAFB] transition-colors">
-              Regenerate
-            </button>
-          </div>
-        </div>
-
-        {/* Send section */}
-        <div className="border-t border-[#F3F4F6] pt-4 mt-4">
-          <span className="block text-[11px] text-[#9CA3AF] mb-2.5">Send via</span>
-          <div className="flex flex-col gap-2">
-            <button
-              onClick={handleCopy}
-              className="flex items-center justify-center gap-2 w-full h-[38px] border border-[#E5E4E0] rounded-lg text-[13px] text-[#374151] hover:bg-[#F9FAFB] transition-colors"
-            >
-              {copied ? <Check className="w-4 h-4 text-[#10B981]" /> : <Copy className="w-4 h-4" />}
-              {copied ? "Copied!" : "Copy to clipboard"}
-            </button>
-            <button className="flex items-center justify-center gap-2 w-full h-[38px] border border-[#E5E4E0] rounded-lg text-[13px] text-[#374151] hover:bg-[#F9FAFB] transition-colors">
-              <Mail className="w-4 h-4" />
-              Open in Gmail
-            </button>
-            <button className="flex items-center justify-center gap-2 w-full h-[38px] border border-[#E5E4E0] rounded-lg text-[13px] text-[#374151] hover:bg-[#F9FAFB] transition-colors">
-              <Linkedin className="w-4 h-4" />
-              Open in LinkedIn
-            </button>
-          </div>
-          <div className="flex items-center gap-1.5 mt-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-            <span className="text-[11px] text-[#9CA3AF]">Logging to HubSpot automatically</span>
-          </div>
         </div>
       </div>
     </div>
@@ -412,39 +804,240 @@ function OutreachPanel() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function BriefPage() {
-  return (
-    <div className="min-h-screen bg-white">
-      <Sidebar activePage="lists" />
+export default function BriefPage({ params }: { params: Promise<{ slug: string }> }) {
+  const [leadId, setLeadId] = useState<string | null>(null)
+  const [lead, setLead] = useState<LeadData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [phase, setPhase] = useState<GenerationPhase>("idle")
+  const [whoTheyAre, setWhoTheyAre] = useState<WhoTheyAre | null>(null)
+  const [painMap, setPainMap] = useState<PainMap | null>(null)
+  const [angle, setAngle] = useState<Angle | null>(null)
+  const [whyNow, setWhyNow] = useState<WhyNow | null>(null)
+  const [outreachDrafts, setOutreachDrafts] = useState<OutreachDrafts | null>(null)
+  const [toolCallLog, setToolCallLog] = useState<string[]>([])
+  // Ref to abort the in-flight SSE reader when component unmounts or user navigates away
+  const abortRef = useRef<AbortController | null>(null)
 
-      <div className="ml-[200px] flex flex-col" style={{ minHeight: "100vh" }}>
-        {/* Top bar */}
-        <header className="h-[52px] bg-white border-b border-[#E5E4E0] flex items-center justify-between px-6 shrink-0">
-          <Link href="/lists" className="flex items-center gap-1.5 text-[13px] text-[#6B7280] hover:text-[#374151]">
-            <ArrowLeft className="w-4 h-4" />
-            Lists
-          </Link>
-          <div className="flex items-center gap-1.5 text-[15px] font-semibold text-[#1C1C1C]">
-            Jordan Hassan
-            <span className="text-[#9CA3AF] font-normal">·</span>
-            <span className="text-[#6B7280] font-normal">Meridian</span>
+  const hasBrief = !!(angle && whoTheyAre && painMap && whyNow && outreachDrafts)
+
+  // \u2500\u2500\u2500 Load brief on mount \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
+  useEffect(() => {
+    params.then(p => setLeadId(p.slug))
+  }, [params])
+
+  const loadBrief = useCallback(async (id: string) => {
+    try {
+      const res = await fetch(`/api/brief/${id}`)
+      if (!res.ok) { setError("Lead not found"); return null }
+      return await res.json() as { lead: LeadData; brief: Record<string, unknown> | null }
+    } catch { return null }
+  }, [])
+
+  useEffect(() => {
+    if (!leadId) return
+    const load = async () => {
+      const data = await loadBrief(leadId)
+      if (!data) { setError("Failed to load brief"); setIsLoading(false); return }
+      // Backfill brief_generated_at from briefs.generated_at for old records
+      const leadData = {
+        ...data.lead,
+        brief_generated_at: data.lead.brief_generated_at ?? (data.brief?.generated_at as string | null | undefined) ?? null,
+      }
+      setLead(leadData)
+      if (data.brief) {
+        setWhoTheyAre(data.brief.who_they_are as WhoTheyAre)
+        setPainMap(data.brief.pain_map as PainMap)
+        setAngle(data.brief.angle as Angle)
+        setWhyNow(data.brief.why_now as WhyNow)
+        setOutreachDrafts(data.brief.outreach_drafts as OutreachDrafts)
+        setToolCallLog((data.brief.generation_sources as string[]) ?? [])
+        setPhase("done")
+      } else if (data.lead.brief_status === 'generating') {
+        // Generation was started in a previous session — poll until it finishes or times out
+        const TIMEOUT_MS = 10 * 60 * 1000 // 10 minutes
+        const startedAt = data.lead.brief_generation_started_at
+          ? new Date(data.lead.brief_generation_started_at).getTime()
+          : Date.now()
+        if (Date.now() - startedAt > TIMEOUT_MS) {
+          // Stuck — treat as never generated so user can retry
+          setPhase("idle")
+        } else {
+          setPhase("polling")
+        }
+      }
+      setIsLoading(false)
+    }
+    load()
+  }, [leadId, loadBrief])
+
+  // \u2500\u2500\u2500 Poll when another session is generating \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
+  useEffect(() => {
+    if (phase !== 'polling' || !leadId) return
+    const interval = setInterval(async () => {
+      const data = await loadBrief(leadId)
+      if (!data) return
+      if (data.brief) {
+        setLead(data.lead)
+        setWhoTheyAre(data.brief.who_they_are as WhoTheyAre)
+        setPainMap(data.brief.pain_map as PainMap)
+        setAngle(data.brief.angle as Angle)
+        setWhyNow(data.brief.why_now as WhyNow)
+        setOutreachDrafts(data.brief.outreach_drafts as OutreachDrafts)
+        setToolCallLog((data.brief.generation_sources as string[]) ?? [])
+        setPhase("done")
+        clearInterval(interval)
+      } else if (data.lead.brief_status !== 'generating') {
+        // Generation ended without saving (error) — let user retry
+        setLead(data.lead)
+        setPhase("idle")
+        clearInterval(interval)
+      }
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [phase, leadId, loadBrief])
+
+  // \u2500\u2500\u2500 Abort SSE on unmount \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+
+  useEffect(() => {
+    return () => { abortRef.current?.abort() }
+  }, [])
+
+  const handleGenerate = useCallback(async () => {
+    if (!leadId || phase === "researching" || phase === "generating") return
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+
+    setPhase("researching")
+    setWhoTheyAre(null); setPainMap(null); setAngle(null)
+    setWhyNow(null); setOutreachDrafts(null); setToolCallLog([])
+
+    try {
+      const res = await fetch("/api/brief/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lead_id: leadId }),
+        signal: controller.signal,
+      })
+      if (!res.ok || !res.body) { setError("Failed to start generation"); setPhase("idle"); return }
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ""
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+        const parts = buffer.split("\n\n")
+        buffer = parts.pop() ?? ""
+        for (const part of parts) {
+          const line = part.trim()
+          if (!line.startsWith("data: ")) continue
+          try {
+            const event = JSON.parse(line.slice(6)) as BriefSseEvent
+            if (event.type === "research_start") setPhase("researching")
+            else if (event.type === "research_done") { setToolCallLog(event.toolCallLog); setPhase("generating") }
+            else if (event.type === "section") {
+              if (event.section === "who_they_are") setWhoTheyAre(event.data)
+              else if (event.section === "pain_map") setPainMap(event.data)
+              else if (event.section === "angle") setAngle(event.data)
+              else if (event.section === "why_now") setWhyNow(event.data)
+              else if (event.section === "outreach_drafts") setOutreachDrafts(event.data)
+            }
+            else if (event.type === "done") {
+              setPhase("done")
+              // Refresh lead to get updated brief_generated_at
+              const data = await loadBrief(leadId)
+              if (data) setLead(data.lead)
+            }
+            else if (event.type === "error") { setError(event.message); setPhase("idle") }
+          } catch { /* malformed chunk */ }
+        }
+      }
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return // navigated away — expected
+      setError(err instanceof Error ? err.message : "Unknown error")
+      setPhase("idle")
+    }
+  }, [leadId, phase, loadBrief])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-signal-bg">
+        <Sidebar activePage="lists" />
+        <div className="ml-[200px] flex items-center justify-center" style={{ minHeight: "100vh" }}>
+          <Loader2 className="w-6 h-6 animate-spin text-signal-accent" />
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !lead) {
+    return (
+      <div className="min-h-screen bg-signal-bg">
+        <Sidebar activePage="lists" />
+        <div className="ml-[200px] flex items-center justify-center" style={{ minHeight: "100vh" }}>
+          <div className="text-center">
+            <p className="text-[14px] text-signal-text-3 mb-4">{error ?? "Lead not found"}</p>
+            <Link href="/lists" className="text-[13px] text-signal-accent hover:underline">← Back to lists</Link>
           </div>
-          <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1.5 h-8 px-3 border border-[#E5E4E0] rounded-lg text-[13px] text-[#374151] hover:bg-[#F9FAFB] transition-colors">
-              <RefreshCw className="w-3.5 h-3.5" />
-              Refresh
-            </button>
-            <button className="flex items-center gap-1.5 h-8 px-3 border border-[#E5E4E0] rounded-lg text-[13px] text-[#374151] hover:bg-[#F9FAFB] transition-colors">
-              <Share2 className="w-3.5 h-3.5" />
-              Share
-            </button>
+        </div>
+      </div>
+    )
+  }
+
+  const isSpinning = phase === "researching" || phase === "generating"
+
+  return (
+    <div className="min-h-screen bg-signal-bg">
+      <Sidebar activePage="lists" />
+      <div className="ml-[200px] flex flex-col" style={{ minHeight: "100vh" }}>
+        <header className="h-[52px] bg-signal-bg border-b border-signal-border flex items-center justify-between px-6 shrink-0">
+          <Link href="/lists" className="flex items-center gap-1.5 text-[13px] text-signal-text-3 hover:text-signal-text-2">
+            <ArrowLeft className="w-4 h-4" /> Lists
+          </Link>
+          <div className="flex items-center gap-1.5 text-[15px] font-semibold text-signal-text-1">
+            {lead.full_name}
+            <span className="text-signal-text-4 font-normal">·</span>
+            <span className="text-signal-text-3 font-normal">{lead.company_name}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            {lead.brief_generated_at && phase === "done" && (
+              <span className="text-[12px] text-signal-text-4 flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                Generated {timeAgo(lead.brief_generated_at)}
+              </span>
+            )}
+            {hasBrief && (
+              <button onClick={handleGenerate} disabled={isSpinning}
+                className="flex items-center gap-1.5 h-8 px-3 border border-signal-border rounded-lg text-[13px] text-signal-text-2 hover:bg-signal-surface transition-colors disabled:opacity-40">
+                <RefreshCw className={`w-3.5 h-3.5 ${isSpinning ? "animate-spin" : ""}`} />
+                {isSpinning ? "Generating…" : "Refresh"}
+              </button>
+            )}
           </div>
         </header>
 
-        {/* Split screen */}
         <div className="flex" style={{ height: "calc(100vh - 52px)" }}>
-          <BriefPanel />
-          <OutreachPanel />
+          {!hasBrief && phase === "idle" ? (
+            <div className="flex-1 flex">
+              <div className="flex-1 h-full flex min-w-0">
+                <GenerateScreen lead={lead} onGenerate={handleGenerate} />
+              </div>
+              <OutreachPanel outreachDrafts={null} isLoading={false} />
+            </div>
+          ) : (
+            <>
+              <BriefPanel lead={lead} phase={phase} whoTheyAre={whoTheyAre} painMap={painMap}
+                angle={angle} whyNow={whyNow} toolCallLog={toolCallLog} />
+              <OutreachPanel outreachDrafts={outreachDrafts}
+                isLoading={isSpinning && !outreachDrafts} />
+            </>
+          )}
         </div>
       </div>
     </div>

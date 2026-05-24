@@ -19,9 +19,11 @@ export async function POST(request: NextRequest) {
   if (authError) return authError
 
   let leads: PartialLead[]
+  let listId: string | undefined
   try {
     const body = await request.json()
     leads = body.leads
+    listId = body.listId
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
@@ -53,17 +55,35 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Get user's default list
-  const { data: list, error: listError } = await supabase
-    .from('lists')
-    .select('id')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: true })
-    .limit(1)
-    .single()
+  // Get target list
+  let targetListId: string
 
-  if (listError || !list) {
-    return NextResponse.json({ error: 'No list found for this user' }, { status: 404 })
+  if (listId) {
+    const { data: list } = await supabase
+      .from('lists')
+      .select('id')
+      .eq('id', listId)
+      .eq('user_id', user.id)
+      .single()
+
+    if (!list) {
+      return NextResponse.json({ error: 'List not found' }, { status: 404 })
+    }
+    targetListId = list.id
+  } else {
+    // Fallback: get user's default list
+    const { data: list, error: listError } = await supabase
+      .from('lists')
+      .select('id')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .single()
+
+    if (listError || !list) {
+      return NextResponse.json({ error: 'No list found for this user' }, { status: 404 })
+    }
+    targetListId = list.id
   }
 
   // Insert only new leads (skip already-saved ones)
@@ -89,7 +109,6 @@ export async function POST(request: NextRequest) {
       company_name: lead.companyName,
       company_domain: lead.fqdn ?? null,
       lusha_id: lead.lushaContactId ?? null,
-      in_list: true,
       enrichment_source: 'lusha' as const,
     }
   })
@@ -105,14 +124,20 @@ export async function POST(request: NextRequest) {
 
   const newLeadIds = (inserted ?? []).map(r => r.id)
 
-  // Add to the user's default list
+  // Add to the user's default list and mark as in_list
   if (newLeadIds.length > 0) {
     await supabase
       .from('list_leads')
       .upsert(
-        newLeadIds.map(leadId => ({ list_id: list.id, lead_id: leadId })),
+        newLeadIds.map(leadId => ({ list_id: targetListId, lead_id: leadId })),
         { onConflict: 'list_id,lead_id' }
       )
+
+    await supabase
+      .from('leads')
+      .update({ in_list: true })
+      .in('id', newLeadIds)
+      .eq('user_id', user.id)
   }
 
   return NextResponse.json({

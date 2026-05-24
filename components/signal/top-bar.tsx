@@ -1,7 +1,8 @@
 "use client"
 
 import { useRef, useEffect, useState } from "react"
-import { Search, Loader2 } from "lucide-react"
+import { Search, Loader2, Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
 
 const ICP_EXAMPLES = [
@@ -145,6 +146,10 @@ export function TopBar({
 
   const inputRef = useRef<HTMLInputElement>(null)
   const [isFocused, setIsFocused] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const { resolvedTheme, setTheme } = useTheme()
+
+  useEffect(() => setMounted(true), [])
 
   // Typewriter active only in ICP mode when input is empty and unfocused
   const typewriterActive = isICP && !searchQuery && !isFocused
@@ -189,21 +194,27 @@ export function TopBar({
   // In Bulk mode, show only the header (no search input)
   if (isBulk) {
     return (
-      <header className="h-14 bg-white border-b border-[#E5E4E0] flex items-center px-4 shrink-0">
-        <div className="ml-auto">
-          <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center">
-            <span className="text-[12px] font-semibold text-white">JH</span>
-          </div>
+      <header className="h-14 bg-signal-bg border-b border-signal-border flex items-center px-4 shrink-0">
+        <div className="ml-auto flex items-center gap-2">
+          {mounted && (
+            <button
+              onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-signal-raised transition-colors text-signal-text-3"
+              title={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {resolvedTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+          )}
         </div>
       </header>
     )
   }
 
   return (
-    <header className="h-14 bg-white border-b border-[#E5E4E0] flex items-center px-4 shrink-0">
+    <header className="h-14 bg-signal-bg border-b border-signal-border flex items-center px-4 shrink-0">
       {/* Search Input */}
       <div className={cn("relative", isICP ? "flex-1" : "flex-1 max-w-[600px]")}>
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF] z-10" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-signal-text-4 z-10" />
         <input
           ref={inputRef}
           type="text"
@@ -214,7 +225,7 @@ export function TopBar({
           onBlur={() => setIsFocused(false)}
           placeholder={getPlaceholder()}
           className={cn(
-            "w-full h-10 pl-10 border border-[#E5E4E0] text-[14px] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white relative z-10",
+            "w-full h-10 pl-10 border border-signal-border text-[14px] placeholder:text-signal-text-4 focus:outline-none focus:border-signal-accent focus:shadow-[0_0_0_3px_rgba(79,70,229,0.08)] transition-shadow bg-signal-bg relative z-10",
             isICP ? "pr-4 rounded-l-lg rounded-r-none border-r-0" : "pr-14 rounded-lg"
           )}
         />
@@ -225,10 +236,10 @@ export function TopBar({
             className="absolute inset-y-0 left-10 flex items-center pointer-events-none z-20"
             aria-hidden="true"
           >
-            <span className="text-[14px] text-[#9CA3AF]">{displayed}</span>
+            <span className="text-[14px] text-signal-text-4">{displayed}</span>
             <span
               className={cn(
-                "inline-block w-[1.5px] h-[14px] ml-[1px] bg-[#BCBAB6] rounded-full",
+                "inline-block w-[1.5px] h-[14px] ml-[1px] bg-signal-text-4 rounded-full",
                 isHolding ? "opacity-0" : "animate-pulse"
               )}
             />
@@ -241,13 +252,13 @@ export function TopBar({
             className="absolute inset-y-0 left-10 flex items-center pointer-events-none z-20"
             aria-hidden="true"
           >
-            <span className="text-[14px] text-[#C8C5C0]">Describe the people you want to find…</span>
+            <span className="text-[14px] text-signal-text-4">Describe the people you want to find…</span>
           </div>
         )}
 
         {/* ⌘K badge — Specific Lead mode */}
         {isSpecific && !searchQuery && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 px-1.5 py-0.5 bg-[#F3F4F6] rounded text-[11px] text-[#6B7280] font-medium z-10">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 px-1.5 py-0.5 bg-signal-raised rounded text-[11px] text-signal-text-3 font-medium z-10">
             <span>⌘</span>
             <span>K</span>
           </div>
@@ -257,11 +268,11 @@ export function TopBar({
         {isSpecific && specificHasInput && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10">
             {specificDetected ? (
-              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[11px] font-medium rounded-full border border-emerald-200">
+              <span className="px-2 py-0.5 bg-[#D1FAE5] text-[#065F46] text-[11px] font-medium rounded-full border border-[#A7F3D0]">
                 {specificDetected.type === "linkedin" ? "LinkedIn" : specificDetected.type === "email" ? "Email" : "Name + Company"}
               </span>
             ) : (
-              <span className="px-2 py-0.5 bg-amber-50 text-amber-700 text-[11px] font-medium rounded-full border border-amber-200">
+              <span className="px-2 py-0.5 bg-[#FEF3C7] text-[#92400E] text-[11px] font-medium rounded-full border border-[#FDE68A]">
                 Try: name at company
               </span>
             )}
@@ -274,7 +285,7 @@ export function TopBar({
         <button
           onClick={onSearch}
           disabled={!searchQuery.trim()}
-          className="h-10 px-5 bg-[#4F46E5] text-white text-[14px] font-medium rounded-r-lg hover:bg-[#4338CA] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="h-10 px-5 bg-signal-accent text-white text-[14px] font-medium rounded-r-lg hover:bg-signal-accent-2 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           Search
         </button>
@@ -285,7 +296,7 @@ export function TopBar({
         <button
           onClick={() => specificDetected && onSpecificLookup?.(specificDetected)}
           disabled={!specificValid || specificLoading}
-          className="ml-2 h-10 px-5 bg-[#4F46E5] text-white text-[14px] font-medium rounded-lg hover:bg-[#4338CA] disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          className="ml-2 h-10 px-5 bg-signal-accent text-white text-[14px] font-medium rounded-lg hover:bg-signal-accent-2 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
         >
           {specificLoading ? (
             <>
@@ -298,11 +309,17 @@ export function TopBar({
         </button>
       )}
 
-      {/* User Avatar */}
-      <div className="ml-auto pl-4">
-        <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center">
-          <span className="text-[12px] font-semibold text-white">JH</span>
-        </div>
+      {/* Theme toggle */}
+      <div className="ml-auto pl-4 flex items-center gap-2">
+        {mounted && (
+          <button
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-signal-raised transition-colors text-signal-text-3"
+            title={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {resolvedTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+        )}
       </div>
     </header>
   )

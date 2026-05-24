@@ -91,8 +91,7 @@ interface SearchResult {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const INITIALS_COLORS = [
-  "bg-pink-500", "bg-blue-500", "bg-green-500", "bg-purple-500",
-  "bg-orange-500", "bg-teal-500", "bg-red-500", "bg-indigo-500",
+  "bg-signal-accent-tint text-signal-accent-2",
 ]
 
 function getInitials(name: string) {
@@ -310,36 +309,41 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
     runSearch(filters, page)
   }, [filters, runSearch])
 
-  // ─── Add to list ──────────────────────────────────────────────────────────
+  // ─── Add to list (ICP variant — saves leads + adds to list in one call) ──
   const handleAddToList = useCallback(async (selectedIds: string[]) => {
     if (!selectedIds.length) return
     const selected = results.filter(r => selectedIds.includes(r.contactId))
+    setAddedIds(prev => {
+      const next = new Set(prev)
+      for (const id of selectedIds) next.add(id)
+      return next
+    })
+    const saved = selected.length
+    setSuccessMessage(`${saved} lead${saved !== 1 ? "s" : ""} added to list`)
+    setSuccessBanner(true)
+  }, [results])
+
+  const handleAddToListPicked = useCallback(async (selectedIds: string[], listId: string, listName: string): Promise<boolean> => {
+    const selected = results.filter(r => selectedIds.includes(r.contactId))
+    if (!selected.length) return false
     try {
       const res = await fetch("/api/research/save-leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          listId,
           leads: selected.map(r => ({
             name: r.name, jobTitle: r.jobTitle, companyName: r.companyName,
             fqdn: r.fqdn, logoUrl: r.logoUrl, lushaContactId: r.contactId,
           })),
         }),
       })
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.error || "Save failed")
-      }
-      const { saved } = await res.json()
-      setAddedIds(prev => {
-        const next = new Set(prev)
-        for (const id of selectedIds) next.add(id)
-        return next
-      })
-      setSuccessMessage(`${saved} lead${saved !== 1 ? "s" : ""} added to My List`)
-      setSuccessBanner(true)
+      if (!res.ok) throw new Error()
+      return true
     } catch {
       setToast("Failed to add leads — please try again")
       setTimeout(() => setToast(null), 3000)
+      return false
     }
   }, [results])
 
@@ -436,28 +440,28 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
 
       <div className="flex gap-0 -mx-6 -mb-6" style={{ height: "calc(100vh - 160px)" }}>
         {/* ─── Filter Panel (left) ─────────────────────────────────────── */}
-        <aside className="w-[272px] shrink-0 border-r border-[#E5E4E0] bg-white overflow-y-auto">
+        <aside className="w-[272px] shrink-0 border-r border-signal-border bg-signal-bg overflow-y-auto">
           <div className="p-4 pb-6">
 
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <span className="text-[13px] font-semibold text-[#111827]">Filters</span>
+                <span className="text-[13px] font-semibold text-signal-text-1">Filters</span>
                 {activeFilterCount > 0 && (
-                  <span className="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] font-bold rounded-full min-w-[18px] text-center">
+                  <span className="px-1.5 py-0.5 bg-signal-accent-tint text-signal-accent-2 text-[10px] font-bold rounded-full min-w-[18px] text-center">
                     {activeFilterCount}
                   </span>
                 )}
               </div>
               {!empty && (
-                <button onClick={clearAll} className="text-[11px] text-indigo-600 hover:text-indigo-700 font-medium">
+                <button onClick={clearAll} className="text-[11px] text-signal-accent hover:text-signal-accent-2 font-medium">
                   Clear all
                 </button>
               )}
             </div>
 
             {/* Hint: AI search is via the top bar */}
-            <p className="text-[11px] text-[#A8A5A0] mb-4">Use the search bar above to auto-fill filters with AI</p>
+            <p className="text-[11px] text-signal-text-3 mb-4">Use the search bar above to auto-fill filters with AI</p>
 
             {/* ─── CONTACTS section ───────────────────────────────────────── */}
             <p className="text-[10px] font-bold text-[#B0ADA8] uppercase tracking-widest mb-3">Contacts</p>
@@ -472,7 +476,7 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
               {/* Related role suggestions from AI */}
               {relatedRoles.length > 0 && (
                 <div className="mt-2">
-                  <span className="text-[10px] text-[#9CA3AF] font-medium">Related roles</span>
+                  <span className="text-[10px] text-signal-text-4 font-medium">Related roles</span>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {relatedRoles
                       .filter(r => !filters.jobTitles.includes(r))
@@ -480,7 +484,7 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
                         <button
                           key={role}
                           onClick={() => { addJobTitle(role); setRelatedRoles(prev => prev.filter(r => r !== role)) }}
-                          className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-medium border border-dashed border-indigo-200 text-indigo-500 hover:bg-indigo-50 hover:border-indigo-300 transition-colors"
+                          className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-medium border border-dashed border-signal-accent-border text-signal-accent hover:bg-signal-accent-tint hover:border-[#A5B4FC] transition-colors"
                         >
                           <Plus className="w-2.5 h-2.5" />
                           {role}
@@ -500,8 +504,8 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
                     className={cn(
                       "px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all",
                       filters.seniorities.includes(label)
-                        ? "bg-indigo-600 text-white border-indigo-600"
-                        : "bg-white text-[#6B7280] border-[#E5E4E0] hover:border-indigo-300 hover:text-indigo-600"
+                        ? "bg-signal-accent text-white border-signal-accent"
+                        : "bg-signal-bg text-signal-text-3 border-signal-border hover:border-signal-accent-border hover:text-signal-accent"
                     )}
                   >
                     {label}
@@ -534,8 +538,8 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
                     className={cn(
                       "px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all",
                       filters.departments.includes(dept)
-                        ? "bg-indigo-600 text-white border-indigo-600"
-                        : "bg-white text-[#6B7280] border-[#E5E4E0] hover:border-indigo-300 hover:text-indigo-600"
+                        ? "bg-signal-accent text-white border-signal-accent"
+                        : "bg-signal-bg text-signal-text-3 border-signal-border hover:border-signal-accent-border hover:text-signal-accent"
                     )}
                   >
                     {dept}
@@ -544,7 +548,7 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
               </div>
             </FilterSection>
 
-            <div className="border-t border-[#F0EFEB] my-4" />
+            <div className="border-t border-signal-border my-4" />
 
             {/* ─── COMPANIES section ──────────────────────────────────────── */}
             <p className="text-[10px] font-bold text-[#B0ADA8] uppercase tracking-widest mb-3">Companies</p>
@@ -568,7 +572,7 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
                       <div
                         className={cn(
                           "w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors",
-                          checked ? "bg-indigo-600 border-indigo-600" : "border-[#D1D5DB] group-hover:border-indigo-300"
+                          checked ? "bg-signal-accent border-signal-accent" : "border-signal-text-4 group-hover:border-signal-accent-border"
                         )}
                       >
                         {checked && (
@@ -577,7 +581,7 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
                           </svg>
                         )}
                       </div>
-                      <span className={cn("text-[12px] select-none", checked ? "text-[#111827] font-medium" : "text-[#6B7280]")}>
+                      <span className={cn("text-[12px] select-none", checked ? "text-signal-text-1 font-medium" : "text-signal-text-3")}>
                         {label}
                       </span>
                     </label>
@@ -587,19 +591,19 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
             </FilterSection>
 
             {/* Search button */}
-            <div className="mt-6 pt-4 border-t border-[#F0EFEB]">
+            <div className="mt-6 pt-4 border-t border-signal-border">
               <button
                 onClick={handleSearch}
                 disabled={empty || isLoading}
                 className={cn(
                   "w-full h-10 rounded-xl text-[13px] font-semibold transition-all flex items-center justify-center gap-2",
                   empty
-                    ? "bg-[#F3F4F6] text-[#C0BDB8] cursor-not-allowed"
+                    ? "bg-signal-raised text-signal-text-4 cursor-not-allowed"
                     : loadingState === "searching"
-                    ? "bg-indigo-600 text-white opacity-80"
+                    ? "bg-signal-accent text-white opacity-80"
                     : dirtyFilters
-                    ? "bg-indigo-600 text-white hover:bg-indigo-700 ring-2 ring-indigo-300 ring-offset-1"
-                    : "bg-indigo-600 text-white hover:bg-indigo-700"
+                    ? "bg-signal-accent text-white hover:bg-signal-accent-2 ring-2 ring-[#C7D2FE] ring-offset-1"
+                    : "bg-signal-accent text-white hover:bg-signal-accent-2"
                 )}
               >
                 {loadingState === "searching"
@@ -612,15 +616,15 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
         </aside>
 
         {/* ─── Results Panel (right) ─────────────────────────────────────── */}
-        <div ref={resultsRef} className="flex-1 min-w-0 overflow-y-auto bg-[#F7F6F3]">
+        <div ref={resultsRef} className="flex-1 min-w-0 overflow-y-auto bg-signal-bg">
           {/* Empty state — no search yet */}
           {!hasSearched && !isLoading && !error && (
             <div className="flex flex-col items-center justify-center min-h-full text-center px-10" style={{ minHeight: "100%" }}>
-              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mb-4">
-                <Search className="w-5 h-5 text-indigo-400" />
+              <div className="w-12 h-12 bg-signal-accent-tint rounded-2xl flex items-center justify-center mb-4">
+                <Search className="w-5 h-5 text-signal-accent" />
               </div>
-              <h3 className="text-[16px] font-semibold text-[#111827] mb-2">Build your contact list</h3>
-              <p className="text-[13px] text-[#9CA3AF] max-w-[280px] leading-relaxed">
+              <h3 className="text-[16px] font-semibold text-signal-text-1 mb-2">Build your contact list</h3>
+              <p className="text-[13px] text-signal-text-4 max-w-[280px] leading-relaxed">
                 Use filters or describe who you want to reach
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-2 max-w-[420px]">
@@ -633,7 +637,7 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
                   <button
                     key={q}
                     onClick={() => handleAIParse(q)}
-                    className="px-3 py-1.5 bg-white text-[12px] text-[#374151] rounded-full border border-[#E5E4E0] hover:bg-[#F3F4F6] hover:border-indigo-200 transition-colors"
+                    className="px-3 py-1.5 bg-signal-bg text-[12px] text-signal-text-2 rounded-full border border-signal-border hover:bg-signal-raised hover:border-signal-accent-border transition-colors"
                   >
                     {q}
                   </button>
@@ -645,8 +649,8 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
           {/* Loading */}
           {isLoading && (
             <div className="flex flex-col items-center justify-center min-h-full gap-3" style={{ minHeight: "100%" }}>
-              <Loader2 className="w-7 h-7 text-indigo-500 animate-spin" />
-              <p className="text-[13px] text-[#9CA3AF]">
+              <Loader2 className="w-7 h-7 text-signal-accent animate-spin" />
+              <p className="text-[13px] text-signal-text-4">
                 {loadingState === "parsing" ? "Generating filters from your description…" : "Searching contacts…"}
               </p>
             </div>
@@ -674,11 +678,11 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
               {/* No results state */}
               {results.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-4">
-                    <Search className="w-5 h-5 text-amber-400" />
+                  <div className="w-12 h-12 bg-[#FEF3C7] rounded-2xl flex items-center justify-center mb-4">
+                    <Search className="w-5 h-5 text-[#F59E0B]" />
                   </div>
-                  <h3 className="text-[16px] font-semibold text-[#111827] mb-2">No contacts found</h3>
-                  <p className="text-[13px] text-[#9CA3AF] max-w-[300px] leading-relaxed">
+                  <h3 className="text-[16px] font-semibold text-signal-text-1 mb-2">No contacts found</h3>
+                  <p className="text-[13px] text-signal-text-4 max-w-[300px] leading-relaxed">
                     Try broadening your filters — remove some seniority levels, expand locations, or use fewer job titles
                   </p>
                 </div>
@@ -688,19 +692,19 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
                 <>
               {/* Header */}
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[13px] text-[#6B7280]">
+                <span className="text-[13px] text-signal-text-3">
                   {isCapped ? (
                     <>
-                      Showing <span className="font-semibold text-[#111827]">{(PAGE_SIZE * MAX_PAGES).toLocaleString()}</span> of {totalResults.toLocaleString()} contacts
-                      <span className="text-[#C0BDB8] ml-2">
+                      Showing <span className="font-semibold text-signal-text-1">{(PAGE_SIZE * MAX_PAGES).toLocaleString()}</span> of {totalResults.toLocaleString()} contacts
+                      <span className="text-signal-text-4 ml-2">
                         (page {currentPage} of {totalPages})
                       </span>
                     </>
                   ) : (
                     <>
-                      <span className="font-semibold text-[#111827]">{totalResults.toLocaleString()}</span> contacts found
+                      <span className="font-semibold text-signal-text-1">{totalResults.toLocaleString()}</span> contacts found
                       {totalPages > 1 && (
-                        <span className="text-[#C0BDB8] ml-2">
+                        <span className="text-signal-text-4 ml-2">
                           {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, totalResults)}
                         </span>
                       )}
@@ -709,7 +713,7 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
                 </span>
                 <div className="flex items-center gap-2">
                   {dirtyFilters && (
-                    <span className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                    <span className="text-[11px] text-[#92400E] bg-[#FEF3C7] border border-[#FDE68A] px-2 py-0.5 rounded-full">
                       Filters changed — press Search to update
                     </span>
                   )}
@@ -717,7 +721,7 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
               </div>
 
               {/* Contact detail notice */}
-              <div className="mb-3 px-3 py-2 bg-indigo-50 border border-indigo-100 rounded-lg text-[12px] text-indigo-700">
+              <div className="mb-3 px-3 py-2 bg-signal-accent-tint border border-signal-accent-border rounded-lg text-[12px] text-signal-accent-2">
                 Email and phone are unlocked when you add leads to your list.
               </div>
 
@@ -725,8 +729,9 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
                 leads={tableLeads}
                 variant="icp"
                 emptyStateMessage="No results found — try adjusting your filters"
-                actionButtonLabel="Add to My List"
+                actionButtonLabel="Add to List"
                 onActionClick={handleAddToList}
+                onAddToList={handleAddToListPicked}
                 showConfirmationBanner={successBanner}
                 confirmationMessage={successMessage}
                 onDismissBanner={() => setSuccessBanner(false)}
@@ -748,8 +753,8 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
                       className={cn(
                         "h-8 w-8 flex items-center justify-center rounded-lg text-[13px] font-medium transition-colors disabled:opacity-50",
                         page === currentPage
-                          ? "bg-indigo-600 text-white"
-                          : "border border-[#E5E4E0] text-[#374151] hover:bg-[#F9FAFB]"
+                          ? "bg-signal-accent text-white"
+                          : "border border-signal-border text-signal-text-2 hover:bg-signal-surface"
                       )}
                     >
                       {page}
@@ -764,7 +769,7 @@ export function ICPDiscovery({ activeSearch = "", searchTrigger = 0, onClearSear
               )}
 
               {isCapped && results.length > 0 && (
-                <p className="mt-3 text-center text-[12px] text-[#C0BDB8]">
+                <p className="mt-3 text-center text-[12px] text-signal-text-4">
                   Maximum {PAGE_SIZE * MAX_PAGES} results shown. Narrow your search for more targeted results.
                 </p>
               )}
@@ -812,12 +817,12 @@ function FilterSection({
         )}
       >
         <span className="flex items-center gap-2">
-          {icon && <span className="text-[#9CA3AF]">{icon}</span>}
-          <span className="text-[12px] font-semibold text-[#374151]">{label}</span>
+          {icon && <span className="text-signal-text-4">{icon}</span>}
+          <span className="text-[12px] font-semibold text-signal-text-2">{label}</span>
         </span>
         {collapsible && (
           <Plus className={cn(
-            "w-3.5 h-3.5 text-[#C0BDB8] group-hover:text-[#9CA3AF] transition-transform",
+            "w-3.5 h-3.5 text-signal-text-4 group-hover:text-signal-text-4 transition-transform",
             !isCollapsed && "rotate-45"
           )} />
         )}
@@ -909,9 +914,9 @@ function TagInput({
       {values.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {values.map(v => (
-            <span key={v} className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 text-[11px] font-medium rounded-full border border-indigo-100">
+            <span key={v} className="inline-flex items-center gap-1 px-2 py-0.5 bg-signal-accent-tint text-signal-accent-2 text-[11px] font-medium rounded-full border border-signal-accent-border">
               {v}
-              <button onClick={() => onRemove(v)} className="hover:text-indigo-900 transition-colors ml-0.5">
+              <button onClick={() => onRemove(v)} className="hover:text-signal-accent-2 transition-colors ml-0.5">
                 <X className="w-2.5 h-2.5" />
               </button>
             </span>
@@ -949,12 +954,12 @@ function TagInput({
               if (suggestions.length > 0) setShowDropdown(true)
             }}
             placeholder={placeholder}
-            className="flex-1 h-7 px-2 border border-[#E5E4E0] rounded-md text-[12px] placeholder:text-[#D1D5DB] focus:outline-none focus:border-indigo-300 focus:ring-1 focus:ring-indigo-100 bg-[#FAFAF9]"
+            className="flex-1 h-7 px-2 border border-signal-border rounded-md text-[12px] placeholder:text-signal-text-4 focus:outline-none focus:border-signal-accent focus:shadow-[0_0_0_3px_rgba(79,70,229,0.08)] transition-shadow bg-signal-surface"
           />
           <button
             onClick={() => commit()}
             disabled={!input.trim()}
-            className="h-7 w-7 flex items-center justify-center border border-[#E5E4E0] rounded-md text-[#C0BDB8] hover:text-indigo-500 hover:border-indigo-300 disabled:opacity-30 transition-colors bg-white"
+            className="h-7 w-7 flex items-center justify-center border border-signal-border rounded-md text-signal-text-4 hover:text-signal-accent hover:border-signal-accent-border disabled:opacity-30 transition-colors bg-signal-bg"
           >
             <Plus className="w-3.5 h-3.5" />
           </button>
@@ -962,7 +967,7 @@ function TagInput({
 
         {/* Autocomplete dropdown */}
         {showDropdown && suggestions.length > 0 && (
-          <div className="absolute z-50 top-full left-0 right-7 mt-1 bg-white border border-[#E5E4E0] rounded-lg shadow-lg max-h-[200px] overflow-y-auto">
+          <div className="absolute z-50 top-full left-0 right-7 mt-1 bg-signal-bg border border-signal-border rounded-lg shadow-lg max-h-[200px] overflow-y-auto">
             {suggestions.map((s, i) => (
               <button
                 key={`${s.name}-${i}`}
@@ -970,21 +975,21 @@ function TagInput({
                 onMouseEnter={() => setHighlightIdx(i)}
                 className={cn(
                   "w-full flex items-center gap-2.5 px-2.5 py-1.5 text-left transition-colors",
-                  i === highlightIdx ? "bg-indigo-50" : "hover:bg-[#F9FAFB]"
+                  i === highlightIdx ? "bg-signal-accent-tint" : "hover:bg-signal-surface"
                 )}
               >
                 {s.logo && (
                   <img
                     src={s.logo}
                     alt=""
-                    className="w-5 h-5 rounded object-contain shrink-0 bg-[#F3F4F6]"
+                    className="w-5 h-5 rounded object-contain shrink-0 bg-signal-raised"
                     onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
                   />
                 )}
                 <div className="min-w-0 flex-1">
-                  <span className="text-[12px] font-medium text-[#374151] truncate block">{s.name}</span>
+                  <span className="text-[12px] font-medium text-signal-text-2 truncate block">{s.name}</span>
                   {s.domain && (
-                    <span className="text-[10px] text-[#9CA3AF] truncate block">{s.domain}</span>
+                    <span className="text-[10px] text-signal-text-4 truncate block">{s.domain}</span>
                   )}
                 </div>
               </button>
@@ -1001,7 +1006,7 @@ function PaginationButton({ onClick, disabled, label }: { onClick: () => void; d
     <button
       onClick={onClick}
       disabled={disabled}
-      className="h-8 w-8 flex items-center justify-center rounded-lg border border-[#E5E4E0] text-[15px] text-[#374151] hover:bg-[#F9FAFB] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      className="h-8 w-8 flex items-center justify-center rounded-lg border border-signal-border text-[15px] text-signal-text-2 hover:bg-signal-surface disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
     >
       {label}
     </button>

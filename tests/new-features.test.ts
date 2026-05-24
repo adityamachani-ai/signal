@@ -1,10 +1,9 @@
 /**
  * Integration tests for the new features added in the quality fix pass:
  *
- *   1. POST /api/research/save-leads  — enrichment, signal score, dedup
+ *   1. POST /api/research/save-leads  — enrichment, dedup
  *   2. POST /api/research/lookup      — outreachContext stored on lead
- *   3. POST /api/research/lookup      — signal_score / signal_reasons populated
- *   4. GET  /api/research/leads       — enriched ICP saves appear in listing
+ *   3. GET  /api/research/leads       — enriched ICP saves appear in listing
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
@@ -275,97 +274,6 @@ describe('POST /api/research/save-leads — deduplication', () => {
     const body2 = await res2.json()
     expect(body2.saved).toBe(0)
     expect(body2.skipped).toBe(1)
-  })
-})
-
-// ─── 4. POST /api/research/lookup — signal score in response ────────────────
-
-describe('POST /api/research/lookup — signal_score', () => {
-  it('returns a lead with signal_score and signal_reasons populated', async () => {
-    const uniqueUrl = `https://linkedin.com/in/signal-test-${Date.now()}`
-
-    const res = await authed('/api/research/lookup', {
-      method: 'POST',
-      body: JSON.stringify({
-        type: 'linkedin',
-        linkedinUrl: uniqueUrl,
-      }),
-    })
-
-    // 200 in mock mode, possibly 404 with real key
-    if (res.status !== 200) return
-
-    const body = await res.json()
-    if (body.cached) return // dedup hit, skip
-
-    expect(body.lead).toBeTruthy()
-    expect(body.lead.signal_score).toBeTruthy()
-    expect(['strong', 'medium', 'low']).toContain(body.lead.signal_score)
-    expect(Array.isArray(body.lead.signal_reasons)).toBe(true)
-    expect(body.lead.signal_reasons.length).toBeGreaterThan(0)
-  })
-
-  it('stores signal_score in the database', async () => {
-    const uniqueUrl = `https://linkedin.com/in/dbscore-test-${Date.now()}`
-
-    const res = await authed('/api/research/lookup', {
-      method: 'POST',
-      body: JSON.stringify({
-        type: 'linkedin',
-        linkedinUrl: uniqueUrl,
-      }),
-    })
-
-    if (res.status !== 200) return
-
-    const body = await res.json()
-    if (body.cached) return
-
-    const { data: dbLead } = await admin
-      .from('leads')
-      .select('signal_score, signal_reasons')
-      .eq('id', body.lead.id)
-      .single()
-
-    expect(dbLead).toBeTruthy()
-    expect(dbLead!.signal_score).toBeTruthy()
-    expect(['strong', 'medium', 'low']).toContain(dbLead!.signal_score)
-    expect(Array.isArray(dbLead!.signal_reasons)).toBe(true)
-  })
-})
-
-// ─── 5. POST /api/research/save-leads — signal_score on enriched saves ──────
-
-describe('POST /api/research/save-leads — signal_score', () => {
-  it('sets signal_score on enriched ICP leads', async () => {
-    const res = await authed('/api/research/save-leads', {
-      method: 'POST',
-      body: JSON.stringify({
-        leads: [{
-          name: 'Score Test Person',
-          jobTitle: 'CFO',
-          companyName: 'ScoreCo',
-        }],
-      }),
-    })
-
-    expect(res.status).toBe(200)
-    const body = await res.json()
-
-    // Find the lead in DB
-    const { data: leads } = await admin
-      .from('leads')
-      .select('signal_score, signal_reasons, enriched_at')
-      .eq('user_id', testUserId)
-      .eq('full_name', 'Score Test Person')
-      .order('created_at', { ascending: false })
-      .limit(1)
-
-    // If enrichment succeeded, signal_score should be set
-    if (leads && leads.length > 0 && leads[0].enriched_at) {
-      expect(['strong', 'medium', 'low']).toContain(leads[0].signal_score)
-      expect(Array.isArray(leads[0].signal_reasons)).toBe(true)
-    }
   })
 })
 

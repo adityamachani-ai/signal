@@ -1,19 +1,18 @@
 "use client"
 
 import { useState, useEffect, useCallback, useImperativeHandle, forwardRef } from "react"
-import { Loader2 } from "lucide-react"
+import { Loader2, RefreshCw, X, Clock } from "lucide-react"
 import { ResultsTable, TableLead } from "./results-table"
 import type { SpecificLookupPayload } from "./top-bar"
 
 type TabType = 'linkedin' | 'email' | 'name'
 
 const INITIALS_COLORS = [
-  'bg-indigo-500', 'bg-violet-500', 'bg-emerald-500',
-  'bg-amber-500', 'bg-rose-500', 'bg-sky-500',
+  'bg-signal-accent-tint text-signal-accent-2',
 ]
 
-function getInitialsColor(name: string) {
-  return INITIALS_COLORS[name.charCodeAt(0) % INITIALS_COLORS.length]
+function getInitialsColor(_name: string) {
+  return INITIALS_COLORS[0]
 }
 
 function getInitials(first: string, last: string) {
@@ -22,9 +21,6 @@ function getInitials(first: string, last: string) {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function dbLeadToTableLead(lead: Record<string, any>): TableLead {
-  const signalMap: Record<string, TableLead['signalStrength']> = {
-    strong: 'strong', medium: 'some', low: 'low',
-  }
   return {
     id: lead.id,
     initials: getInitials(lead.first_name ?? '', lead.last_name ?? ''),
@@ -33,8 +29,6 @@ function dbLeadToTableLead(lead: Record<string, any>): TableLead {
     title: lead.job_title || '—',
     company: lead.company_name || '—',
     location: [lead.city, lead.country].filter(Boolean).join(', ') || '—',
-    signalStrength: signalMap[lead.signal_score] ?? 'low',
-    signals: Array.isArray(lead.signal_reasons) ? lead.signal_reasons : [],
     email: lead.email || undefined,
     phone: lead.phone_direct || lead.phone_mobile || undefined,
     linkedinUrl: lead.linkedin_url || undefined,
@@ -43,6 +37,7 @@ function dbLeadToTableLead(lead: Record<string, any>): TableLead {
     isAddedToList: !!lead.in_list,
     logoUrl: undefined,
     companyDomain: lead.company_domain || undefined,
+    enrichedAt: lead.enriched_at || undefined,
   }
 }
 
@@ -74,6 +69,12 @@ export const SpecificLead = forwardRef<SpecificLeadHandle, SpecificLeadProps>(
   const [successMessage, setSuccessMessage] = useState('')
   const [addingToList, setAddingToList] = useState(false)
   const [listError, setListError] = useState<string | null>(null)
+
+  // Cached lead popup state
+  const [cachedPopup, setCachedPopup] = useState<{
+    lead: Record<string, unknown>
+    payload: SpecificLookupPayload
+  } | null>(null)
 
   // Load existing enriched leads from DB on mount
   useEffect(() => {
@@ -107,7 +108,7 @@ export const SpecificLead = forwardRef<SpecificLeadHandle, SpecificLeadProps>(
     if (activeTab === 'name') { setFirstName(''); setLastName(''); setCompany('') }
   }
 
-  const doLookup = useCallback(async (payload: SpecificLookupPayload) => {
+  const doLookup = useCallback(async (payload: SpecificLookupPayload, force = false) => {
     if (loading) return
     setLoading(true)
     setError(null)
@@ -121,21 +122,21 @@ export const SpecificLead = forwardRef<SpecificLeadHandle, SpecificLeadProps>(
     const placeholder: TableLead = {
       id: tempId,
       initials: '...',
-      initialsColor: 'bg-indigo-500',
-      name: 'Looking up...',
+      initialsColor: 'bg-signal-accent-tint text-signal-accent-2',
+      name: force ? 'Refreshing...' : 'Looking up...',
       title: '—',
       company: '—',
       location: '—',
-      signalStrength: 'scanning',
-      signals: [],
     }
-    setLeads(prev => [placeholder, ...prev])
+    if (!force) {
+      setLeads(prev => [placeholder, ...prev])
+    }
 
     try {
       const res = await fetch('/api/research/lookup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, force }),
       })
       const data = await res.json()
 
@@ -155,20 +156,39 @@ export const SpecificLead = forwardRef<SpecificLeadHandle, SpecificLeadProps>(
       const realRow = dbLeadToTableLead(lead)
 
       if (data.cached) {
-        // Cached: remove temp row, highlight existing row in-place (don't move it)
-        setLeads(prev => {
-          const withoutTemp = prev.filter(l => l.id !== tempId)
-          const existingIdx = withoutTemp.findIndex(l => l.id === lead.id)
-          if (existingIdx >= 0) {
-            // Update in-place — don't reorder
-            return withoutTemp.map(l => l.id === lead.id ? realRow : l)
-          }
-          // Not in list yet (shouldn't happen, but handle gracefully)
-          return [realRow, ...withoutTemp]
-        })
+        // Cached: remove temp row, show popup asking user if they want to refresh
+        setLeads(prev => prev.filter(l => l.id !== tempId))
+        setCachedPopup({ lead, payload })
       } else {
-        // New: replace scanning placeholder in-place
-        setLeads(prev => prev.map(l => l.id === tempId ? realRow : l))
+        if (force) {
+          // Refresh: replace old entry (match by id, name, or linkedin) with fresh data
+          setLeads(prev => {
+            const match = (l: TableLead) =>
+              l.id === lead.id ||
+              (l.name === realRow.name && l.company === realRow.company) ||
+              (l.linkedinUrl && l.linkedinUrl === realRow.linkedinUrl)
+            const hasMatch = prev.some(match)
+            if (hasMatch) {
+              // Replace first match, remove any additional duplicates
+              let replaced = false
+              return prev.reduce<TableLead[]>((acc, l) => {
+                if (match(l)) {
+                  if (!replaced) { acc.push(realRow); replaced = true }
+                  // skip duplicates
+                } else {
+                  acc.push(l)
+                }
+                return acc
+              }, [])
+            }
+            return [realRow, ...prev]
+          })
+          setSuccessMessage('Lead refreshed with latest data')
+          setSuccessBanner(true)
+        } else {
+          // New: replace scanning placeholder in-place
+          setLeads(prev => prev.map(l => l.id === tempId ? realRow : l))
+        }
       }
 
       clearInputs()
@@ -197,31 +217,29 @@ export const SpecificLead = forwardRef<SpecificLeadHandle, SpecificLeadProps>(
   }), [doLookup, loading])
 
   const handleAddToList = useCallback(async (selectedIds: string[]) => {
-    setAddingToList(true)
-    setListError(null)
-    try {
-      const res = await fetch('/api/research/add-to-list', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ leadIds: selectedIds }),
-      })
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.error || 'Failed to add to list')
-      }
-      setLeads(prev => prev.map(l =>
-        selectedIds.includes(l.id) ? { ...l, isAddedToList: true } : l
-      ))
-      const count = selectedIds.length
-      setSuccessMessage(`${count} lead${count !== 1 ? 's' : ''} added to My List`)
-      setSuccessBanner(true)
-    } catch (err) {
-      setListError(err instanceof Error ? err.message : 'Failed to add leads — please try again')
-      setTimeout(() => setListError(null), 4000)
-    } finally {
-      setAddingToList(false)
-    }
+    // The ListPicker component now handles the API call directly.
+    // This callback just marks the leads as added in local state.
+    setLeads(prev => prev.map(l =>
+      selectedIds.includes(l.id) ? { ...l, isAddedToList: true } : l
+    ))
+    const count = selectedIds.length
+    setSuccessMessage(`${count} lead${count !== 1 ? 's' : ''} added to list`)
+    setSuccessBanner(true)
   }, [])
+
+  const handleRefreshLead = useCallback(async (leadId: string) => {
+    const lead = leads.find(l => l.id === leadId)
+    if (!lead) return
+
+    const payload: SpecificLookupPayload = lead.linkedinUrl
+      ? { type: 'linkedin', linkedinUrl: lead.linkedinUrl }
+      : { type: 'name', firstName: lead.name.split(' ')[0] ?? '', lastName: lead.name.split(' ').slice(1).join(' '), company: lead.company }
+
+    // Show scanning state on the lead being refreshed
+    setLeads(prev => prev.map(l => l.id === leadId ? { ...l } : l))
+
+    await doLookup(payload, true)
+  }, [leads, doLookup])
 
   const tabs: { key: TabType; label: string }[] = [
     { key: 'linkedin', label: 'LinkedIn URL' },
@@ -238,19 +256,77 @@ export const SpecificLead = forwardRef<SpecificLeadHandle, SpecificLeadProps>(
         </div>
       )}
 
+      {/* Cached lead popup */}
+      {cachedPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={() => setCachedPopup(null)}>
+          <div className="bg-signal-bg rounded-xl shadow-2xl w-[420px] overflow-hidden animate-in zoom-in-95 duration-150" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-signal-border">
+              <h3 className="text-[15px] font-semibold text-signal-text-1">Lead already exists</h3>
+              <button onClick={() => setCachedPopup(null)} className="p-1 hover:bg-signal-raised rounded-lg transition-colors">
+                <X className="w-4 h-4 text-signal-text-3" />
+              </button>
+            </div>
+            <div className="px-5 py-4">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-signal-accent-tint flex items-center justify-center text-signal-accent-2 text-[13px] font-semibold shrink-0">
+                  {((cachedPopup.lead.first_name as string)?.[0] ?? '').toUpperCase()}
+                  {((cachedPopup.lead.last_name as string)?.[0] ?? '').toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-[14px] font-medium text-signal-text-1">{cachedPopup.lead.full_name as string}</p>
+                  <p className="text-[13px] text-signal-text-3">{cachedPopup.lead.job_title as string} at {cachedPopup.lead.company_name as string}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-2.5 bg-[#FFF7ED] border border-[#FED7AA] rounded-lg mb-4">
+                <Clock className="w-4 h-4 text-[#EA580C] shrink-0" />
+                <span className="text-[13px] text-[#9A3412]">
+                  Data fetched {cachedPopup.lead.enriched_at
+                    ? new Date(cachedPopup.lead.enriched_at as string).toLocaleDateString('en-US', {
+                        month: 'short', day: 'numeric', year: 'numeric',
+                      })
+                    : 'previously'}
+                </span>
+              </div>
+              <p className="text-[13px] text-signal-text-3 mb-4">
+                This lead is already in your list. Would you like to refresh with the latest data?
+              </p>
+            </div>
+            <div className="flex gap-3 px-5 py-4 border-t border-signal-border bg-signal-surface">
+              <button
+                onClick={() => setCachedPopup(null)}
+                className="flex-1 h-9 border border-signal-border text-[13px] font-medium text-signal-text-2 rounded-lg hover:bg-signal-bg transition-colors"
+              >
+                Keep existing
+              </button>
+              <button
+                onClick={() => {
+                  const { payload } = cachedPopup
+                  setCachedPopup(null)
+                  doLookup(payload, true)
+                }}
+                className="flex-1 h-9 bg-signal-accent text-white text-[13px] font-medium rounded-lg hover:bg-signal-accent-2 transition-colors flex items-center justify-center gap-1.5"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                Refresh data
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Input panel */}
-      <div className="bg-white border border-[#E5E4E0] rounded-xl p-6">
+      <div className="bg-signal-bg border border-signal-border rounded-xl p-6">
 
         {/* Tab selector */}
-        <div className="flex gap-1 p-1 bg-[#F3F4F6] rounded-lg mb-5 w-fit">
+        <div className="flex gap-1 p-1 bg-signal-raised rounded-lg mb-5 w-fit">
           {tabs.map(tab => (
             <button
               key={tab.key}
               onClick={() => { setActiveTab(tab.key); setError(null) }}
               className={`px-3 py-1.5 text-[13px] font-medium rounded-md transition-colors ${
                 activeTab === tab.key
-                  ? 'bg-white text-[#1C1C1C] shadow-sm'
-                  : 'text-[#6B7280] hover:text-[#374151]'
+                  ? 'bg-signal-bg text-signal-text-1 shadow-sm'
+                  : 'text-signal-text-3 hover:text-signal-text-2'
               }`}
             >
               {tab.label}
@@ -261,7 +337,7 @@ export const SpecificLead = forwardRef<SpecificLeadHandle, SpecificLeadProps>(
         {/* LinkedIn tab */}
         {activeTab === 'linkedin' && (
           <div>
-            <label className="block text-[13px] font-medium text-[#374151] mb-1.5">
+            <label className="block text-[13px] font-medium text-signal-text-2 mb-1.5">
               LinkedIn profile URL
             </label>
             <input
@@ -270,10 +346,10 @@ export const SpecificLead = forwardRef<SpecificLeadHandle, SpecificLeadProps>(
               onChange={e => setLinkedinUrl(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleFindLead()}
               placeholder="https://www.linkedin.com/in/john-doe"
-              className="w-full h-10 px-3 border border-[#E5E4E0] rounded-lg text-[14px] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              className="w-full h-10 px-3 border border-signal-border rounded-lg text-[14px] placeholder:text-signal-text-4 focus:outline-none focus:border-signal-accent focus:shadow-[0_0_0_3px_rgba(79,70,229,0.08)] transition-shadow"
             />
             {linkedinUrl && !linkedinUrl.includes('linkedin.com/in/') && (
-              <p className="mt-1.5 text-[12px] text-amber-600">Paste the full URL — should contain /in/</p>
+              <p className="mt-1.5 text-[12px] text-[#92400E]">Paste the full URL — should contain /in/</p>
             )}
           </div>
         )}
@@ -281,7 +357,7 @@ export const SpecificLead = forwardRef<SpecificLeadHandle, SpecificLeadProps>(
         {/* Email tab */}
         {activeTab === 'email' && (
           <div>
-            <label className="block text-[13px] font-medium text-[#374151] mb-1.5">
+            <label className="block text-[13px] font-medium text-signal-text-2 mb-1.5">
               Work email address
             </label>
             <input
@@ -290,7 +366,7 @@ export const SpecificLead = forwardRef<SpecificLeadHandle, SpecificLeadProps>(
               onChange={e => setEmail(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleFindLead()}
               placeholder="john@acme.com"
-              className="w-full h-10 px-3 border border-[#E5E4E0] rounded-lg text-[14px] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              className="w-full h-10 px-3 border border-signal-border rounded-lg text-[14px] placeholder:text-signal-text-4 focus:outline-none focus:border-signal-accent focus:shadow-[0_0_0_3px_rgba(79,70,229,0.08)] transition-shadow"
             />
           </div>
         )}
@@ -300,35 +376,35 @@ export const SpecificLead = forwardRef<SpecificLeadHandle, SpecificLeadProps>(
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[13px] font-medium text-[#374151] mb-1.5">First name</label>
+                <label className="block text-[13px] font-medium text-signal-text-2 mb-1.5">First name</label>
                 <input
                   type="text"
                   value={firstName}
                   onChange={e => setFirstName(e.target.value)}
                   placeholder="Rahul"
-                  className="w-full h-10 px-3 border border-[#E5E4E0] rounded-lg text-[14px] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                  className="w-full h-10 px-3 border border-signal-border rounded-lg text-[14px] placeholder:text-signal-text-4 focus:outline-none focus:border-signal-accent focus:shadow-[0_0_0_3px_rgba(79,70,229,0.08)] transition-shadow"
                 />
               </div>
               <div>
-                <label className="block text-[13px] font-medium text-[#374151] mb-1.5">Last name</label>
+                <label className="block text-[13px] font-medium text-signal-text-2 mb-1.5">Last name</label>
                 <input
                   type="text"
                   value={lastName}
                   onChange={e => setLastName(e.target.value)}
                   placeholder="Sharma"
-                  className="w-full h-10 px-3 border border-[#E5E4E0] rounded-lg text-[14px] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                  className="w-full h-10 px-3 border border-signal-border rounded-lg text-[14px] placeholder:text-signal-text-4 focus:outline-none focus:border-signal-accent focus:shadow-[0_0_0_3px_rgba(79,70,229,0.08)] transition-shadow"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-[13px] font-medium text-[#374151] mb-1.5">Company</label>
+              <label className="block text-[13px] font-medium text-signal-text-2 mb-1.5">Company</label>
               <input
                 type="text"
                 value={company}
                 onChange={e => setCompany(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleFindLead()}
                 placeholder="HDFC Bank"
-                className="w-full h-10 px-3 border border-[#E5E4E0] rounded-lg text-[14px] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full h-10 px-3 border border-signal-border rounded-lg text-[14px] placeholder:text-signal-text-4 focus:outline-none focus:border-signal-accent focus:shadow-[0_0_0_3px_rgba(79,70,229,0.08)] transition-shadow"
               />
             </div>
           </div>
@@ -345,7 +421,7 @@ export const SpecificLead = forwardRef<SpecificLeadHandle, SpecificLeadProps>(
         <button
           onClick={handleFindLead}
           disabled={!isValid() || loading}
-          className="mt-4 h-10 px-5 bg-[#4F46E5] text-white text-[13px] font-medium rounded-lg hover:bg-[#4338CA] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          className="mt-4 h-10 px-5 bg-signal-accent text-white text-[13px] font-medium rounded-lg hover:bg-signal-accent-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
         >
           {loading ? (
             <>
@@ -360,17 +436,17 @@ export const SpecificLead = forwardRef<SpecificLeadHandle, SpecificLeadProps>(
 
       {/* Results table */}
       {initialLoading ? (
-        <div className="bg-white border border-[#E5E4E0] rounded-xl overflow-hidden">
+        <div className="bg-signal-bg border border-signal-border rounded-xl overflow-hidden">
           {/* Skeleton rows */}
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-4 px-4 h-[52px] border-b border-[#F3F4F6] last:border-0">
-              <div className="w-8 h-8 rounded-full bg-[#F3F4F6] animate-pulse shrink-0" />
+            <div key={i} className="flex items-center gap-4 px-4 h-[52px] border-b border-signal-border-faint last:border-0">
+              <div className="w-8 h-8 rounded-full bg-signal-raised animate-pulse shrink-0" />
               <div className="flex-1 space-y-1.5">
-                <div className="h-3 w-32 bg-[#F3F4F6] rounded animate-pulse" />
-                <div className="h-2.5 w-48 bg-[#F3F4F6] rounded animate-pulse" />
+                <div className="h-3 w-32 bg-signal-raised rounded animate-pulse" />
+                <div className="h-2.5 w-48 bg-signal-raised rounded animate-pulse" />
               </div>
-              <div className="h-3 w-20 bg-[#F3F4F6] rounded animate-pulse" />
-              <div className="h-3 w-16 bg-[#F3F4F6] rounded animate-pulse" />
+              <div className="h-3 w-20 bg-signal-raised rounded animate-pulse" />
+              <div className="h-3 w-16 bg-signal-raised rounded animate-pulse" />
             </div>
           ))}
         </div>
@@ -379,8 +455,9 @@ export const SpecificLead = forwardRef<SpecificLeadHandle, SpecificLeadProps>(
           leads={leads}
           variant="specific"
           emptyStateMessage="Look up a lead above — results will appear here"
-          actionButtonLabel={addingToList ? "Adding…" : "Add to My List"}
+          actionButtonLabel="Add to List"
           onActionClick={handleAddToList}
+          onRefreshLead={handleRefreshLead}
           showConfirmationBanner={successBanner}
           confirmationMessage={successMessage}
           onDismissBanner={() => setSuccessBanner(false)}
