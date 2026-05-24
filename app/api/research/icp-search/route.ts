@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUser } from '@/lib/auth'
 import { resolveCity } from '@/lib/geocode'
+import { checkCredit, consumeCredit } from '@/lib/credits'
 import type { ParsedFilters } from '../icp-parse/route'
 
 const LUSHA_API_KEY = process.env.LUSHA_API_KEY
@@ -132,6 +133,14 @@ export async function POST(request: NextRequest) {
     } satisfies ICPSearchResponse)
   }
 
+  const creditCheck = await checkCredit(user!.id, 'icp_searches')
+  if (!creditCheck.ok) {
+    return NextResponse.json(
+      { error: creditCheck.code, message: creditCheck.message, used: creditCheck.used, limit: creditCheck.limit },
+      { status: 402 }
+    )
+  }
+
   const lushaBody = await buildLushaBody(body.filters, page, fetchSize)
 
   let res: Response
@@ -187,6 +196,8 @@ export async function POST(request: NextRequest) {
   }))
 
   const deduped = dedupeByCompany(rawResults, maxPerCompany).slice(0, limit)
+
+  await consumeCredit(user!.id, 'icp_searches')
 
   return NextResponse.json({
     results: deduped,

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { lookupContact, LushaApiError } from '@/lib/lusha'
 import { getAuthUser } from '@/lib/auth'
 import { createServiceClient } from '@/lib/supabase/service'
+import { checkCredit, consumeCredit } from '@/lib/credits'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -16,7 +17,7 @@ export interface BulkRow {
   jobTitle?: string // display-only from CSV, overridden by Lusha if found
 }
 
-export type RowStatus = 'enriched' | 'duplicate' | 'already_saved' | 'missing' | 'skipped' | 'rate_limited' | 'error'
+export type RowStatus = 'enriched' | 'duplicate' | 'already_saved' | 'missing' | 'skipped' | 'rate_limited' | 'error' | 'credit_limit'
 
 export interface BulkRowResult {
   rowIndex: number
@@ -74,6 +75,16 @@ export async function POST(request: NextRequest) {
   }
 
   const supabase = createServiceClient()
+
+  // Credit check — must have at least 1 enrichment remaining
+  const creditCheck = await checkCredit(user!.id, 'enrichments')
+  if (!creditCheck.ok) {
+    return NextResponse.json(
+      { error: creditCheck.code, message: creditCheck.message, used: creditCheck.used, limit: creditCheck.limit },
+      { status: 402 }
+    )
+  }
+  let lushaCallsLeft = creditCheck.remaining
 
   // ── Step 1: Bulk dedup check for rows that have linkedin_url or email ──────
   // One query each — cheaper than N individual queries
@@ -167,6 +178,16 @@ export async function POST(request: NextRequest) {
           hasPhone: false, lookupMethod: 'none',
         }}
       }
+
+      // ── Credit gate: stop making Lusha calls when limit reached ───────────
+      if (lushaCallsLeft <= 0) {
+        return { kind: 'resolved', result: {
+          rowIndex: row.rowIndex, status: 'credit_limit' as const, leadId: '',
+          name: displayName, jobTitle: row.jobTitle ?? '', company,
+          email: email ?? '', phone: '', location: '', hasPhone: false, lookupMethod: 'none',
+        }}
+      }
+      lushaCallsLeft--
 
       // ── Call Lusha ─────────────────────────────────────────────────────────
       try {
@@ -305,6 +326,9 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  const enrichedCount = results.filter(r => r.status === 'enriched').length
+  if (enrichedCount > 0) await consumeCredit(user!.id, 'enrichments', enrichedCount)
+
   // ── Summary counts ─────────────────────────────────────────────────────────
   const summary = {
     enriched: results.filter(r => r.status === 'enriched').length,
@@ -314,6 +338,7 @@ export async function POST(request: NextRequest) {
     skipped: results.filter(r => r.status === 'skipped').length,
     rate_limited: results.filter(r => r.status === 'rate_limited').length,
     error: results.filter(r => r.status === 'error').length,
+    credit_limit: results.filter(r => r.status === 'credit_limit').length,
   }
 
   return NextResponse.json({ results, summary })

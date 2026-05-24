@@ -28,8 +28,17 @@ export function Sidebar({ activePage = "research" }: SidebarProps) {
   const supabase = createClient()
   const [user, setUser] = useState<User | null>(null)
 
+  interface CreditsData {
+    is_admin: boolean
+    icp_searches: { used: number; limit: number }
+    enrichments:  { used: number; limit: number }
+    briefs:       { used: number; limit: number }
+  }
+  const [credits, setCredits] = useState<CreditsData | null>(null)
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => setUser(user))
+    fetch('/api/credits').then(r => r.ok ? r.json() : null).then(d => d && setCredits(d))
   }, [])
 
   const handleSignOut = async () => {
@@ -68,6 +77,42 @@ export function Sidebar({ activePage = "research" }: SidebarProps) {
           ))}
         </nav>
       </div>
+
+      {/* Credits widget */}
+      {credits && (
+        <div className="mx-2 mb-1 shrink-0">
+          <div className="px-3 py-2.5 rounded-lg bg-signal-surface border border-signal-border">
+            {credits.is_admin ? (
+              <p className="text-[10px] text-signal-text-3 font-medium">Admin · Unlimited</p>
+            ) : (
+              <>
+                <p className="text-[10px] font-medium text-signal-text-3 mb-2">Usage</p>
+                {([
+                  { label: 'ICP Searches', ...credits.icp_searches },
+                  { label: 'Enrichments',  ...credits.enrichments  },
+                  { label: 'Briefs',       ...credits.briefs        },
+                ] as Array<{ label: string; used: number; limit: number }>).map(({ label, used, limit }) => (
+                  <div key={label} className="mb-1.5 last:mb-0">
+                    <div className="flex justify-between items-center mb-0.5">
+                      <span className="text-[10px] text-signal-text-4">{label}</span>
+                      <span className={cn(
+                        "text-[10px] font-medium tabular-nums",
+                        used >= limit ? "text-red-500" : "text-signal-text-3"
+                      )}>{used}/{limit}</span>
+                    </div>
+                    <div className="h-0.5 rounded-full bg-signal-raised overflow-hidden">
+                      <div
+                        className={cn("h-full rounded-full", used >= limit ? "bg-red-400" : "bg-signal-accent")}
+                        style={{ width: `${Math.min((used / limit) * 100, 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Settings link */}
       <div className="px-2 pb-1 shrink-0">

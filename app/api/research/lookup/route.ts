@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { lookupContact, LookupInput, LushaApiError } from '@/lib/lusha'
 import { getAuthUser } from '@/lib/auth'
 import { createServiceClient } from '@/lib/supabase/service'
+import { checkCredit, consumeCredit } from '@/lib/credits'
 
 const CACHE_MAX_AGE_DAYS = 30
 
@@ -156,7 +157,7 @@ export async function POST(request: NextRequest) {
   let error
 
   if (existingId) {
-    // Update existing lead with fresh data
+    // Update existing lead with fresh data — no credit consumed
     const result = await supabase
       .from('leads')
       .update(leadData)
@@ -166,6 +167,14 @@ export async function POST(request: NextRequest) {
     lead = result.data
     error = result.error
   } else {
+    // New lead — check credit before inserting
+    const creditCheck = await checkCredit(user!.id, 'enrichments')
+    if (!creditCheck.ok) {
+      return NextResponse.json(
+        { error: creditCheck.code, message: creditCheck.message, used: creditCheck.used, limit: creditCheck.limit },
+        { status: 402 }
+      )
+    }
     const result = await supabase
       .from('leads')
       .insert(leadData)
@@ -173,6 +182,7 @@ export async function POST(request: NextRequest) {
       .single()
     lead = result.data
     error = result.error
+    if (!error && lead) await consumeCredit(user!.id, 'enrichments')
   }
 
   if (error) {

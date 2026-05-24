@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { getAuthUser } from '@/lib/auth'
 import { createServiceClient } from '@/lib/supabase/service'
 import { runResearchAgent } from '@/lib/research-agent'
+import { checkCredit, consumeCredit } from '@/lib/credits'
 import {
   generateWhoTheyAre,
   generatePainMap,
@@ -52,6 +53,17 @@ export async function POST(request: NextRequest) {
     .select('problem, for_who, different, value_props, competitors, tone, never_use')
     .eq('user_id', user!.id)
     .single()
+
+  // ─── Credit check — before starting expensive generation ─────────────────
+
+  const creditCheck = await checkCredit(user!.id, 'briefs')
+  if (!creditCheck.ok) {
+    return new Response(
+      JSON.stringify({ error: creditCheck.code, message: creditCheck.message, used: creditCheck.used, limit: creditCheck.limit }),
+      { status: 402, headers: { 'Content-Type': 'application/json' } }
+    )
+  }
+  await consumeCredit(user!.id, 'briefs')
 
   // ─── SSE stream ───────────────────────────────────────────────────────────
 
