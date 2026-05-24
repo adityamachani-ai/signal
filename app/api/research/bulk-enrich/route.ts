@@ -76,15 +76,18 @@ export async function POST(request: NextRequest) {
 
   const supabase = createServiceClient()
 
-  // Credit check — must have at least 1 enrichment remaining
-  const creditCheck = await checkCredit(user!.id, 'enrichments')
-  if (!creditCheck.ok) {
-    return NextResponse.json(
-      { error: creditCheck.code, message: creditCheck.message, used: creditCheck.used, limit: creditCheck.limit },
-      { status: 402 }
-    )
+  // Credit check — must have at least 1 enrichment remaining (only when real Lusha API is active)
+  let lushaCallsLeft = Infinity
+  if (process.env.LUSHA_API_KEY) {
+    const creditCheck = await checkCredit(user!.id, 'enrichments')
+    if (!creditCheck.ok) {
+      return NextResponse.json(
+        { error: creditCheck.code, message: creditCheck.message, used: creditCheck.used, limit: creditCheck.limit },
+        { status: 402 }
+      )
+    }
+    lushaCallsLeft = creditCheck.remaining
   }
-  let lushaCallsLeft = creditCheck.remaining
 
   // ── Step 1: Bulk dedup check for rows that have linkedin_url or email ──────
   // One query each — cheaper than N individual queries
@@ -327,7 +330,7 @@ export async function POST(request: NextRequest) {
   }
 
   const enrichedCount = results.filter(r => r.status === 'enriched').length
-  if (enrichedCount > 0) await consumeCredit(user!.id, 'enrichments', enrichedCount)
+  if (enrichedCount > 0 && process.env.LUSHA_API_KEY) await consumeCredit(user!.id, 'enrichments', enrichedCount)
 
   // ── Summary counts ─────────────────────────────────────────────────────────
   const summary = {

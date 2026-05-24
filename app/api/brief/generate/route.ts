@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       { status: 402, headers: { 'Content-Type': 'application/json' } }
     )
   }
-  await consumeCredit(user!.id, 'briefs')
+  if (process.env.LLM_API_KEY || process.env.LLM_BASE_URL) await consumeCredit(user!.id, 'briefs')
 
   // ─── SSE stream ───────────────────────────────────────────────────────────
 

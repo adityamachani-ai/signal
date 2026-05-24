@@ -167,13 +167,15 @@ export async function POST(request: NextRequest) {
     lead = result.data
     error = result.error
   } else {
-    // New lead — check credit before inserting
-    const creditCheck = await checkCredit(user!.id, 'enrichments')
-    if (!creditCheck.ok) {
-      return NextResponse.json(
-        { error: creditCheck.code, message: creditCheck.message, used: creditCheck.used, limit: creditCheck.limit },
-        { status: 402 }
-      )
+    // New lead — check credit before inserting (only when real Lusha API is active)
+    if (process.env.LUSHA_API_KEY) {
+      const creditCheck = await checkCredit(user!.id, 'enrichments')
+      if (!creditCheck.ok) {
+        return NextResponse.json(
+          { error: creditCheck.code, message: creditCheck.message, used: creditCheck.used, limit: creditCheck.limit },
+          { status: 402 }
+        )
+      }
     }
     const result = await supabase
       .from('leads')
@@ -182,7 +184,7 @@ export async function POST(request: NextRequest) {
       .single()
     lead = result.data
     error = result.error
-    if (!error && lead) await consumeCredit(user!.id, 'enrichments')
+    if (!error && lead && process.env.LUSHA_API_KEY) await consumeCredit(user!.id, 'enrichments')
   }
 
   if (error) {
