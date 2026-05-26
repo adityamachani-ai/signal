@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Search, List, BookMarked, Settings, LogOut } from "lucide-react"
+import { Search, List, BookMarked, Settings, LogOut, Activity } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -18,7 +18,7 @@ function getInitials(user: User): string {
 }
 
 const navigationItems = [
-  { icon: Search, label: "Research", id: "research" as const, href: "/" },
+  { icon: Search, label: "Research", id: "research" as const, href: "/research" },
   { icon: List, label: "Lists", id: "lists" as const, href: "/lists" },
   { icon: BookMarked, label: "Playbook", id: "playbook" as const, href: "/playbook" },
 ]
@@ -53,7 +53,10 @@ export function Sidebar({ activePage = "research" }: SidebarProps) {
   return (
     <aside className="fixed left-0 top-0 w-[200px] h-screen bg-signal-bg border-r border-signal-border flex flex-col z-20">
       {/* Wordmark */}
-      <div className="h-[52px] flex items-center px-5 border-b border-signal-border shrink-0">
+      <div className="h-14 flex items-center px-4 gap-2 border-b border-signal-border shrink-0">
+        <div className="w-6 h-6 rounded-md bg-indigo-600 flex items-center justify-center shrink-0">
+          <Activity className="w-3.5 h-3.5 text-white" />
+        </div>
         <span className="text-[15px] font-semibold text-signal-text-1 tracking-tight">Signal</span>
       </div>
 

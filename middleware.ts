@@ -9,6 +9,24 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
   if (isPublicRoute) return NextResponse.next({ request })
 
+  // Marketing landing page — public, but redirect authenticated users to /research
+  if (pathname === "/") {
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { cookies: { getAll: () => request.cookies.getAll(), setAll: () => {} } }
+    )
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const url = request.nextUrl.clone()
+        url.pathname = "/research"
+        return NextResponse.redirect(url)
+      }
+    } catch { /* unauthenticated — show landing page */ }
+    return NextResponse.next({ request })
+  }
+
   // Skip all _next internal routes (HMR, static, image, etc.)
   if (pathname.startsWith('/_next')) return NextResponse.next({ request })
 
